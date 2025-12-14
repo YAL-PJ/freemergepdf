@@ -9,8 +9,9 @@ class AdvancedPDFMerger {
     // Configuration
     this.config = {
       maxPagesInMemory: 100,
-      thumbnailScale: 1.5,
-      jpegQuality: 0.8,
+      thumbnailScale: 1.2,    // lighter thumbnails for faster render
+      jpegQuality: 0.7,       // lighter thumbnails for faster render
+      maxPreRenderPages: 120, // cap background pre-rendering to avoid memory spikes
       ...options
     };
 
@@ -37,6 +38,7 @@ class AdvancedPDFMerger {
     this.gridEl = null;
     this.statusEl = null;
     this.scrollContainer = null;
+    this.preRenderStarted = false;
   }
 
   /**
@@ -58,6 +60,8 @@ class AdvancedPDFMerger {
       // Store files and extract pages
       this.files = uploadedFiles;
       await this.extractAllPages();
+      // Warm the thumbnail cache in the background (lightweight + capped)
+      this.startBackgroundThumbnailPreRender();
       
       // Render UI
       this.render();
@@ -194,8 +198,7 @@ class AdvancedPDFMerger {
     ctx.fillStyle = '#9ca3af';
     ctx.font = '14px sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Unable to', 100, 130);
-    ctx.fillText('render', 100, 150);
+    ctx.fillText('Rendering...', 100, 145);
     
     return canvas.toDataURL();
   }
@@ -556,6 +559,27 @@ class AdvancedPDFMerger {
     this.pageMap.clear();
     this.thumbnailCache.clear();
     this.containerEl.innerHTML = '';
+  }
+
+  /**
+   * Pre-render a limited number of thumbnails in the background after upload
+   * to speed up initial advanced sort experience without heavy memory use.
+   */
+  async startBackgroundThumbnailPreRender() {
+    if (this.preRenderStarted || !this.pages.length) return;
+    this.preRenderStarted = true;
+
+    const limit = Math.min(this.config.maxPreRenderPages, this.pages.length);
+
+    for (let i = 0; i < limit; i++) {
+      try {
+        await this.renderThumbnail(this.pages[i]);
+      } catch (error) {
+        console.warn('Background thumbnail render failed for page', i, error);
+      }
+      // Yield to keep UI responsive
+      await new Promise(resolve => setTimeout(resolve, 5));
+    }
   }
 }
 
