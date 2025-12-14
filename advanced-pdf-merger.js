@@ -36,6 +36,7 @@ class AdvancedPDFMerger {
     this.legendEl = null;
     this.gridEl = null;
     this.statusEl = null;
+    this.scrollContainer = null;
   }
 
   /**
@@ -47,6 +48,9 @@ class AdvancedPDFMerger {
       console.error('Container not found:', containerSelector);
       return false;
     }
+
+    // Find the scrollable container (the modal content), fallback to the grid container itself
+    this.scrollContainer = this.containerEl.closest('.advanced-merge-content') || this.containerEl;
 
     try {
       this.showStatus('Extracting pages from PDFs...');
@@ -248,6 +252,7 @@ class AdvancedPDFMerger {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     e.target.closest('.page-card')?.classList.add('drag-over');
+    this.handleAutoScroll(e);
   }
 
   /**
@@ -324,6 +329,28 @@ class AdvancedPDFMerger {
       card.classList.remove('drag-over');
     });
     this.draggedIndex = null;
+  }
+
+  /**
+   * Auto-scroll the modal content when dragging near edges
+   */
+  handleAutoScroll(e) {
+    const container = this.scrollContainer;
+    if (!container || !e.clientY) return;
+
+    const rect = container.getBoundingClientRect();
+    const margin = 80; // px from edge to trigger scroll
+    const speed = 20;  // px per dragover event
+    const y = e.clientY;
+
+    if (y < rect.top + margin && container.scrollTop > 0) {
+      container.scrollTop = Math.max(0, container.scrollTop - speed);
+    } else if (y > rect.bottom - margin) {
+      const maxScroll = container.scrollHeight - container.clientHeight;
+      if (container.scrollTop < maxScroll) {
+        container.scrollTop = Math.min(maxScroll, container.scrollTop + speed);
+      }
+    }
   }
 
   /**
