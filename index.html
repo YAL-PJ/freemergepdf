@@ -1078,6 +1078,7 @@
         let advancedMerger = null; // Advanced merger instance
         let advancedMergerPrewarmKey = '';
         let advancedMergerPrewarmPromise = null;
+        let advancedPageCountListenerAttached = false;
 
         // ===== MODE TOGGLE =====
         function toggleMode() {
@@ -1098,6 +1099,9 @@
                     advancedMerger.destroy();
                     advancedMerger = null;
                 }
+                // Page count display reset
+                const pageCountEl = document.getElementById('pageCount');
+                if (pageCountEl) pageCountEl.textContent = '0';
             }
         }
 
@@ -1213,6 +1217,7 @@
             if (hasFiles) {
                 primeAdvancedMergeIfReady(files);
             }
+            attachPageCountListener();
         }
 
         // ===== EXPANDED MODE - FILE HANDLING =====
@@ -1262,6 +1267,7 @@
             updateDocCount();
             updateExpandedMergeButton();
             primeAdvancedMergeIfReady(expandedFiles);
+            attachPageCountListener();
         }
 
         function renderPdfList() {
@@ -1313,6 +1319,7 @@
             updateDocCount();
             updateExpandedMergeButton();
             primeAdvancedMergeIfReady(expandedFiles);
+            attachPageCountListener();
         }
 
         function updateDocCount() {
@@ -1384,6 +1391,20 @@
         // ===== ADVANCED MERGE PREWARM HELPERS =====
         function buildFilesKey(files) {
             return files.map(f => `${f.name}-${f.size}-${f.lastModified || 0}`).join('|');
+        }
+
+        function attachPageCountListener() {
+            if (advancedPageCountListenerAttached) return;
+            const container = document.getElementById('advancedMergeContent');
+            if (!container) return;
+
+            container.addEventListener('pagecountchange', (e) => {
+                const count = e.detail?.count ?? 0;
+                const pageCountEl = document.getElementById('pageCount');
+                if (pageCountEl) pageCountEl.textContent = count;
+            });
+
+            advancedPageCountListenerAttached = true;
         }
 
         function getAdvancedMergerInstance() {

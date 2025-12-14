@@ -223,6 +223,7 @@ class AdvancedPDFMerger {
       <div class="page-card-content" style="background-image: url('${thumbnail}')">
         <div class="page-number">Page ${pageData.pageNumber}</div>
         <div class="file-name">${this.truncateFileName(pageData.fileName)}</div>
+        <button class="page-card-delete" aria-label="Remove page" title="Remove page">×</button>
       </div>
     `;
 
@@ -237,6 +238,16 @@ class AdvancedPDFMerger {
 
     // Touch support for mobile
     this.addTouchSupport(card, index);
+
+    // Delete button
+    const deleteBtn = card.querySelector('.page-card-delete');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.deletePage(index);
+      });
+    }
 
     return card;
   }
@@ -334,6 +345,21 @@ class AdvancedPDFMerger {
       card.classList.remove('drag-over');
     });
     this.draggedIndex = null;
+  }
+
+  /**
+   * Delete a page and refresh the grid
+   */
+  deletePage(index) {
+    if (index < 0 || index >= this.pages.length) return;
+    const page = this.pages[index];
+    if (page) {
+      this.pageMap.delete(page.id);
+    }
+    this.pages.splice(index, 1);
+    this.renderGrid();
+    this.showStatus('Page removed');
+    this.notifyPageCountChange();
   }
 
   /**
@@ -456,6 +482,8 @@ class AdvancedPDFMerger {
     // Now render thumbnails in the background, one by one
     this.cancelRender = false;
     this.renderThumbnailsInBackground(grid);
+
+    this.notifyPageCountChange();
   }
 
   /**
@@ -517,6 +545,7 @@ class AdvancedPDFMerger {
     });
     this.renderGrid();
     this.showStatus('Order reset to original');
+    this.notifyPageCountChange();
   }
 
   /**
@@ -564,6 +593,7 @@ class AdvancedPDFMerger {
     this.pageMap.clear();
     this.thumbnailCache.clear();
     this.containerEl.innerHTML = '';
+    this.notifyPageCountChange();
   }
 
   /**
@@ -594,6 +624,17 @@ class AdvancedPDFMerger {
    */
   cancelThumbnailRendering() {
     this.cancelRender = true;
+  }
+
+  /**
+   * Notify host (modal) about page count changes
+   */
+  notifyPageCountChange() {
+    if (!this.containerEl) return;
+    const event = new CustomEvent('pagecountchange', {
+      detail: { count: this.pages.length }
+    });
+    this.containerEl.dispatchEvent(event);
   }
 }
 
