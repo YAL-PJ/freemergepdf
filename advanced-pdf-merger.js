@@ -39,6 +39,7 @@ class AdvancedPDFMerger {
     this.statusEl = null;
     this.scrollContainer = null;
     this.preRenderStarted = false;
+    this.cancelRender = false;
   }
 
   /**
@@ -53,6 +54,7 @@ class AdvancedPDFMerger {
 
     // Find the scrollable container (the modal content), fallback to the grid container itself
     this.scrollContainer = this.containerEl.closest('.advanced-merge-content') || this.containerEl;
+    this.cancelRender = false;
 
     try {
       this.showStatus('Extracting pages from PDFs...');
@@ -452,6 +454,7 @@ class AdvancedPDFMerger {
     this.containerEl.appendChild(grid);
 
     // Now render thumbnails in the background, one by one
+    this.cancelRender = false;
     this.renderThumbnailsInBackground(grid);
   }
 
@@ -462,6 +465,7 @@ class AdvancedPDFMerger {
     const cards = grid.querySelectorAll('.page-card');
     
     for (let i = 0; i < this.pages.length; i++) {
+      if (this.cancelRender) break;
       const pageData = this.pages[i];
       const card = cards[i];
 
@@ -554,6 +558,7 @@ class AdvancedPDFMerger {
    * Cleanup (free memory)
    */
   destroy() {
+    this.cancelRender = true;
     this.pages = [];
     this.files = [];
     this.pageMap.clear();
@@ -568,10 +573,12 @@ class AdvancedPDFMerger {
   async startBackgroundThumbnailPreRender() {
     if (this.preRenderStarted || !this.pages.length) return;
     this.preRenderStarted = true;
+    this.cancelRender = false;
 
     const limit = Math.min(this.config.maxPreRenderPages, this.pages.length);
 
     for (let i = 0; i < limit; i++) {
+      if (this.cancelRender) break;
       try {
         await this.renderThumbnail(this.pages[i]);
       } catch (error) {
@@ -580,6 +587,13 @@ class AdvancedPDFMerger {
       // Yield to keep UI responsive
       await new Promise(resolve => setTimeout(resolve, 5));
     }
+  }
+
+  /**
+   * Stop any ongoing thumbnail rendering (used when merging immediately)
+   */
+  cancelThumbnailRendering() {
+    this.cancelRender = true;
   }
 }
 

@@ -1076,6 +1076,8 @@
         const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         let expandedFiles = []; // Store file objects for expanded mode
         let advancedMerger = null; // Advanced merger instance
+        let advancedMergerPrewarmKey = '';
+        let advancedMergerPrewarmPromise = null;
 
         // ===== MODE TOGGLE =====
         function toggleMode() {
@@ -1091,6 +1093,11 @@
                 document.getElementById('pdfList').innerHTML = '';
                 updateDocCount();
                 updateExpandedMergeButton();
+                advancedMergerPrewarmKey = '';
+                if (advancedMerger) {
+                    advancedMerger.destroy();
+                    advancedMerger = null;
+                }
             }
         }
 
@@ -1202,6 +1209,10 @@
             }
 
             checkMemoryWarning(files, 'simpleWarning');
+            // Prime advanced merge thumbnails in the background when both simple files are ready
+            if (hasFiles) {
+                primeAdvancedMergeIfReady(files);
+            }
         }
 
         // ===== EXPANDED MODE - FILE HANDLING =====
@@ -1250,6 +1261,7 @@
             renderPdfList();
             updateDocCount();
             updateExpandedMergeButton();
+            primeAdvancedMergeIfReady(expandedFiles);
         }
 
         function renderPdfList() {
@@ -1300,6 +1312,7 @@
             renderPdfList();
             updateDocCount();
             updateExpandedMergeButton();
+            primeAdvancedMergeIfReady(expandedFiles);
         }
 
         function updateDocCount() {
@@ -1365,6 +1378,67 @@
                 warning.classList.add('show');
             } else {
                 warning.classList.remove('show');
+            }
+        }
+
+        // ===== ADVANCED MERGE PREWARM HELPERS =====
+        function buildFilesKey(files) {
+            return files.map(f => `${f.name}-${f.size}-${f.lastModified || 0}`).join('|');
+        }
+
+        function getAdvancedMergerInstance() {
+            if (!advancedMerger) {
+                advancedMerger = new AdvancedPDFMerger({
+                    maxPagesInMemory: 100,
+                    thumbnailScale: 1.2,
+                    jpegQuality: 0.7,
+                    maxPreRenderPages: 120
+                });
+            }
+            return advancedMerger;
+        }
+
+        async function ensureAdvancedPrepared(files) {
+            if (!files || files.length < 2) return null;
+
+            const key = buildFilesKey(files);
+            if (advancedMergerPrewarmPromise) {
+                await advancedMergerPrewarmPromise;
+            }
+
+            if (advancedMerger && advancedMergerPrewarmKey === key && advancedMerger.pages && advancedMerger.pages.length) {
+                return advancedMerger;
+            }
+
+            // New set of files: reset and warm thumbnails in the background
+            if (advancedMerger) {
+                advancedMerger.destroy();
+                advancedMerger = null;
+            }
+
+            const merger = getAdvancedMergerInstance();
+            advancedMergerPrewarmKey = key;
+
+            const container = document.getElementById('advancedMergeContent');
+            if (!container) return null;
+
+            container.innerHTML = '';
+            advancedMergerPrewarmPromise = merger.initialize(files, '#advancedMergeContent')
+                .catch((err) => {
+                    console.error('Advanced merge prewarm failed:', err);
+                    advancedMergerPrewarmKey = '';
+                })
+                .finally(() => {
+                    advancedMergerPrewarmPromise = null;
+                });
+
+            await advancedMergerPrewarmPromise;
+            return merger;
+        }
+
+        function primeAdvancedMergeIfReady(files) {
+            if (files && files.length >= 2) {
+                ensureAdvancedPrepared(files);
             }
         }
 
@@ -1449,7 +1523,7 @@
         }
 
         // ===== ADVANCED MERGE FUNCTIONS =====
-        function openAdvancedSortFromSimple() {
+        async function openAdvancedSortFromSimple() {
             const file1 = document.getElementById('file1').files[0];
             const file2 = document.getElementById('file2').files[0];
 
@@ -1461,28 +1535,18 @@
             // Set expandedFiles for advanced merger
             expandedFiles = [file1, file2];
 
-            // Open modal
-            document.getElementById('advancedMergeModal').classList.add('active');
-
             // Set default filename
             const defaultName = generateDefaultFilename([file1, file2]);
             document.getElementById('customFilename').value = defaultName;
 
-            advancedMerger = new AdvancedPDFMerger({
-                maxPagesInMemory: 100,
-                thumbnailScale: 1.5,
-                jpegQuality: 0.8
-            });
+            await ensureAdvancedPrepared(expandedFiles);
 
-            advancedMerger.initialize(expandedFiles, '#advancedMergeContent')
-                .then(success => {
-                    if (success) {
-                        document.getElementById('pageCount').textContent = advancedMerger.pages.length;
-                    }
-                });
+            // Open modal once prewarmed (or immediately if already ready)
+            document.getElementById('advancedMergeModal').classList.add('active');
+            document.getElementById('pageCount').textContent = advancedMerger?.pages?.length || 0;
         }
 
-        function openAdvancedSort() {
+        async function openAdvancedSort() {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
             
             if (!isExpanded) {
@@ -1495,34 +1559,19 @@
                 return;
             }
 
-            document.getElementById('advancedMergeModal').classList.add('active');
-
             // Set default filename
             const defaultName = generateDefaultFilename(expandedFiles);
             document.getElementById('customFilename').value = defaultName;
 
-            advancedMerger = new AdvancedPDFMerger({
-                maxPagesInMemory: 100,
-                thumbnailScale: 1.5,
-                jpegQuality: 0.8
-            });
+            await ensureAdvancedPrepared(expandedFiles);
 
-            advancedMerger.initialize(expandedFiles, '#advancedMergeContent')
-                .then(success => {
-                    if (success) {
-                        document.getElementById('pageCount').textContent = advancedMerger.pages.length;
-                    }
-                });
+            document.getElementById('advancedMergeModal').classList.add('active');
+            document.getElementById('pageCount').textContent = advancedMerger?.pages?.length || 0;
         }
 
         function closeAdvancedSort() {
             const modal = document.getElementById('advancedMergeModal');
             modal.classList.remove('active');
-
-            if (advancedMerger) {
-                advancedMerger.destroy();
-                advancedMerger = null;
-            }
         }
 
         function resetPageOrder() {
@@ -1546,6 +1595,11 @@
             const btn = document.getElementById('expandedMergeBtn');
             btn.classList.add('loading');
             btn.disabled = true;
+
+            // Stop thumbnail rendering to prioritize merge
+            if (advancedMerger && typeof advancedMerger.cancelThumbnailRendering === 'function') {
+                advancedMerger.cancelThumbnailRendering();
+            }
 
             const statusElement = document.getElementById('expandedStatus') || 
                                 document.createElement('div');
@@ -1621,6 +1675,11 @@
                 : [document.getElementById('file1').files[0], document.getElementById('file2').files[0]].filter(Boolean);
 
             if (files.length < 2) return;
+
+            // Stop any background thumbnail rendering to prioritize merge
+            if (advancedMerger && typeof advancedMerger.cancelThumbnailRendering === 'function') {
+                advancedMerger.cancelThumbnailRendering();
+            }
 
             const btn = isExpanded ? document.getElementById('expandedMergeBtn') : document.getElementById('simpleMergeBtn');
             btn.classList.add('loading');
