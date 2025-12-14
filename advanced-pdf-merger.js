@@ -701,7 +701,13 @@ class AdvancedPDFMerger {
     const cardRect = targetCard.getBoundingClientRect();
     const indicatorWidth = 4;
     const isAfter = e.clientY > cardRect.top + cardRect.height / 2;
-    const left = cardRect.left - gridRect.left + (isAfter ? cardRect.width : 0) - indicatorWidth / 2;
+
+    const styles = window.getComputedStyle(this.gridEl);
+    const gap = parseFloat(styles.columnGap || '0') || 0;
+    const offset = gap / 2;
+
+    const baseLeft = isAfter ? cardRect.right - gridRect.left : cardRect.left - gridRect.left;
+    const left = baseLeft + (isAfter ? offset : -offset) - indicatorWidth / 2;
     const top = cardRect.top - gridRect.top;
 
     this.dropIndicator.style.height = `${cardRect.height}px`;
