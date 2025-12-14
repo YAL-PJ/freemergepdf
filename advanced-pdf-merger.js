@@ -697,8 +697,10 @@ class AdvancedPDFMerger {
   handleDropIndicator(e, targetCard) {
     if (!this.dropIndicator || !targetCard || !this.gridEl) return;
 
-    const gridRect = this.gridEl.getBoundingClientRect();
-    const cardRect = targetCard.getBoundingClientRect();
+    const cardLeft = targetCard.offsetLeft;
+    const cardTop = targetCard.offsetTop;
+    const cardWidth = targetCard.offsetWidth;
+    const cardHeight = targetCard.offsetHeight;
     const indicatorWidth = 4;
     const targetIndex = this.getCardIndex(targetCard);
     const isAfter = this.draggedIndex !== null && this.draggedIndex < targetIndex;
@@ -707,11 +709,11 @@ class AdvancedPDFMerger {
     const gap = parseFloat(styles.columnGap || '0') || 0;
     const offset = gap / 2;
 
-    const baseLeft = isAfter ? cardRect.right - gridRect.left : cardRect.left - gridRect.left;
+    const baseLeft = isAfter ? (cardLeft + cardWidth) : cardLeft;
     const left = baseLeft + (isAfter ? offset : -offset) - indicatorWidth / 2;
-    const top = cardRect.top - gridRect.top;
+    const top = cardTop;
 
-    this.dropIndicator.style.height = `${cardRect.height}px`;
+    this.dropIndicator.style.height = `${cardHeight}px`;
     this.dropIndicator.style.width = `${indicatorWidth}px`;
     this.dropIndicator.style.transform = `translate(${left}px, ${top}px)`;
     this.dropIndicator.classList.remove('hidden');
