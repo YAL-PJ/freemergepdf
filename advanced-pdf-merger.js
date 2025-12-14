@@ -18,6 +18,7 @@ class AdvancedPDFMerger {
     // State
     this.files = [];
     this.pages = [];
+    this.originalPages = [];
     this.pageMap = new Map(); // For efficient lookups
     this.draggedIndex = null;
     this.thumbnailCache = new Map();
@@ -84,6 +85,7 @@ class AdvancedPDFMerger {
    */
   async extractAllPages() {
     this.pages = [];
+    this.originalPages = [];
     this.thumbnailCache.clear();
 
     // Set up PDF.js worker
@@ -121,6 +123,9 @@ class AdvancedPDFMerger {
         throw new Error(`Failed to process ${file.name}: ${error.message}`);
       }
     }
+
+    // Keep an immutable snapshot to restore deleted pages on reset
+    this.originalPages = this.pages.map(p => ({ ...p }));
   }
 
   /**
@@ -558,10 +563,14 @@ class AdvancedPDFMerger {
    * Reset to original order
    */
   resetOrder() {
-    this.pages.sort((a, b) => {
-      if (a.fileIndex !== b.fileIndex) return a.fileIndex - b.fileIndex;
-      return a.pageIndex - b.pageIndex;
-    });
+    // Restore the original snapshot (including previously deleted pages)
+    this.pages = this.originalPages.map(p => ({ ...p }));
+
+    // Rebuild page map
+    this.pageMap.clear();
+    this.pages.forEach(p => this.pageMap.set(p.id, p));
+
+    // Rebuild the grid
     this.renderGrid();
     this.showStatus('Order reset to original');
     this.notifyPageCountChange();
@@ -608,6 +617,7 @@ class AdvancedPDFMerger {
   destroy() {
     this.cancelRender = true;
     this.pages = [];
+    this.originalPages = [];
     this.files = [];
     this.pageMap.clear();
     this.thumbnailCache.clear();
