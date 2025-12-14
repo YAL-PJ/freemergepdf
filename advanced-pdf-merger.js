@@ -40,6 +40,7 @@ class AdvancedPDFMerger {
     this.scrollContainer = null;
     this.preRenderStarted = false;
     this.cancelRender = false;
+    this.dropIndicator = null;
   }
 
   /**
@@ -231,13 +232,13 @@ class AdvancedPDFMerger {
     card.style.borderColor = color;
 
     // Drag event listeners
-    card.addEventListener('dragstart', (e) => this.handleDragStart(e, index));
+    card.addEventListener('dragstart', (e) => this.handleDragStart(e));
     card.addEventListener('dragover', (e) => this.handleDragOver(e));
-    card.addEventListener('drop', (e) => this.handleDrop(e, index));
+    card.addEventListener('drop', (e) => this.handleDrop(e));
     card.addEventListener('dragend', () => this.handleDragEnd());
 
     // Touch support for mobile
-    this.addTouchSupport(card, index);
+    this.addTouchSupport(card);
 
     // Delete button
     const deleteBtn = card.querySelector('.page-card-delete');
@@ -245,7 +246,8 @@ class AdvancedPDFMerger {
       deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         e.preventDefault();
-        this.deletePage(index);
+        const currentIndex = this.getCardIndex(card);
+        this.deletePage(currentIndex);
       });
     }
 
@@ -255,8 +257,9 @@ class AdvancedPDFMerger {
   /**
    * Handle drag start
    */
-  handleDragStart(e, index) {
-    this.draggedIndex = index;
+  handleDragStart(e) {
+    const card = e.target.closest('.page-card');
+    this.draggedIndex = this.getCardIndex(card);
     e.dataTransfer.effectAllowed = 'move';
     e.target.closest('.page-card').style.opacity = '0.6';
   }
@@ -267,17 +270,21 @@ class AdvancedPDFMerger {
   handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    e.target.closest('.page-card')?.classList.add('drag-over');
+    const targetCard = e.target.closest('.page-card');
+    targetCard?.classList.add('drag-over');
+    this.handleDropIndicator(e, targetCard);
     this.handleAutoScroll(e);
   }
 
   /**
    * Handle drop - Insert dragged page at target position
    */
-  handleDrop(e, targetIndex) {
+  handleDrop(e) {
     e.preventDefault();
     e.stopPropagation();
-    e.target.closest('.page-card')?.classList.remove('drag-over');
+    const targetCard = e.target.closest('.page-card');
+    targetCard?.classList.remove('drag-over');
+    this.hideDropIndicator();
 
     // Validate indices
     if (this.draggedIndex === null || this.draggedIndex === undefined) {
@@ -285,6 +292,7 @@ class AdvancedPDFMerger {
       return;
     }
 
+    const targetIndex = this.getCardIndex(targetCard);
     if (targetIndex === null || targetIndex === undefined) {
       console.warn('No target index');
       return;
@@ -332,8 +340,8 @@ class AdvancedPDFMerger {
     // Clear drag state
     this.draggedIndex = null;
 
-    // Re-render grid
-    this.renderGrid();
+    // Reorder existing cards without full re-render
+    this.syncGridToPages();
   }
 
   /**
@@ -345,6 +353,7 @@ class AdvancedPDFMerger {
       card.classList.remove('drag-over');
     });
     this.draggedIndex = null;
+    this.hideDropIndicator();
   }
 
   /**
@@ -357,9 +366,14 @@ class AdvancedPDFMerger {
       this.pageMap.delete(page.id);
     }
     this.pages.splice(index, 1);
-    this.renderGrid();
+    if (this.gridEl) {
+      const card = this.gridEl.querySelector(`.page-card[data-page-id="${page?.id}"]`);
+      card?.remove();
+      this.syncGridToPages();
+    }
     this.showStatus('Page removed');
     this.notifyPageCountChange();
+    this.hideDropIndicator();
   }
 
   /**
@@ -387,14 +401,14 @@ class AdvancedPDFMerger {
   /**
    * Add touch support for mobile drag-and-drop
    */
-  addTouchSupport(card, index) {
+  addTouchSupport(card) {
     let touchStartX = 0;
     let touchStartY = 0;
 
     card.addEventListener('touchstart', (e) => {
       touchStartX = e.touches[0].clientX;
       touchStartY = e.touches[0].clientY;
-      this.draggedIndex = index;
+      this.draggedIndex = this.getCardIndex(card);
       card.style.opacity = '0.6';
     });
 
@@ -465,6 +479,12 @@ class AdvancedPDFMerger {
 
     const grid = document.createElement('div');
     grid.className = 'page-sorter-grid';
+    this.gridEl = grid;
+
+    // Drop indicator for visual insertion cue
+    this.dropIndicator = document.createElement('div');
+    this.dropIndicator.className = 'drop-indicator hidden';
+    grid.appendChild(this.dropIndicator);
 
     // Show status while rendering
     this.showStatus(`Loading ${this.pages.length} pages...`);
@@ -490,12 +510,11 @@ class AdvancedPDFMerger {
    * Render thumbnails in background without blocking UI
    */
   async renderThumbnailsInBackground(grid) {
-    const cards = grid.querySelectorAll('.page-card');
-    
     for (let i = 0; i < this.pages.length; i++) {
       if (this.cancelRender) break;
       const pageData = this.pages[i];
-      const card = cards[i];
+      const card = this.gridEl?.querySelector(`.page-card[data-page-id="${pageData.id}"]`);
+      if (!card) continue;
 
       try {
         const thumbnail = await this.renderThumbnail(pageData);
@@ -635,6 +654,69 @@ class AdvancedPDFMerger {
       detail: { count: this.pages.length }
     });
     this.containerEl.dispatchEvent(event);
+  }
+
+  /**
+   * Get numeric index from card element
+   */
+  getCardIndex(card) {
+    if (!card) return null;
+    const val = parseInt(card.dataset.index, 10);
+    return Number.isNaN(val) ? null : val;
+  }
+
+  /**
+   * Reorder existing DOM cards to match this.pages without re-rendering
+   */
+  syncGridToPages() {
+    if (!this.gridEl) return;
+    const cards = Array.from(this.gridEl.querySelectorAll('.page-card'));
+    const cardMap = new Map(cards.map(card => [card.dataset.pageId, card]));
+
+    // Clear and re-append in new order
+    this.gridEl.querySelectorAll('.page-card').forEach(card => card.remove());
+    // Keep indicator element if present
+    if (this.dropIndicator && !this.dropIndicator.isConnected) {
+      this.gridEl.appendChild(this.dropIndicator);
+    }
+
+    this.pages.forEach((pageData, idx) => {
+      const card = cardMap.get(pageData.id);
+      if (card) {
+        card.dataset.index = idx;
+        this.gridEl.appendChild(card);
+      }
+    });
+
+    this.notifyPageCountChange();
+  }
+
+  /**
+   * Show drop indicator near the target card
+   */
+  handleDropIndicator(e, targetCard) {
+    if (!this.dropIndicator || !targetCard || !this.gridEl) return;
+
+    const gridRect = this.gridEl.getBoundingClientRect();
+    const cardRect = targetCard.getBoundingClientRect();
+    const indicatorWidth = 4;
+    const isAfter = e.clientY > cardRect.top + cardRect.height / 2;
+    const left = cardRect.left - gridRect.left + (isAfter ? cardRect.width : 0) - indicatorWidth / 2;
+    const top = cardRect.top - gridRect.top;
+
+    this.dropIndicator.style.height = `${cardRect.height}px`;
+    this.dropIndicator.style.width = `${indicatorWidth}px`;
+    this.dropIndicator.style.transform = `translate(${left}px, ${top}px)`;
+    this.dropIndicator.classList.remove('hidden');
+  }
+
+  /**
+   * Hide the drop indicator
+   */
+  hideDropIndicator() {
+    if (this.dropIndicator) {
+      this.dropIndicator.classList.add('hidden');
+    }
   }
 }
 

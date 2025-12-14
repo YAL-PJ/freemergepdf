@@ -163,6 +163,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 15px;
+  position: relative;
 }
 
 /* Desktop */
@@ -289,6 +290,25 @@
 .page-card-delete:focus-visible {
   outline: 2px solid #667eea;
   outline-offset: 2px;
+}
+
+/* ===== DROP INDICATOR ===== */
+.drop-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+  pointer-events: none;
+  transition: opacity 0.1s;
+  opacity: 1;
+}
+
+.drop-indicator.hidden {
+  opacity: 0;
 }
 
 /* ===== FOOTER ===== */
