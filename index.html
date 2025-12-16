@@ -878,17 +878,38 @@
                     placeholder="your@email.com" 
                     required
                 />
+
+                <input
+                    type="text"
+                    class="feedback-input"
+                    id="feedbackUserNameBottom"
+                    placeholder="Your name (optional)"
+                />
                 
-                <textarea 
-                    class="feedback-textarea feedback-input" 
-                    id="feedbackMessageBottom" 
-                    placeholder="Tell me about bugs, feature ideas, or anything else..." 
-                    required
-                ></textarea>
-                
-                <button type="submit" class="feedback-button" id="feedbackSendBtnBottom">
-                    Send Feedback
-                </button>
+                <div class="feedback-message-row">
+                    <textarea 
+                        class="feedback-textarea feedback-input" 
+                        id="feedbackMessageBottom" 
+                        placeholder="Tell me about bugs, feature ideas, or anything else..." 
+                        required
+                    ></textarea>
+
+                    <button type="submit" class="feedback-button" id="feedbackSendBtnBottom">
+                        Send Feedback
+                    </button>
+                </div>
+
+                <label class="feedback-toggle">
+                    <input type="checkbox" id="feedbackPrivateBottom" />
+                    <span>Make this feedback private (won't be shown publicly)</span>
+                </label>
+
+                <div class="feedback-history" id="feedbackHistoryBottom">
+                    <div class="feedback-history-heading">Recent feedback from users</div>
+                    <ul class="feedback-history-list" id="feedbackHistoryListBottom"></ul>
+                    <div class="feedback-history-empty" id="feedbackHistoryEmptyBottom">No feedback yet. Share your first note!</div>
+                    <button type="button" class="feedback-show-toggle" id="feedbackShowToggleBottom">Show more feedback</button>
+                </div>
             </form>
         </div>
     </div>
@@ -1829,6 +1850,7 @@
             <button class="feedback-close" id="feedbackCloseBtn">✕</button>
         </div>
         
+        <div class="feedback-resize-handle" id="feedbackResizeHandle"></div>
         <div class="feedback-content">
             <p class="feedback-message">
                 <strong>Your feedback matters.</strong> We read every message and use it to make this tool better for you.
@@ -1848,17 +1870,38 @@
                     placeholder="your@email.com" 
                     required
                 />
+
+                <input
+                    type="text"
+                    class="feedback-input"
+                    id="feedbackUserName"
+                    placeholder="Your name (optional)"
+                />
                 
-                <textarea 
-                    class="feedback-textarea feedback-input" 
-                    id="feedbackMessage" 
-                    placeholder="Tell me about bugs, feature ideas, or anything else..." 
-                    required
-                ></textarea>
-                
-                <button type="submit" class="feedback-button" id="feedbackSendBtn">
-                    Send Feedback
-                </button>
+                <div class="feedback-message-row">
+                    <textarea 
+                        class="feedback-textarea feedback-input" 
+                        id="feedbackMessage" 
+                        placeholder="Tell me about bugs, feature ideas, or anything else..." 
+                        required
+                    ></textarea>
+
+                    <button type="submit" class="feedback-button" id="feedbackSendBtn">
+                        Send Feedback
+                    </button>
+                </div>
+
+                <label class="feedback-toggle">
+                    <input type="checkbox" id="feedbackPrivate" />
+                    <span>Make this feedback private (won't be shown publicly)</span>
+                </label>
+
+                <div class="feedback-history" id="feedbackHistory">
+                    <div class="feedback-history-heading">Recent feedback from users</div>
+                    <ul class="feedback-history-list" id="feedbackHistoryList"></ul>
+                    <div class="feedback-history-empty" id="feedbackHistoryEmpty">No feedback yet. Share your first note!</div>
+                    <button type="button" class="feedback-show-toggle" id="feedbackShowToggle">Show more feedback</button>
+                </div>
             </form>
         </div>
     </div>
