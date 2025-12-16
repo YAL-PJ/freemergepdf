@@ -23,12 +23,14 @@
     <meta property="og:title" content="Free PDF Merger No Sign Up - 100% Private in Your Browser">
     <meta property="og:description" content="Merge PDF files instantly in your browser with a free PDF merger, no sign up required. No upload to servers - completely private and secure.">
     <meta property="og:url" content="https://freemergepdf.com">
+    <meta property="og:image" content="https://freemergepdf.com/og-image.png">
 
     
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Free PDF Merger No Sign Up - 100% Private in Your Browser">
     <meta name="twitter:description" content="Merge PDF files instantly in your browser with a free PDF merger, no sign up required. No upload to servers - completely private.">
+    <meta name="twitter:image" content="https://freemergepdf.com/og-image.png">
     
     <!-- Additional SEO -->
     <meta name="robots" content="index, follow">
@@ -45,6 +47,7 @@
       "description": "Free online tool to merge PDF files locally in your browser without signup or file upload",
       "applicationCategory": "UtilityApplication",
       "operatingSystem": "Any",
+      "url": "https://freemergepdf.com",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -84,38 +87,145 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 14px;
         }
 
         .container {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            padding: 26px 24px 28px;
             max-width: 900px;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 12px;
         }
 
         h1 {
             color: #333;
-            font-size: 32px;
-            margin-bottom: 10px;
+            font-size: 24px;
+            margin-bottom: 0;
+            line-height: 1.05;
             text-align: center;
         }
 
         .subtitle {
             color: #666;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .hero-note {
+            margin-top: -2px;
+            margin-bottom: 0;
+            font-size: 13px;
+            color: #555;
+            text-align: center;
+        }
+
+        .hero-note summary {
+            cursor: pointer;
+            list-style: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .hero-note summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .hero-note summary::after {
+            content: '+';
+            font-weight: 600;
             font-size: 14px;
+        }
+
+        .hero-note[open] summary::after {
+            content: '-';
+        }
+
+        .hero-note p {
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .hero-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .hero-inline .hero-note {
+            margin: 0;
+        }
+
+        /* Collapsible wrappers to keep SEO text present but tucked away */
+        .seo-accordions {
+            width: 100%;
+            max-width: 900px;
+            margin: 32px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .seo-accordion {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .seo-accordion + .seo-accordion {
+            border-top: 0;
+        }
+
+        .seo-accordion summary {
+            padding: 14px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f7f7fb;
+            min-height: 48px;
+        }
+
+        .seo-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .seo-accordion summary::after {
+            content: '+';
+            margin-left: auto;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .seo-accordion[open] summary::after {
+            content: '-';
+        }
+
+        .seo-accordion-body {
+            padding: 16px;
+            background: #fff;
         }
 
         /* ===== SIMPLE MODE ===== */
         .mode-simple {
             display: flex;
             flex-direction: column;
-            gap: 30px;
+            gap: 20px;
         }
 
         .mode-simple.hidden {
@@ -747,8 +857,15 @@
 <body>
     <!-- SIMPLE MODE -->
     <div class="container mode-simple" id="simpleMode">
-        <h1>📄 Free PDF Merger No Sign Up - FreeMergePDF</h1>
-        <p class="subtitle">The best free PDF combiner & merger - merge unlimited PDFs in your browser. No sign up, no cost, 100% private & secure. Perfect free PDF joiner for combining documents instantly.</p>
+        <h1>📄 Free PDF Merger (No Sign Up) | FreeMergePDF</h1>
+        <div class="subtitle hero-inline">
+            <span>Merge PDFs free in-browser—no signup, no uploads, no watermarks, 100% private.</span>
+            <details class="hero-note">
+                <summary>More about this tool</summary>
+                <p>Merge PDFs in your browser. Free, private, no uploads, no watermarks.</p>
+                <p>FreeMergePDF merges unlimited PDF files locally in your browser with no registration, no server uploads, and no watermarks on any device.</p>
+            </details>
+        </div>
 
         <div class="mode-simple">
             <div class="two-column">
@@ -914,23 +1031,32 @@
         </div>
     </div>
 
-    <!-- FEATURES SECTION -->
-    <div class="features">
-        <h2>Why Choose FreeMergePDF - The Best Free PDF Merger No Sign Up Required?</h2>
-        <ul class="feature-list">
-            <li><strong>No Signup or Registration Required</strong> - This free PDF merger, free PDF combiner, and free PDF joiner tool requires zero account creation. Start merging PDFs immediately without any registration hassle</li>
-            <li><strong>100% Private & Secure PDF Merging</strong> - Your files never leave your device. All PDF merging processing happens locally in your browser. This free online PDF merger keeps your documents completely private</li>
-            <li><strong>No File Upload to Servers</strong> - Files are processed entirely on your computer, ensuring complete privacy. The safest free PDF combiner available</li>
-            <li><strong>Completely Free PDF Tool</strong> - No hidden costs, no premium plans, no watermarks. This free PDF merger and PDF combiner is 100% free forever</li>
-            <li><strong>Unlimited PDF Documents</strong> - Merge as many PDFs as you want in one batch. No limits on the number of documents this free PDF joiner can combine</li>
-            <li><strong>Drag & Drop PDF Reordering</strong> - This free PDF combiner lets you reorder files before merging. Complete control over your merged PDF document</li>
-            <li><strong>Works Offline - Free PDF Merger</strong> - Once loaded, this free online PDF merger works without internet connection since all processing happens locally</li>
-            <li><strong>Cross-Platform PDF Merger</strong> - This free PDF merger works on Windows, Mac, Linux, iOS, and Android. Use this free PDF combiner on any device</li>
-        </ul>
-    </div>
+    <div class="seo-accordions">
+        <!-- FEATURES SECTION -->
+        <details class="seo-accordion" id="featuresAccordion">
+            <summary>Features: free PDF merger, no signup, private</summary>
+            <div class="seo-accordion-body">
+                <div class="features">
+                <h2>Why Choose FreeMergePDF - The Best Free PDF Merger No Sign Up Required?</h2>
+                <ul class="feature-list">
+                    <li><strong>No Signup or Registration Required</strong> - This free PDF merger, free PDF combiner, and free PDF joiner tool requires zero account creation. Start merging PDFs immediately without any registration hassle</li>
+                    <li><strong>100% Private & Secure PDF Merging</strong> - Your files never leave your device. All PDF merging processing happens locally in your browser. This free online PDF merger keeps your documents completely private</li>
+                    <li><strong>No File Upload to Servers</strong> - Files are processed entirely on your computer, ensuring complete privacy. The safest free PDF combiner available</li>
+                    <li><strong>Completely Free PDF Tool</strong> - No hidden costs, no premium plans, no watermarks. This free PDF merger and PDF combiner is 100% free forever</li>
+                    <li><strong>Unlimited PDF Documents</strong> - Merge as many PDFs as you want in one batch. No limits on the number of documents this free PDF joiner can combine</li>
+                    <li><strong>Drag & Drop PDF Reordering</strong> - This free PDF combiner lets you reorder files before merging. Complete control over your merged PDF document</li>
+                    <li><strong>Works Offline - Free PDF Merger</strong> - Once loaded, this free online PDF merger works without internet connection since all processing happens locally</li>
+                    <li><strong>Cross-Platform PDF Merger</strong> - This free PDF merger works on Windows, Mac, Linux, iOS, and Android. Use this free PDF combiner on any device</li>
+                </ul>
+            </div>
+        </div>
+    </details>
 
     <!-- SEO CONTENT -->
-    <div class="seo-content">
+    <details class="seo-accordion" id="seoCopyAccordion">
+        <summary>About FreeMergePDF: free PDF combiner in your browser</summary>
+        <div class="seo-accordion-body">
+            <div class="seo-content">
         <h2>Free PDF Merger No Sign Up - FreeMergePDF: The Best Way to Merge PDF Files Online</h2>
         <p>FreeMergePDF is the best free PDF merger tool available. This free PDF combiner allows you to merge unlimited PDF files into a single document without any signup or registration. Our free PDF merger tool allows you to combine multiple PDF files in seconds using a completely free, no-signup PDF merger. Simply select your PDF files (start with 2, or expand to merge unlimited PDFs with our free PDF joiner), click merge, and download your combined PDF instantly. This free online PDF merger is perfect whether you call it a PDF merger, PDF combiner, or PDF joiner—it does it all without requiring an account.</p>
         
@@ -954,8 +1080,13 @@
             <li><a href="/blog.html">Browse all FreeMergePDF tutorials</a></li>
         </ul>
     </div>
+        </div>
+    </details>
 
     <!-- FAQ SECTION -->
+    <details class="seo-accordion" id="faqAccordion">
+        <summary>FAQ: free, private PDF combiner answers</summary>
+        <div class="seo-accordion-body">
     <div class="seo-content">
         <h2>Frequently Asked Questions About Free PDF Mergers</h2>
         
@@ -991,6 +1122,9 @@
 
         <h3>Can I reorder PDFs before merging with the free PDF merger?</h3>
         <p>Yes! In expanded mode, simply click "Advanced Merge (Sort Pages)" to sort individual pages from all your PDFs. You can drag and drop pages to arrange them in any order. The numbered cards will update automatically to show the merge order. FreeMergePDF's free PDF combiner gives you complete control before you merge.</p>
+    </div>
+        </div>
+        </details>
     </div>
 
     <!-- FAQ Schema for Google Rich Results -->
