@@ -1427,10 +1427,13 @@
         }
 
         function renderPdfList() {
+            // Remove any gaps/undefined entries to avoid runtime errors
+            expandedFiles = expandedFiles.filter((f) => f);
             const list = document.getElementById('pdfList');
             list.innerHTML = '';
 
             expandedFiles.forEach((file, index) => {
+                if (!file || typeof file.name !== 'string') return;
                 const card = document.createElement('div');
                 card.className = 'pdf-card';
                 card.draggable = true;
