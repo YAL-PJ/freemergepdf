@@ -1828,8 +1828,14 @@
                     });
                 }
             } catch (error) {
+                const isEncrypted = isEncryptedPdfError(error);
+                const friendlyMsg = isEncrypted
+                    ? 'This PDF is password-protected. Please remove the password and try again.'
+                    : `Error: ${error.message}`;
                 statusElement.className = 'status-area status-error';
-                statusElement.innerHTML = '<span>✖ Error: ' + error.message + '</span>';
+                statusElement.innerHTML = isEncrypted
+                    ? `<span>🔒 ${friendlyMsg}</span>`
+                    : `<span>✖ ${friendlyMsg}</span>`;
 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pdf_merge_error', {
@@ -1921,6 +1927,11 @@
                     });
                 }
             } catch (error) {
+                const isEncrypted = isEncryptedPdfError(error);
+                const friendlyMsg = isEncrypted
+                    ? 'This PDF is password-protected. Please remove the password and try again.'
+                    : `Error merging PDFs: ${error.message}`;
+
                 reportMergeError(error, {
                     mode: isExpanded ? 'expanded' : 'simple',
                     step: 'mergePDFs',
@@ -1930,11 +1941,13 @@
                     durationMs: performance.now() - mergeStart,
                     source: 'pdf-lib'
                 });
-                showError('Error merging PDFs: ' + error.message, isExpanded ? 'expandedError' : 'simpleError');
+                showError(friendlyMsg, isExpanded ? 'expandedError' : 'simpleError');
                 
                 if (statusElement) {
                     statusElement.className = 'status-area status-error';
-                    statusElement.innerHTML = '<span>✖ Error: ' + error.message + '</span>';
+                    statusElement.innerHTML = isEncrypted
+                        ? '<span>🔒 This PDF is password-protected. Please remove the password and try again.</span>'
+                        : '<span>✖ Error: ' + error.message + '</span>';
                 }
 
                 if (typeof gtag !== 'undefined') {
@@ -1967,6 +1980,11 @@
             alert('Merge failed: ' + (error?.message || 'Unknown error'));
             throw error;
           }
+        }
+
+        function isEncryptedPdfError(err) {
+            const msg = `${err?.message || ''}`.toLowerCase();
+            return msg.includes('encrypted') || msg.includes('password-protected') || msg.includes('password protected');
         }
 
         function reportMergeError(err, meta = {}) {
