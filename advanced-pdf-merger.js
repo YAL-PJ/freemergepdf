@@ -4,6 +4,15 @@
  * Clean, efficient, and robust
  */
 
+const safeReportError = (err, context = {}) => {
+  if (typeof window === 'undefined' || typeof window.reportError !== 'function') return;
+  try {
+    window.reportError(err, context);
+  } catch (reportErr) {
+    console.warn('reportError failed', reportErr);
+  }
+};
+
 class AdvancedPDFMerger {
   constructor(options = {}) {
     // Configuration
@@ -73,10 +82,33 @@ class AdvancedPDFMerger {
       
       return true;
     } catch (error) {
-      this.showStatus(`Error: ${error.message}`, 'error');
+      const friendly = this.formatUserError(error);
+      this.showStatus(friendly, 'error');
       console.error('AdvancedPDFMerger init error:', error);
+      safeReportError(error, {
+        feature: 'AdvancedPDFMerger.initialize',
+        userNote: `files=${uploadedFiles?.length || 0};totalBytes=${getFilesTotalBytes(uploadedFiles)}`
+      });
       return false;
     }
+  }
+
+  /**
+   * Convert internal errors to user-facing messages (no PII/file names)
+   */
+  formatUserError(err) {
+    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    const isFileAccess =
+      text.includes('notreadable') ||
+      text.includes('could not be read') ||
+      text.includes('permission') ||
+      text.includes('securityerror');
+
+    if (isFileAccess) {
+      return 'Could not read this file. Please copy it to your local drive (e.g., Desktop), close other apps using it (sync/preview/AV), and select it again.';
+    }
+
+    return `Error: ${err?.message || 'Something went wrong'}`;
   }
 
   /**
@@ -119,8 +151,10 @@ class AdvancedPDFMerger {
           this.pageMap.set(pageId, pageData);
         }
       } catch (error) {
-        console.error(`Error extracting pages from ${file.name}:`, error);
-        throw new Error(`Failed to process ${file.name}: ${error.message}`);
+        const sanitizedMessage = `Failed to process file index ${fileIndex}: ${error?.message || 'Unknown error'}`;
+        const sanitizedError = new Error(sanitizedMessage);
+        console.error(`Error extracting pages from file index ${fileIndex}:`, error);
+        throw sanitizedError;
       }
     }
 
@@ -188,6 +222,10 @@ class AdvancedPDFMerger {
       return imageUrl;
     } catch (error) {
       console.error(`Error rendering thumbnail for ${pageData.id}:`, error);
+      safeReportError(error, {
+        feature: 'AdvancedPDFMerger.renderThumbnail',
+        userNote: `page=${pageData?.id || 'unknown'}`
+      });
       return this.createPlaceholderThumbnail();
     }
   }
@@ -736,6 +774,20 @@ class AdvancedPDFMerger {
     if (this.dropIndicator) {
       this.dropIndicator.classList.add('hidden');
     }
+  }
+
+  // Helper to compute total bytes of uploaded files without exposing names
+  // Defined as a static to avoid recreating per call
+}
+
+function getFilesTotalBytes(files = []) {
+  try {
+    return Array.from(files || []).reduce((sum, f) => {
+      const size = typeof f?.size === 'number' ? f.size : 0;
+      return sum + size;
+    }, 0);
+  } catch (e) {
+    return 0;
   }
 }
 

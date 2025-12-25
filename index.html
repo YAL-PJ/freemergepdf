@@ -1225,6 +1225,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="error-reporting.js?v=2"></script>
     <script src="advanced-pdf-merger.js"></script>
 
     <script>
@@ -1767,6 +1768,8 @@
         async function mergeWithCustomOrder(orderedPages) {
             const customFilename = document.getElementById('customFilename').value.trim() || 'merged.pdf';
             const filename = customFilename.endsWith('.pdf') ? customFilename : customFilename + '.pdf';
+            const mergeStart = performance.now();
+            const stats = getFileStats(expandedFiles);
             
             const btn = document.getElementById('expandedMergeBtn');
             btn.classList.add('loading');
@@ -1836,6 +1839,16 @@
                 }
 
                 console.error('Merge error:', error);
+                reportMergeError(error, {
+                    mode: 'advanced_sorted',
+                    step: 'mergeWithCustomOrder',
+                    fileCount: expandedFiles?.length || 0,
+                    pageCount: orderedPages?.length || 0,
+                    totalBytes: stats.totalBytes,
+                    maxBytes: stats.maxBytes,
+                    durationMs: performance.now() - mergeStart,
+                    source: 'pdf-lib'
+                });
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
@@ -1844,6 +1857,8 @@
 
         // ===== MERGE FUNCTION =====
         async function mergePDFs() {
+          const mergeStart = performance.now();
+          let stats = { totalBytes: 0, maxBytes: 0, fileCount: 0 };
           try {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
             const files = isExpanded 
@@ -1868,6 +1883,7 @@
             }
 
             try {
+                stats = getFileStats(files);
                 // Generate filename based on mode and input
                 let filename;
                 if (isExpanded) {
@@ -1905,6 +1921,15 @@
                     });
                 }
             } catch (error) {
+                reportMergeError(error, {
+                    mode: isExpanded ? 'expanded' : 'simple',
+                    step: 'mergePDFs',
+                    fileCount: files?.length || 0,
+                    totalBytes: stats.totalBytes,
+                    maxBytes: stats.maxBytes,
+                    durationMs: performance.now() - mergeStart,
+                    source: 'pdf-lib'
+                });
                 showError('Error merging PDFs: ' + error.message, isExpanded ? 'expandedError' : 'simpleError');
                 
                 if (statusElement) {
@@ -1923,6 +1948,15 @@
                 btn.disabled = false;
             }
           } catch (error) {
+            reportMergeError(error, {
+              mode: 'unknown',
+              step: 'mergePDFs-outer',
+              fileCount: stats?.fileCount || 0,
+              totalBytes: stats?.totalBytes || 0,
+              maxBytes: stats?.maxBytes || 0,
+              durationMs: performance.now() - mergeStart,
+              source: 'pdf-lib'
+            });
             gtag('event', 'pdf_merge_failed', {
               error_message: error?.message || 'Unknown error',
               error_type: error?.name || 'Error',
@@ -1933,6 +1967,59 @@
             alert('Merge failed: ' + (error?.message || 'Unknown error'));
             throw error;
           }
+        }
+
+        function reportMergeError(err, meta = {}) {
+            if (typeof window.reportError !== 'function') return;
+            try {
+                const throttles = window.__MERGE_ERROR_THROTTLE || (window.__MERGE_ERROR_THROTTLE = {});
+                const key = `${meta.mode || 'n/a'}|${meta.step || 'n/a'}|${err?.message || ''}`;
+                const now = Date.now();
+                const last = throttles[key] || 0;
+                if (now - last < 2000) return; // throttle duplicates within 2s
+                throttles[key] = now;
+
+                const note = [
+                    `mode=${meta.mode || 'n/a'}`,
+                    `step=${meta.step || 'n/a'}`,
+                    `files=${Number.isFinite(meta.fileCount) ? meta.fileCount : 'n/a'}`,
+                    typeof meta.pageCount === 'number' ? `pages=${meta.pageCount}` : null,
+                    `error=${err?.name || 'Error'}`,
+                    `source=${meta.source || detectErrorSource(err)}`,
+                    Number.isFinite(meta.totalBytes) ? `totalBytes=${meta.totalBytes}` : null,
+                    Number.isFinite(meta.maxBytes) ? `maxBytes=${meta.maxBytes}` : null,
+                    Number.isFinite(meta.durationMs) ? `durationMs=${Math.round(meta.durationMs)}` : null,
+                    meta.libraryVersion ? `libVer=${meta.libraryVersion}` : null
+                ].filter(Boolean).join(';');
+
+                window.reportError(err, {
+                    feature: 'pdf_merge',
+                    userNote: note
+                });
+            } catch (reportErr) {
+                console.warn('reportMergeError failed', reportErr);
+            }
+        }
+
+        function detectErrorSource(err) {
+            const txt = `${err?.stack || ''} ${err?.message || ''}`.toLowerCase();
+            if (txt.includes('pdf-lib')) return 'pdf-lib';
+            if (txt.includes('pdfjs') || txt.includes('pdf.js')) return 'pdf.js';
+            return 'unknown';
+        }
+
+        function getFileStats(files = []) {
+            try {
+                const list = Array.from(files || []).filter(Boolean);
+                const totalBytes = list.reduce((sum, f) => sum + (typeof f.size === 'number' ? f.size : 0), 0);
+                const maxBytes = list.reduce((max, f) => {
+                    const size = typeof f.size === 'number' ? f.size : 0;
+                    return size > max ? size : max;
+                }, 0);
+                return { totalBytes, maxBytes, fileCount: list.length };
+            } catch (e) {
+                return { totalBytes: 0, maxBytes: 0, fileCount: 0 };
+            }
         }
 
         function downloadPDF(pdfBytes, filename) {
