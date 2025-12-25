@@ -26,8 +26,7 @@ function setupFeedbackWidget() {
     const showToggle = document.getElementById('feedbackShowToggle');
     const showToggleBottom = document.getElementById('feedbackShowToggleBottom');
 
-    // On initial page load, sidebar is open - add the body class immediately
-    document.body.classList.add('feedback-open');
+    // Keep sidebar closed by default to avoid layout shift on load.
 
     // SIDEBAR FORM (wide screens)
     if (feedbackButton) {
