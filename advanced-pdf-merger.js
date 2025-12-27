@@ -102,10 +102,13 @@ class AdvancedPDFMerger {
       text.includes('notreadable') ||
       text.includes('could not be read') ||
       text.includes('permission') ||
-      text.includes('securityerror');
+      text.includes('securityerror') ||
+      text.includes('notfounderror') ||
+      text.includes('could not be found') ||
+      text.includes('not found');
 
     if (isFileAccess) {
-      return 'Could not read this file. Please copy it to your local drive (e.g., Desktop), close other apps using it (sync/preview/AV), and select it again.';
+      return 'Could not read this file. It may have been moved, renamed, or is in a sync/network folder. Please copy it to your local drive (e.g., Desktop), close other apps using it (sync/preview/AV), and select it again.';
     }
 
     return `Error: ${err?.message || 'Something went wrong'}`;

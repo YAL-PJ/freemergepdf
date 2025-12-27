@@ -1313,6 +1313,12 @@
                 return;
             }
 
+            if (file.size === 0) {
+                showError('Please select a non-empty PDF file.', 'simpleError');
+                document.getElementById(inputId).value = '';
+                return;
+            }
+
             const display = document.getElementById(displayId);
             display.innerHTML = `
                 <div class="file-name">✓ ${file.name}</div>
@@ -1413,6 +1419,11 @@
             for (let file of files) {
                 if (file.type !== 'application/pdf') {
                     showError('Skipped non-PDF file: ' + file.name, 'expandedError');
+                    continue;
+                }
+
+                if (file.size === 0) {
+                    showError('Skipped empty PDF file.', 'expandedError');
                     continue;
                 }
 
