@@ -1235,6 +1235,10 @@
         let advancedMergerPrewarmKey = '';
         let advancedMergerPrewarmPromise = null;
         let advancedPageCountListenerAttached = false;
+        let mergeInProgress = false;
+        const encryptedWarningShown = { simple: false, expanded: false };
+        const encryptionScanCache = new WeakMap();
+        const ENCRYPTION_SCAN_BYTES = 65536;
 
         // ===== MODE TOGGLE =====
         function toggleMode() {
@@ -1247,6 +1251,7 @@
             if (expandedMode.classList.contains('active')) {
                 // Clear expanded mode files when switching
                 expandedFiles = [];
+                encryptedWarningShown.expanded = false;
                 document.getElementById('pdfList').innerHTML = '';
                 updateDocCount();
                 updateExpandedMergeButton();
@@ -1325,6 +1330,8 @@
                 return;
             }
 
+            queueEncryptionScan(file, 'simpleError', 'simple', inputId);
+
             const display = document.getElementById(displayId);
             display.innerHTML = `
                 <div class="file-name">✓ ${file.name}</div>
@@ -1345,6 +1352,7 @@
                 <div class="file-input-subtext">Any file size</div>
             `;
             display.classList.remove('has-file');
+            encryptedWarningShown.simple = false;
             updateSimpleMergeButton();
         }
 
@@ -1439,6 +1447,7 @@
                 }
 
                 expandedFiles.push(file);
+                queueEncryptionScan(file, 'expandedError', 'expanded');
             }
 
             renderPdfList();
@@ -1736,6 +1745,9 @@
 
             // Set expandedFiles for advanced merger
             expandedFiles = [file1, file2];
+            encryptedWarningShown.expanded = false;
+            queueEncryptionScan(file1, 'expandedError', 'expanded');
+            queueEncryptionScan(file2, 'expandedError', 'expanded');
 
             // Set default filename
             const defaultName = generateDefaultFilename([file1, file2]);
@@ -1795,6 +1807,7 @@
             const filename = customFilename.endsWith('.pdf') ? customFilename : customFilename + '.pdf';
             const mergeStart = performance.now();
             const stats = getFileStats(expandedFiles);
+            mergeInProgress = true;
             
             const btn = document.getElementById('expandedMergeBtn');
             btn.classList.add('loading');
@@ -1883,6 +1896,7 @@
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
+                mergeInProgress = false;
             }
         }
 
@@ -1890,13 +1904,17 @@
         async function mergePDFs() {
           const mergeStart = performance.now();
           let stats = { totalBytes: 0, maxBytes: 0, fileCount: 0 };
+          mergeInProgress = true;
           try {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
             const files = isExpanded 
                 ? expandedFiles 
                 : [document.getElementById('file1').files[0], document.getElementById('file2').files[0]].filter(Boolean);
 
-            if (files.length < 2) return;
+            if (files.length < 2) {
+                mergeInProgress = false;
+                return;
+            }
 
             // Stop any background thumbnail rendering to prioritize merge
             if (advancedMerger && typeof advancedMerger.cancelThumbnailRendering === 'function') {
@@ -1984,8 +2002,10 @@
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
+                mergeInProgress = false;
             }
           } catch (error) {
+            mergeInProgress = false;
             reportMergeError(error, {
               mode: 'unknown',
               step: 'mergePDFs-outer',
@@ -2070,6 +2090,51 @@
                 const header = await file.slice(0, 5).arrayBuffer();
                 const text = new TextDecoder('ascii').decode(header);
                 return text.startsWith('%PDF-');
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function queueEncryptionScan(file, targetId, mode, inputId) {
+            if (!file || mergeInProgress) return;
+            if (encryptionScanCache.has(file)) return;
+            encryptionScanCache.set(file, true);
+
+            setTimeout(async () => {
+                const isEncrypted = await scanEncryptedPdf(file);
+                if (!isEncrypted || mergeInProgress) return;
+
+                if (mode === 'expanded' && !expandedFiles.includes(file)) return;
+                if (mode === 'simple') {
+                    const current = document.getElementById(inputId)?.files?.[0];
+                    if (current !== file) return;
+                }
+
+                if (encryptedWarningShown[mode]) return;
+                encryptedWarningShown[mode] = true;
+                showError('Password-protected PDF detected. Remove the password to merge.', targetId);
+            }, 0);
+        }
+
+        async function scanEncryptedPdf(file) {
+            try {
+                const first = await file.slice(0, ENCRYPTION_SCAN_BYTES).arrayBuffer();
+                if (bufferHasEncrypt(first)) return true;
+                if (file.size > ENCRYPTION_SCAN_BYTES) {
+                    const start = Math.max(0, file.size - ENCRYPTION_SCAN_BYTES);
+                    const last = await file.slice(start).arrayBuffer();
+                    if (bufferHasEncrypt(last)) return true;
+                }
+            } catch (e) {
+                return false;
+            }
+            return false;
+        }
+
+        function bufferHasEncrypt(buffer) {
+            try {
+                const text = new TextDecoder('ascii').decode(buffer);
+                return text.includes('/Encrypt');
             } catch (e) {
                 return false;
             }
