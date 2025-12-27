@@ -1272,8 +1272,8 @@
                 const display = index === 0 ? display1 : display2;
                 const displayId = index === 0 ? 'display1' : 'display2';
 
-                input.addEventListener('change', (e) => {
-                    handleSimpleFileSelect(e.target.files[0], displayId, input.id);
+                input.addEventListener('change', async (e) => {
+                    await handleSimpleFileSelect(e.target.files[0], displayId, input.id);
                 });
 
                 display.addEventListener('dragover', (e) => {
@@ -1301,7 +1301,7 @@
             });
         }
 
-        function handleSimpleFileSelect(file, displayId, inputId) {
+        async function handleSimpleFileSelect(file, displayId, inputId) {
             const errorElement = document.getElementById('simpleError');
             errorElement.classList.remove('show');
 
@@ -1315,6 +1315,12 @@
 
             if (file.size === 0) {
                 showError('Please select a non-empty PDF file.', 'simpleError');
+                document.getElementById(inputId).value = '';
+                return;
+            }
+
+            if (!(await hasPdfHeader(file))) {
+                showError('Please select a valid PDF file (missing header).', 'simpleError');
                 document.getElementById(inputId).value = '';
                 return;
             }
@@ -1387,8 +1393,8 @@
             const dropZone = document.getElementById('dropZone');
             const fileInput = document.getElementById('expandedFileInput');
 
-            fileInput.addEventListener('change', (e) => {
-                handleExpandedFileSelect(e.target.files);
+            fileInput.addEventListener('change', async (e) => {
+                await handleExpandedFileSelect(e.target.files);
                 e.target.value = '';
             });
 
@@ -1401,10 +1407,10 @@
                 dropZone.classList.remove('dragover');
             });
 
-            dropZone.addEventListener('drop', (e) => {
+            dropZone.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('dragover');
-                handleExpandedFileSelect(e.dataTransfer.files);
+                await handleExpandedFileSelect(e.dataTransfer.files);
             });
 
             dropZone.addEventListener('click', () => {
@@ -1412,7 +1418,7 @@
             });
         }
 
-        function handleExpandedFileSelect(files) {
+        async function handleExpandedFileSelect(files) {
             const errorElement = document.getElementById('expandedError');
             errorElement.classList.remove('show');
 
@@ -1424,6 +1430,11 @@
 
                 if (file.size === 0) {
                     showError('Skipped empty PDF file.', 'expandedError');
+                    continue;
+                }
+
+                if (!(await hasPdfHeader(file))) {
+                    showError('Skipped file that is not a valid PDF (missing header).', 'expandedError');
                     continue;
                 }
 
@@ -2051,6 +2062,16 @@
                 return { totalBytes, maxBytes, fileCount: list.length };
             } catch (e) {
                 return { totalBytes: 0, maxBytes: 0, fileCount: 0 };
+            }
+        }
+
+        async function hasPdfHeader(file) {
+            try {
+                const header = await file.slice(0, 5).arrayBuffer();
+                const text = new TextDecoder('ascii').decode(header);
+                return text.startsWith('%PDF-');
+            } catch (e) {
+                return false;
             }
         }
 
