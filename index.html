@@ -1230,6 +1230,7 @@
 
     <script>
         const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
+        const MERGE_HARD_LIMIT_BYTES = 1500 * 1024 * 1024; // 1.5GB hard cap to avoid memory errors
         let expandedFiles = []; // Store file objects for expanded mode
         let advancedMerger = null; // Advanced merger instance
         let advancedMergerPrewarmKey = '';
@@ -1237,7 +1238,7 @@
         let advancedPageCountListenerAttached = false;
         let mergeInProgress = false;
         const encryptedWarningShown = { simple: false, expanded: false };
-        const encryptionScanCache = new WeakMap();
+        const encryptionScanResults = new WeakMap();
         const ENCRYPTION_SCAN_BYTES = 65536;
 
         // ===== MODE TOGGLE =====
@@ -1554,7 +1555,7 @@
         function formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB'];
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
         }
@@ -1831,7 +1832,17 @@
             statusElement.innerHTML = '<span>⏳ Merging with custom order...</span>';
 
             try {
+                if (isMergeTooLarge(stats)) {
+                    statusElement.className = 'status-area status-error';
+                    statusElement.innerHTML = '<span>' + buildMergeTooLargeMessage(stats) + '</span>';
+                    return;
+                }
                 const pdfDoc = await PDFLib.PDFDocument.create();
+                if (hasKnownEncryptedFile(expandedFiles)) {
+                    statusElement.className = 'status-area status-error';
+                    statusElement.innerHTML = '<span>🔒 Password-protected PDF detected. Remove the password to merge.</span>';
+                    return;
+                }
                 const loadedPdfs = new Map();
 
                 for (const pageData of orderedPages) {
@@ -1867,13 +1878,18 @@
                 }
             } catch (error) {
                 const isEncrypted = isEncryptedPdfError(error);
-                const friendlyMsg = isEncrypted
-                    ? 'This PDF is password-protected. Please remove the password and try again.'
-                    : `Error: ${error.message}`;
+                const isMemory = isMemoryError(error);
+                const isFileRead = isFileReadError(error);
+                let friendlyMsg = `Error: ${error.message}`;
+                if (isEncrypted) {
+                    friendlyMsg = 'Password-protected PDF detected. Remove the password to merge.';
+                } else if (isMemory) {
+                    friendlyMsg = 'The merge ran out of memory. Try fewer or smaller PDFs.';
+                } else if (isFileRead) {
+                    friendlyMsg = 'Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.';
+                }
                 statusElement.className = 'status-area status-error';
-                statusElement.innerHTML = isEncrypted
-                    ? `<span>🔒 ${friendlyMsg}</span>`
-                    : `<span>✖ ${friendlyMsg}</span>`;
+                statusElement.innerHTML = '<span>' + friendlyMsg + '</span>';
 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pdf_merge_error', {
@@ -1943,7 +1959,25 @@
                     filename = getFinalFilename(input ? input.value : '', files);
                 }
                 
+                if (isMergeTooLarge(stats)) {
+                    const msg = buildMergeTooLargeMessage(stats);
+                    showError(msg, isExpanded ? 'expandedError' : 'simpleError');
+                    if (statusElement) {
+                        statusElement.className = 'status-area status-error';
+                        statusElement.innerHTML = '<span>' + msg + '</span>';
+                    }
+                    return;
+                }
                 const pdfDoc = await PDFLib.PDFDocument.create();
+                if (hasKnownEncryptedFile(files)) {
+                    const msg = 'Password-protected PDF detected. Remove the password to merge.';
+                    showError(msg, isExpanded ? 'expandedError' : 'simpleError');
+                    if (statusElement) {
+                        statusElement.className = 'status-area status-error';
+                        statusElement.innerHTML = '<span>🔒 Password-protected PDF detected. Remove the password to merge.</span>';
+                    }
+                    return;
+                }
 
                 for (const file of files) {
                     const arrayBuffer = await file.arrayBuffer();
@@ -1971,9 +2005,16 @@
                 }
             } catch (error) {
                 const isEncrypted = isEncryptedPdfError(error);
-                const friendlyMsg = isEncrypted
-                    ? 'This PDF is password-protected. Please remove the password and try again.'
-                    : `Error merging PDFs: ${error.message}`;
+                const isMemory = isMemoryError(error);
+                const isFileRead = isFileReadError(error);
+                let friendlyMsg = `Error merging PDFs: ${error.message}`;
+                if (isEncrypted) {
+                    friendlyMsg = 'Password-protected PDF detected. Remove the password to merge.';
+                } else if (isMemory) {
+                    friendlyMsg = 'The merge ran out of memory. Try fewer or smaller PDFs.';
+                } else if (isFileRead) {
+                    friendlyMsg = 'Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.';
+                }
 
                 reportMergeError(error, {
                     mode: isExpanded ? 'expanded' : 'simple',
@@ -1988,9 +2029,7 @@
                 
                 if (statusElement) {
                     statusElement.className = 'status-area status-error';
-                    statusElement.innerHTML = isEncrypted
-                        ? '<span>🔒 This PDF is password-protected. Please remove the password and try again.</span>'
-                        : '<span>✖ Error: ' + error.message + '</span>';
+                    statusElement.innerHTML = '<span>' + friendlyMsg + '</span>';
                 }
 
                 if (typeof gtag !== 'undefined') {
@@ -2030,6 +2069,24 @@
         function isEncryptedPdfError(err) {
             const msg = `${err?.message || ''}`.toLowerCase();
             return msg.includes('encrypted') || msg.includes('password-protected') || msg.includes('password protected');
+        }
+
+        function isFileReadError(err) {
+            const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            return text.includes('notreadableerror') ||
+                text.includes('could not be read') ||
+                text.includes('permission') ||
+                text.includes('securityerror') ||
+                text.includes('notfounderror') ||
+                text.includes('could not be found') ||
+                text.includes('not found');
+        }
+
+        function isMemoryError(err) {
+            const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            return text.includes('array buffer allocation failed') ||
+                text.includes('out of memory') ||
+                text.includes('rangeerror');
         }
 
         function reportMergeError(err, meta = {}) {
@@ -2085,6 +2142,15 @@
             }
         }
 
+        function isMergeTooLarge(stats) {
+            return Number.isFinite(stats?.totalBytes) && stats.totalBytes > MERGE_HARD_LIMIT_BYTES;
+        }
+
+        function buildMergeTooLargeMessage(stats) {
+            const total = formatFileSize(stats?.totalBytes || 0);
+            return `Total file size (${total}) is too large to merge in the browser. Try fewer or smaller PDFs.`;
+        }
+
         async function hasPdfHeader(file) {
             try {
                 const header = await file.slice(0, 5).arrayBuffer();
@@ -2097,11 +2163,12 @@
 
         function queueEncryptionScan(file, targetId, mode, inputId) {
             if (!file || mergeInProgress) return;
-            if (encryptionScanCache.has(file)) return;
-            encryptionScanCache.set(file, true);
+            if (encryptionScanResults.has(file)) return;
 
             setTimeout(async () => {
+                if (mergeInProgress) return;
                 const isEncrypted = await scanEncryptedPdf(file);
+                encryptionScanResults.set(file, isEncrypted);
                 if (!isEncrypted || mergeInProgress) return;
 
                 if (mode === 'expanded' && !expandedFiles.includes(file)) return;
@@ -2135,6 +2202,14 @@
             try {
                 const text = new TextDecoder('ascii').decode(buffer);
                 return text.includes('/Encrypt');
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function hasKnownEncryptedFile(files = []) {
+            try {
+                return Array.from(files || []).some((file) => encryptionScanResults.get(file) === true);
             } catch (e) {
                 return false;
             }
@@ -2248,3 +2323,5 @@
     <script src="feedback.js"></script>
 </body>
 </html>
+
+
