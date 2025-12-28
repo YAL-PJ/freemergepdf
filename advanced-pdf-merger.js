@@ -71,7 +71,7 @@ class AdvancedPDFMerger {
       this.showStatus('Extracting pages from PDFs...');
       
       // Store files and extract pages
-      this.files = uploadedFiles;
+      this.files = Array.from(uploadedFiles || []).filter((file) => file && typeof file.name === 'string');
       await this.extractAllPages();
       // Warm the thumbnail cache in the background (lightweight + capped)
       this.startBackgroundThumbnailPreRender();
@@ -493,6 +493,7 @@ class AdvancedPDFMerger {
     items.className = 'legend-items';
 
     this.files.forEach((file, index) => {
+      if (!file || typeof file.name !== 'string') return;
       const item = document.createElement('div');
       item.className = 'legend-item';
 

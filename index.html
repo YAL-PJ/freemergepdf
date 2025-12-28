@@ -568,6 +568,23 @@
             transition: all 0.2s ease;
         }
 
+        .pdf-card.pdf-card-invalid {
+            border-color: #f5c6cb;
+            background: #fdf2f3;
+        }
+
+        .pdf-card.pdf-card-invalid .pdf-name,
+        .pdf-card.pdf-card-invalid .pdf-size {
+            color: #8b2b2f;
+        }
+
+        .pdf-issue {
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #b2343b;
+        }
+
         .pdf-card:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border-color: #667eea;
@@ -1259,6 +1276,8 @@
         let mergeInProgress = false;
         const encryptedWarningShown = { simple: false, expanded: false };
         const encryptionScanResults = new WeakMap();
+        const fileIssues = new WeakMap();
+        let advancedMergerFiles = [];
         const ENCRYPTION_SCAN_BYTES = 65536;
 
         // ===== MODE TOGGLE =====
@@ -1451,23 +1470,25 @@
             }
 
             for (let file of files) {
+                let issueReason = '';
                 if (file.type !== 'application/pdf') {
-                    showError('Skipped non-PDF file: ' + file.name, 'expandedError');
-                    continue;
+                    issueReason = 'Not a PDF file';
+                } else if (file.size === 0) {
+                    issueReason = 'Empty PDF (0 bytes)';
+                } else if (!(await hasPdfHeader(file))) {
+                    issueReason = 'Missing PDF header';
                 }
-
-                if (file.size === 0) {
-                    showError('Skipped empty PDF file.', 'expandedError');
-                    continue;
-                }
-
-                if (!(await hasPdfHeader(file))) {
-                    showError('Skipped file that is not a valid PDF (missing header).', 'expandedError');
-                    continue;
+                if (issueReason) {
+                    markFileIssue(file, issueReason);
+                    showError(`File added but will be skipped: ${issueReason}.`, 'expandedError');
+                } else {
+                    clearFileIssue(file);
                 }
 
                 expandedFiles.push(file);
-                queueEncryptionScan(file, 'expandedError', 'expanded');
+                if (!issueReason) {
+                    queueEncryptionScan(file, 'expandedError', 'expanded');
+                }
             }
 
             renderPdfList();
@@ -1485,8 +1506,9 @@
 
             expandedFiles.forEach((file, index) => {
                 if (!file || typeof file.name !== 'string') return;
+                const issue = getFileIssue(file);
                 const card = document.createElement('div');
-                card.className = 'pdf-card';
+                card.className = issue ? 'pdf-card pdf-card-invalid' : 'pdf-card';
                 card.draggable = true;
                 card.dataset.index = index;
 
@@ -1496,6 +1518,7 @@
                     <div class="pdf-info">
                         <div class="pdf-name">${file.name}</div>
                         <div class="pdf-size">${formatFileSize(file.size)}</div>
+                        ${issue ? `<div class="pdf-issue">Not mergeable: ${issue.reason}</div>` : ''}
                     </div>
                     <button class="pdf-delete" onclick="removeExpandedFile(${index})">✕</button>
                 `;
@@ -1524,7 +1547,8 @@
         }
 
         function removeExpandedFile(index) {
-            expandedFiles.splice(index, 1);
+            const removed = expandedFiles.splice(index, 1)[0];
+            clearFileIssue(removed);
             renderPdfList();
             updateDocCount();
             updateExpandedMergeButton();
@@ -1533,16 +1557,21 @@
         }
 
         function updateDocCount() {
-            const count = expandedFiles.length;
-            document.getElementById('docCount').textContent = 
-                count === 0 ? '0 files' : `${count} file${count !== 1 ? 's' : ''}`;
+            const total = expandedFiles.length;
+            const skipped = getUnmergeableCount(expandedFiles);
+            let label = total === 0 ? '0 files' : `${total} file${total !== 1 ? 's' : ''}`;
+            if (skipped > 0) {
+                label += ` (${skipped} skipped)`;
+            }
+            document.getElementById('docCount').textContent = label;
         }
 
         function updateExpandedMergeButton() {
             const advBtn = document.getElementById('advancedSortBtn');
             const mergeBtn = document.getElementById('expandedMergeBtn');
-            
-            const hasFiles = expandedFiles.length >= 2;
+
+            const mergeableFiles = getMergeableFiles(expandedFiles);
+            const hasFiles = mergeableFiles.length >= 2;
             if (advBtn) advBtn.disabled = !hasFiles;
             if (mergeBtn) mergeBtn.disabled = !hasFiles;
             
@@ -1551,11 +1580,11 @@
                 let filename;
                 if (input) {
                     if (!input.dataset.userEdited) {
-                        input.value = generateDefaultFilename(expandedFiles);
+                        input.value = generateDefaultFilename(mergeableFiles);
                     }
-                    filename = getFinalFilename(input.value, expandedFiles);
+                    filename = getFinalFilename(input.value, mergeableFiles);
                 } else {
-                    filename = generateDefaultFilename(expandedFiles);
+                    filename = generateDefaultFilename(mergeableFiles);
                 }
                 updateExpandedMergeButtonLabel(filename);
             } else {
@@ -1566,8 +1595,8 @@
                     input.value = '';
                 }
             }
-            
-            checkMemoryWarning(expandedFiles, 'expandedWarning');
+
+            checkMemoryWarning(mergeableFiles, 'expandedWarning');
         }
 
         // ===== UTILITY FUNCTIONS =====
@@ -1577,6 +1606,33 @@
             const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function markFileIssue(file, reason) {
+            if (!file) return;
+            fileIssues.set(file, { reason, canMerge: false });
+        }
+
+        function clearFileIssue(file) {
+            if (!file) return;
+            fileIssues.delete(file);
+        }
+
+        function getFileIssue(file) {
+            return fileIssues.get(file) || null;
+        }
+
+        function isMergeableFile(file) {
+            const issue = getFileIssue(file);
+            return !issue || issue.canMerge !== false;
+        }
+
+        function getMergeableFiles(files = []) {
+            return Array.from(files || []).filter((file) => file && typeof file.name === 'string' && isMergeableFile(file));
+        }
+
+        function getUnmergeableCount(files = []) {
+            return Array.from(files || []).filter((file) => file && typeof file.name === 'string' && !isMergeableFile(file)).length;
         }
 
         function clearError(elementId) {
@@ -1591,6 +1647,17 @@
             element.textContent = message;
             element.classList.add('show');
             flashUploadGlow(elementId);
+        }
+
+        function promptSkipFile(file, error) {
+            const name = file && file.name ? `"${file.name}"` : 'this file';
+            const reason = error && error.message ? error.message : 'Unknown error';
+            return window.confirm(
+                `${name} could not be processed.\n` +
+                `Reason: ${reason}\n\n` +
+                'Click OK to skip this file and continue merging.\n' +
+                'Click Cancel to stop the merge.'
+            );
         }
 
         function flashUploadGlow(elementId) {
@@ -1654,14 +1721,16 @@
         }
 
         async function ensureAdvancedPrepared(files) {
-            if (!files || files.length < 2) return null;
+            const mergeableFiles = getMergeableFiles(files);
+            if (!mergeableFiles || mergeableFiles.length < 2) return null;
 
-            const key = buildFilesKey(files);
+            const key = buildFilesKey(mergeableFiles);
             if (advancedMergerPrewarmPromise) {
                 await advancedMergerPrewarmPromise;
             }
 
             if (advancedMerger && advancedMergerPrewarmKey === key && advancedMerger.pages && advancedMerger.pages.length) {
+                advancedMergerFiles = mergeableFiles;
                 return advancedMerger;
             }
 
@@ -1678,10 +1747,12 @@
             if (!container) return null;
 
             container.innerHTML = '';
-            advancedMergerPrewarmPromise = merger.initialize(files, '#advancedMergeContent')
+            advancedMergerFiles = mergeableFiles;
+            advancedMergerPrewarmPromise = merger.initialize(mergeableFiles, '#advancedMergeContent')
                 .catch((err) => {
                     console.error('Advanced merge prewarm failed:', err);
                     advancedMergerPrewarmKey = '';
+                    advancedMergerFiles = [];
                 })
                 .finally(() => {
                     advancedMergerPrewarmPromise = null;
@@ -1692,8 +1763,10 @@
         }
 
         function primeAdvancedMergeIfReady(files) {
-            if (files && files.length >= 2) {
-                ensureAdvancedPrepared(files);
+            const mergeableFiles = getMergeableFiles(files);
+            advancedMergerFiles = mergeableFiles;
+            if (mergeableFiles && mergeableFiles.length >= 2) {
+                ensureAdvancedPrepared(mergeableFiles);
             }
         }
 
@@ -1769,7 +1842,7 @@
             if (expandedInput) {
                 expandedInput.addEventListener('input', () => {
                     expandedInput.dataset.userEdited = 'true';
-                    const files = expandedFiles || [];
+                    const files = getMergeableFiles(expandedFiles || []);
                     if (!files.length) return;
                     const filename = getFinalFilename(expandedInput.value, files);
                     updateExpandedMergeButtonLabel(filename);
@@ -1783,7 +1856,13 @@
             const file2 = document.getElementById('file2').files[0];
 
             if (!file1 || !file2) {
-                alert('Please select 2 PDF files first');
+                showError('Please select 2 PDF files first.', 'simpleError');
+                return;
+            }
+
+            const mergeableFiles = getMergeableFiles([file1, file2]);
+            if (mergeableFiles.length < 2) {
+                showError('Select at least 2 mergeable PDFs before using Advanced Merge.', 'simpleError');
                 return;
             }
 
@@ -1794,10 +1873,10 @@
             queueEncryptionScan(file2, 'expandedError', 'expanded');
 
             // Set default filename
-            const defaultName = generateDefaultFilename([file1, file2]);
+            const defaultName = generateDefaultFilename(mergeableFiles);
             document.getElementById('customFilename').value = defaultName;
 
-            await ensureAdvancedPrepared(expandedFiles);
+            await ensureAdvancedPrepared(mergeableFiles);
 
             // Open modal once prewarmed (or immediately if already ready)
             document.getElementById('advancedMergeModal').classList.add('active');
@@ -1808,20 +1887,26 @@
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
             
             if (!isExpanded) {
-                alert('Please switch to expanded mode first (merge multiple files)');
+                showError('Please switch to expanded mode first (merge multiple files).', 'expandedError');
                 return;
             }
 
             if (expandedFiles.length < 2) {
-                alert('Please add at least 2 files to use advanced sorting');
+                showError('Please add at least 2 files to use advanced sorting.', 'expandedError');
                 return;
             }
 
             // Set default filename
-            const defaultName = generateDefaultFilename(expandedFiles);
+            const mergeableFiles = getMergeableFiles(expandedFiles);
+            if (mergeableFiles.length < 2) {
+                showError('Please select at least 2 mergeable PDF files.', 'expandedError');
+                return;
+            }
+
+            const defaultName = generateDefaultFilename(mergeableFiles);
             document.getElementById('customFilename').value = defaultName;
 
-            await ensureAdvancedPrepared(expandedFiles);
+            await ensureAdvancedPrepared(mergeableFiles);
 
             document.getElementById('advancedMergeModal').classList.add('active');
             document.getElementById('pageCount').textContent = advancedMerger?.pages?.length || 0;
@@ -1850,7 +1935,10 @@
             const customFilename = document.getElementById('customFilename').value.trim() || 'merged.pdf';
             const filename = customFilename.endsWith('.pdf') ? customFilename : customFilename + '.pdf';
             const mergeStart = performance.now();
-            const stats = getFileStats(expandedFiles);
+            const mergeFiles = advancedMergerFiles && advancedMergerFiles.length ? advancedMergerFiles : getMergeableFiles(expandedFiles);
+            const stats = getFileStats(mergeFiles);
+            const skippedFileIndices = new Set();
+            let skippedCount = 0;
             mergeInProgress = true;
             
             const btn = document.getElementById('expandedMergeBtn');
@@ -1875,13 +1963,18 @@
             statusElement.innerHTML = '<span>⏳ Merging with custom order...</span>';
 
             try {
+                if (mergeFiles.length < 2) {
+                    statusElement.className = 'status-area status-error';
+                    statusElement.innerHTML = '<span>Select at least 2 mergeable PDFs.</span>';
+                    return;
+                }
                 if (isMergeTooLarge(stats)) {
                     statusElement.className = 'status-area status-error';
                     statusElement.innerHTML = '<span>' + buildMergeTooLargeMessage(stats) + '</span>';
                     return;
                 }
                 const pdfDoc = await PDFLib.PDFDocument.create();
-                if (hasKnownEncryptedFile(expandedFiles)) {
+                if (hasKnownEncryptedFile(mergeFiles)) {
                     statusElement.className = 'status-area status-error';
                     statusElement.innerHTML = '<span>🔒 Password-protected PDF detected. Remove the password to merge.</span>';
                     return;
@@ -1890,33 +1983,112 @@
 
                 for (const pageData of orderedPages) {
                     const fileIndex = pageData.fileIndex;
+                    if (skippedFileIndices.has(fileIndex)) continue;
 
-                    if (!loadedPdfs.has(fileIndex)) {
-                        const file = expandedFiles[fileIndex];
-                        const arrayBuffer = await file.arrayBuffer();
-                        const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-                        loadedPdfs.set(fileIndex, pdf);
+                    const file = mergeFiles[fileIndex];
+                    if (!file) {
+                        skippedFileIndices.add(fileIndex);
+                        skippedCount += 1;
+                        continue;
                     }
 
-                    const sourcePdf = loadedPdfs.get(fileIndex);
-                    const copiedPages = await pdfDoc.copyPages(sourcePdf, [pageData.pageIndex]);
-                    
-                    copiedPages.forEach((page) => {
-                        pdfDoc.addPage(page);
-                    });
+                    if (!loadedPdfs.has(fileIndex)) {
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                            loadedPdfs.set(fileIndex, pdf);
+                        } catch (error) {
+                            const shouldSkip = promptSkipFile(file, error);
+                            if (shouldSkip) {
+                                skippedFileIndices.add(fileIndex);
+                                skippedCount += 1;
+                                markFileIssue(file, 'Skipped due to read error');
+                                renderPdfList();
+                                updateDocCount();
+                                updateExpandedMergeButton();
+                                reportMergeError(error, {
+                                    mode: 'advanced_sorted',
+                                    step: 'mergeWithCustomOrder-skip',
+                                    fileCount: mergeFiles?.length || 0,
+                                    pageCount: orderedPages?.length || 0,
+                                    totalBytes: stats.totalBytes,
+                                    maxBytes: stats.maxBytes,
+                                    durationMs: performance.now() - mergeStart,
+                                    source: 'pdf-lib',
+                                    userNote: `user_action=skip;fileIndex=${fileIndex}`
+                                });
+                                continue;
+                            }
+                            throw error;
+                        }
+                    }
+
+                    if (skippedFileIndices.has(fileIndex)) continue;
+
+                    try {
+                        const sourcePdf = loadedPdfs.get(fileIndex);
+                        if (!sourcePdf) continue;
+                        const copiedPages = await pdfDoc.copyPages(sourcePdf, [pageData.pageIndex]);
+                        
+                        copiedPages.forEach((page) => {
+                            pdfDoc.addPage(page);
+                        });
+                    } catch (error) {
+                        const shouldSkip = promptSkipFile(file, error);
+                        if (shouldSkip) {
+                            skippedFileIndices.add(fileIndex);
+                            skippedCount += 1;
+                            markFileIssue(file, 'Skipped due to read error');
+                            renderPdfList();
+                            updateDocCount();
+                            updateExpandedMergeButton();
+                            reportMergeError(error, {
+                                mode: 'advanced_sorted',
+                                step: 'mergeWithCustomOrder-skip',
+                                fileCount: mergeFiles?.length || 0,
+                                pageCount: orderedPages?.length || 0,
+                                totalBytes: stats.totalBytes,
+                                maxBytes: stats.maxBytes,
+                                durationMs: performance.now() - mergeStart,
+                                source: 'pdf-lib',
+                                userNote: `user_action=skip;fileIndex=${fileIndex}`
+                            });
+                            continue;
+                        }
+                        throw error;
+                    }
+                }
+
+                if (pdfDoc.getPageCount() === 0) {
+                    statusElement.className = 'status-area status-error';
+                    statusElement.innerHTML = '<span>No mergeable pages were left after skipping files.</span>';
+                    return;
+                }
+
+                if (pdfDoc.getPageCount() === 0) {
+                    const msg = 'No mergeable pages were left after skipping files.';
+                    showError(msg, isExpanded ? 'expandedError' : 'simpleError');
+                    if (statusElement) {
+                        statusElement.className = 'status-area status-error';
+                        statusElement.innerHTML = '<span>' + msg + '</span>';
+                    }
+                    return;
                 }
 
                 const pdfBytes = await pdfDoc.save();
                 downloadPDF(pdfBytes, filename);
 
+                const successMsg = skippedCount > 0
+                    ? `Merged with ${skippedCount} skipped file${skippedCount !== 1 ? 's' : ''}. Download started.`
+                    : 'Success! Download started';
                 statusElement.className = 'status-area status-success';
-                statusElement.innerHTML = '<span>✓ Success! Download started</span>';
+                statusElement.innerHTML = '<span>' + successMsg + '</span>';
 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pdf_merge_success', {
                         'mode': 'advanced_sorted',
-                        'file_count': expandedFiles.length,
-                        'page_count': orderedPages.length
+                        'file_count': mergeFiles.length,
+                        'page_count': pdfDoc.getPageCount()
                     });
                 }
             } catch (error) {
@@ -1945,7 +2117,7 @@
                 reportMergeError(error, {
                     mode: 'advanced_sorted',
                     step: 'mergeWithCustomOrder',
-                    fileCount: expandedFiles?.length || 0,
+                    fileCount: mergeFiles?.length || 0,
                     pageCount: orderedPages?.length || 0,
                     totalBytes: stats.totalBytes,
                     maxBytes: stats.maxBytes,
@@ -1966,11 +2138,13 @@
           mergeInProgress = true;
           try {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
-            const files = isExpanded 
+            const allFiles = isExpanded 
                 ? expandedFiles 
                 : [document.getElementById('file1').files[0], document.getElementById('file2').files[0]].filter(Boolean);
+            const files = getMergeableFiles(allFiles);
 
             if (files.length < 2) {
+                showError('Select at least 2 mergeable PDFs.', isExpanded ? 'expandedError' : 'simpleError');
                 mergeInProgress = false;
                 return;
             }
@@ -1991,6 +2165,7 @@
             }
 
             try {
+                let skippedCount = 0;
                 stats = getFileStats(files);
                 // Generate filename based on mode and input
                 let filename;
@@ -2023,20 +2198,48 @@
                 }
 
                 for (const file of files) {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-                    const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
-                    copiedPages.forEach((page) => {
-                        pdfDoc.addPage(page);
-                    });
+                    try {
+                        const arrayBuffer = await file.arrayBuffer();
+                        const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                        const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
+                        copiedPages.forEach((page) => {
+                            pdfDoc.addPage(page);
+                        });
+                    } catch (error) {
+                        const shouldSkip = promptSkipFile(file, error);
+                        if (shouldSkip) {
+                            skippedCount += 1;
+                            markFileIssue(file, 'Skipped due to read error');
+                            if (isExpanded) {
+                                renderPdfList();
+                                updateDocCount();
+                                updateExpandedMergeButton();
+                            }
+                            reportMergeError(error, {
+                                mode: isExpanded ? 'expanded' : 'simple',
+                                step: 'mergePDFs-skip',
+                                fileCount: files?.length || 0,
+                                totalBytes: stats.totalBytes,
+                                maxBytes: stats.maxBytes,
+                                durationMs: performance.now() - mergeStart,
+                                source: 'pdf-lib',
+                                userNote: 'user_action=skip'
+                            });
+                            continue;
+                        }
+                        throw error;
+                    }
                 }
 
                 const pdfBytes = await pdfDoc.save();
                 downloadPDF(pdfBytes, filename);
 
                 if (statusElement) {
+                    const successMsg = skippedCount > 0
+                        ? `Merged with ${skippedCount} skipped file${skippedCount !== 1 ? 's' : ''}. Download started.`
+                        : 'Success! Download started';
                     statusElement.className = 'status-area status-success';
-                    statusElement.innerHTML = '<span>✓ Success! Download started</span>';
+                    statusElement.innerHTML = '<span>' + successMsg + '</span>';
                 }
 
                 if (typeof gtag !== 'undefined') {
@@ -2220,6 +2423,13 @@
                     if (current !== file) return;
                 }
 
+                markFileIssue(file, 'Password-protected PDF');
+                if (mode === 'expanded') {
+                    renderPdfList();
+                    updateDocCount();
+                    updateExpandedMergeButton();
+                    primeAdvancedMergeIfReady(expandedFiles);
+                }
                 if (encryptedWarningShown[mode]) return;
                 encryptedWarningShown[mode] = true;
                 showError('Password-protected PDF detected. Remove the password to merge.', targetId);
