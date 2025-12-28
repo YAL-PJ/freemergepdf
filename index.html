@@ -1329,6 +1329,7 @@
 
         async function handleSimpleFileSelect(file, displayId, inputId) {
             if (!file) return;
+            clearError('simpleError');
 
             if (file.type !== 'application/pdf') {
                 showError('Please select a PDF file.', 'simpleError');
@@ -1445,6 +1446,10 @@
         }
 
         async function handleExpandedFileSelect(files) {
+            if (files && files.length) {
+                clearError('expandedError');
+            }
+
             for (let file of files) {
                 if (file.type !== 'application/pdf') {
                     showError('Skipped non-PDF file: ' + file.name, 'expandedError');
@@ -1572,6 +1577,13 @@
             const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function clearError(elementId) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            element.textContent = '';
+            element.classList.remove('show');
         }
 
         function showError(message, elementId) {
