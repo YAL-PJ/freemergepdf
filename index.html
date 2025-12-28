@@ -918,6 +918,8 @@
                 </div>
             </div>
 
+            <div class="error-message" id="simpleError"></div>
+
             <!-- PROMINENT MERGE BUTTON -->
             <div class="simple-merge-section">
                 
@@ -940,7 +942,6 @@
                 <p class="simple-merge-hint">Use advanced merge to reorder pages</p>
             </div>
 
-            <div class="error-message" id="simpleError"></div>
             <div class="memory-warning" id="simpleWarning"></div>
 
             <div class="status-area status-ready" id="simpleStatus">
@@ -962,6 +963,8 @@
             <div class="drop-zone-subtext">You can select multiple files at once</div>
             <input type="file" id="expandedFileInput" accept=".pdf" multiple />
         </div>
+
+        <div class="error-message" id="expandedError"></div>
 
         <div class="pdf-list" id="pdfList"></div>
 
@@ -986,7 +989,6 @@
         </div>
 
 
-        <div class="error-message" id="expandedError"></div>
         <div class="memory-warning" id="expandedWarning"></div>
     </div>
 
@@ -1326,9 +1328,6 @@
         }
 
         async function handleSimpleFileSelect(file, displayId, inputId) {
-            const errorElement = document.getElementById('simpleError');
-            errorElement.classList.remove('show');
-
             if (!file) return;
 
             if (file.type !== 'application/pdf') {
@@ -1446,9 +1445,6 @@
         }
 
         async function handleExpandedFileSelect(files) {
-            const errorElement = document.getElementById('expandedError');
-            errorElement.classList.remove('show');
-
             for (let file of files) {
                 if (file.type !== 'application/pdf') {
                     showError('Skipped non-PDF file: ' + file.name, 'expandedError');
@@ -1583,7 +1579,6 @@
             element.textContent = message;
             element.classList.add('show');
             flashUploadGlow(elementId);
-            setTimeout(() => element.classList.remove('show'), 5000);
         }
 
         function flashUploadGlow(elementId) {
