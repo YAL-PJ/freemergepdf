@@ -290,6 +290,24 @@
             background: #f0f4ff;
         }
 
+        .file-input-display.upload-error-glow,
+        .drop-zone.upload-error-glow {
+            border-color: #e24b4b;
+            animation: uploadErrorGlow 0.9s ease;
+        }
+
+        @keyframes uploadErrorGlow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(226, 75, 75, 0);
+            }
+            35% {
+                box-shadow: 0 0 0 4px rgba(226, 75, 75, 0.35), 0 0 18px rgba(226, 75, 75, 0.5);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(226, 75, 75, 0);
+            }
+        }
+
         .file-input-icon {
             font-size: 32px;
             margin-bottom: 10px;
@@ -1564,7 +1582,25 @@
             const element = document.getElementById(elementId);
             element.textContent = message;
             element.classList.add('show');
+            flashUploadGlow(elementId);
             setTimeout(() => element.classList.remove('show'), 5000);
+        }
+
+        function flashUploadGlow(elementId) {
+            let targets = [];
+            if (elementId === 'simpleError') {
+                targets = [document.getElementById('display1'), document.getElementById('display2')];
+            } else if (elementId === 'expandedError') {
+                targets = [document.getElementById('dropZone')];
+            }
+
+            targets.forEach((target) => {
+                if (!target) return;
+                target.classList.remove('upload-error-glow');
+                void target.offsetWidth;
+                target.classList.add('upload-error-glow');
+                setTimeout(() => target.classList.remove('upload-error-glow'), 900);
+            });
         }
 
         function checkMemoryWarning(files, elementId) {
