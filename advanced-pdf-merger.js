@@ -31,6 +31,7 @@ class AdvancedPDFMerger {
     this.pageMap = new Map(); // For efficient lookups
     this.draggedIndex = null;
     this.thumbnailCache = new Map();
+    this.failedFileIndices = new Set();
 
     // Color palette for file identification
     this.fileColors = [
@@ -72,6 +73,7 @@ class AdvancedPDFMerger {
       
       // Store files and extract pages
       this.files = Array.from(uploadedFiles || []).filter((file) => file && typeof file.name === 'string');
+      this.failedFileIndices.clear();
       await this.extractAllPages();
       // Warm the thumbnail cache in the background (lightweight + capped)
       this.startBackgroundThumbnailPreRender();
@@ -122,6 +124,7 @@ class AdvancedPDFMerger {
     this.pages = [];
     this.originalPages = [];
     this.thumbnailCache.clear();
+    this.failedFileIndices.clear();
 
     // Set up PDF.js worker
     if (typeof pdfjsLib !== 'undefined') {
@@ -154,11 +157,22 @@ class AdvancedPDFMerger {
           this.pageMap.set(pageId, pageData);
         }
       } catch (error) {
-        const sanitizedMessage = `Failed to process file index ${fileIndex}: ${error?.message || 'Unknown error'}`;
-        const sanitizedError = new Error(sanitizedMessage);
+        this.failedFileIndices.add(fileIndex);
+        const reason = this.formatUserError(error);
+        if (typeof this.config.onFileError === 'function') {
+          this.config.onFileError({ fileIndex, error, reason });
+        }
+        safeReportError(error, {
+          feature: 'AdvancedPDFMerger.extractAllPages',
+          userNote: `fileIndex=${fileIndex}`
+        });
         console.error(`Error extracting pages from file index ${fileIndex}:`, error);
-        throw sanitizedError;
+        continue;
       }
+    }
+
+    if (this.pages.length === 0) {
+      throw new Error('No pages could be extracted from the selected files.');
     }
 
     // Keep an immutable snapshot to restore deleted pages on reset
@@ -503,7 +517,10 @@ class AdvancedPDFMerger {
       colorDot.style.backgroundColor = color;
 
       const label = document.createElement('span');
-      label.textContent = `${this.truncateFileName(file.name)} (${this.countPagesForFile(index)} pages)`;
+      const pageCount = this.countPagesForFile(index);
+      const failed = this.failedFileIndices.has(index);
+      const suffix = failed ? ' (skipped)' : '';
+      label.textContent = `${this.truncateFileName(file.name)} (${pageCount} pages${suffix})`;
 
       item.appendChild(colorDot);
       item.appendChild(label);

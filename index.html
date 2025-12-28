@@ -1278,6 +1278,7 @@
         const encryptionScanResults = new WeakMap();
         const fileIssues = new WeakMap();
         let advancedMergerFiles = [];
+        let advancedFileErrorShown = false;
         const ENCRYPTION_SCAN_BYTES = 65536;
 
         // ===== MODE TOGGLE =====
@@ -1467,6 +1468,7 @@
         async function handleExpandedFileSelect(files) {
             if (files && files.length) {
                 clearError('expandedError');
+                advancedFileErrorShown = false;
             }
 
             for (let file of files) {
@@ -1549,6 +1551,9 @@
         function removeExpandedFile(index) {
             const removed = expandedFiles.splice(index, 1)[0];
             clearFileIssue(removed);
+            if (expandedFiles.length === 0) {
+                advancedFileErrorShown = false;
+            }
             renderPdfList();
             updateDocCount();
             updateExpandedMergeButton();
@@ -1635,6 +1640,42 @@
             return Array.from(files || []).filter((file) => file && typeof file.name === 'string' && !isMergeableFile(file)).length;
         }
 
+        function describeFileIssue(info) {
+            const err = info?.error;
+            if (isEncryptedPdfError(err)) return 'Password-protected PDF';
+            if (isFileReadError(err)) return 'File unavailable (moved or permission)';
+            const msg = `${err?.message || info?.reason || ''}`.trim();
+            if (!msg) return 'Could not be processed';
+            if (msg.toLowerCase().includes('file index')) return 'Could not be processed';
+            return msg.replace(/^Error:\s*/i, '');
+        }
+
+        function handleAdvancedFileError(info) {
+            const fileIndex = info?.fileIndex;
+            let file = null;
+            if (Array.isArray(advancedMergerFiles) && Number.isInteger(fileIndex)) {
+                file = advancedMergerFiles[fileIndex] || null;
+                if (file) {
+                    markFileIssue(file, describeFileIssue(info));
+                    advancedMergerFiles[fileIndex] = null;
+                }
+            }
+            if (!file && Array.isArray(expandedFiles) && Number.isInteger(fileIndex)) {
+                file = expandedFiles[fileIndex] || null;
+                if (file) {
+                    markFileIssue(file, describeFileIssue(info));
+                }
+            }
+
+            renderPdfList();
+            updateDocCount();
+            updateExpandedMergeButton();
+            if (!advancedFileErrorShown) {
+                advancedFileErrorShown = true;
+                showError('One or more files could not be read and will be skipped.', 'expandedError');
+            }
+        }
+
         function clearError(elementId) {
             const element = document.getElementById(elementId);
             if (!element) return;
@@ -1714,7 +1755,8 @@
                     maxPagesInMemory: 100,
                     thumbnailScale: 1.2,
                     jpegQuality: 0.7,
-                    maxPreRenderPages: 120
+                    maxPreRenderPages: 120,
+                    onFileError: handleAdvancedFileError
                 });
             }
             return advancedMerger;
@@ -1730,7 +1772,7 @@
             }
 
             if (advancedMerger && advancedMergerPrewarmKey === key && advancedMerger.pages && advancedMerger.pages.length) {
-                advancedMergerFiles = mergeableFiles;
+                advancedMergerFiles = mergeableFiles.slice();
                 return advancedMerger;
             }
 
@@ -1747,7 +1789,7 @@
             if (!container) return null;
 
             container.innerHTML = '';
-            advancedMergerFiles = mergeableFiles;
+            advancedMergerFiles = mergeableFiles.slice();
             advancedMergerPrewarmPromise = merger.initialize(mergeableFiles, '#advancedMergeContent')
                 .catch((err) => {
                     console.error('Advanced merge prewarm failed:', err);
@@ -1764,7 +1806,7 @@
 
         function primeAdvancedMergeIfReady(files) {
             const mergeableFiles = getMergeableFiles(files);
-            advancedMergerFiles = mergeableFiles;
+            advancedMergerFiles = mergeableFiles.slice();
             if (mergeableFiles && mergeableFiles.length >= 2) {
                 ensureAdvancedPrepared(mergeableFiles);
             }
@@ -2462,7 +2504,7 @@
 
         function hasKnownEncryptedFile(files = []) {
             try {
-                return Array.from(files || []).some((file) => encryptionScanResults.get(file) === true);
+                return Array.from(files || []).some((file) => file && encryptionScanResults.get(file) === true);
             } catch (e) {
                 return false;
             }
