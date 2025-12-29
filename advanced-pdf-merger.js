@@ -52,6 +52,7 @@ class AdvancedPDFMerger {
     this.preRenderStarted = false;
     this.cancelRender = false;
     this.dropIndicator = null;
+    this.workerDisabled = false;
   }
 
   /**
@@ -116,6 +117,37 @@ class AdvancedPDFMerger {
     return `Error: ${err?.message || 'Something went wrong'}`;
   }
 
+  configurePdfJsWorker() {
+    if (typeof pdfjsLib === 'undefined') return;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+    pdfjsLib.disableWorker = !!this.workerDisabled;
+  }
+
+  shouldDisableWorker(err) {
+    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    return text.includes('importscripts') ||
+      text.includes('failed to load') ||
+      text.includes('worker') && text.includes('failed') ||
+      text.includes('networkerror');
+  }
+
+  async loadPdfDocument(arrayBuffer) {
+    if (typeof pdfjsLib === 'undefined') {
+      throw new Error('pdf.js is not available');
+    }
+    this.configurePdfJsWorker();
+    try {
+      return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    } catch (error) {
+      if (!this.workerDisabled && this.shouldDisableWorker(error)) {
+        this.workerDisabled = true;
+        this.configurePdfJsWorker();
+        return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      }
+      throw error;
+    }
+  }
+
   /**
    * Extract all pages from all uploaded files using PDF.js
    * Efficient: stores minimal data, renders thumbnails on-demand
@@ -126,10 +158,8 @@ class AdvancedPDFMerger {
     this.thumbnailCache.clear();
     this.failedFileIndices.clear();
 
-    // Set up PDF.js worker
-    if (typeof pdfjsLib !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
+    // Set up PDF.js worker (self-hosted)
+    this.configurePdfJsWorker();
 
     for (let fileIndex = 0; fileIndex < this.files.length; fileIndex++) {
       const file = this.files[fileIndex];
@@ -138,7 +168,7 @@ class AdvancedPDFMerger {
         const arrayBuffer = await file.arrayBuffer();
         
         // Load PDF using PDF.js
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const pdf = await this.loadPdfDocument(arrayBuffer);
         const pageCount = pdf.numPages;
 
         for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
