@@ -1692,6 +1692,13 @@
             }
         }
 
+        function handleAdvancedAllFilesFailed() {
+            renderPdfList();
+            updateDocCount();
+            updateExpandedMergeButton();
+            showError('All selected files became unavailable. Please reselect them (copy locally if needed).', 'expandedError');
+        }
+
         function clearError(elementId) {
             const element = document.getElementById(elementId);
             if (!element) return;
@@ -1778,7 +1785,8 @@
                     thumbnailScale: 1.2,
                     jpegQuality: 0.7,
                     maxPreRenderPages: 120,
-                    onFileError: handleAdvancedFileError
+                    onFileError: handleAdvancedFileError,
+                    onAllFilesFailed: handleAdvancedAllFilesFailed
                 });
             }
             return advancedMerger;

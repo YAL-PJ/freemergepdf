@@ -75,7 +75,11 @@ class AdvancedPDFMerger {
       // Store files and extract pages
       this.files = Array.from(uploadedFiles || []).filter((file) => file && typeof file.name === 'string');
       this.failedFileIndices.clear();
-      await this.extractAllPages();
+      const extracted = await this.extractAllPages();
+      if (extracted === false) {
+        this.showStatus('All selected files became unavailable. Please reselect them (copy locally if needed).', 'error');
+        return false;
+      }
       // Warm the thumbnail cache in the background (lightweight + capped)
       this.startBackgroundThumbnailPreRender();
       
@@ -96,6 +100,12 @@ class AdvancedPDFMerger {
     }
   }
 
+  onAllFilesFailed() {
+    if (typeof this.config.onAllFilesFailed === 'function') {
+      this.config.onAllFilesFailed();
+    }
+  }
+
   /**
    * Convert internal errors to user-facing messages (no PII/file names)
    */
@@ -108,7 +118,9 @@ class AdvancedPDFMerger {
       text.includes('securityerror') ||
       text.includes('notfounderror') ||
       text.includes('could not be found') ||
-      text.includes('not found');
+      text.includes('not found') ||
+      text.includes('abort') ||
+      text.includes('aborted');
 
     if (isFileAccess) {
       return 'Could not read this file. It may have been moved, renamed, or is in a sync/network folder. Please copy it to your local drive (e.g., Desktop), close other apps using it (sync/preview/AV), and select it again.';
@@ -157,6 +169,7 @@ class AdvancedPDFMerger {
     this.originalPages = [];
     this.thumbnailCache.clear();
     this.failedFileIndices.clear();
+    let readFailures = 0;
 
     // Set up PDF.js worker (self-hosted)
     this.configurePdfJsWorker();
@@ -188,20 +201,29 @@ class AdvancedPDFMerger {
         }
       } catch (error) {
         this.failedFileIndices.add(fileIndex);
+        readFailures += 1;
         const reason = this.formatUserError(error);
         if (typeof this.config.onFileError === 'function') {
           this.config.onFileError({ fileIndex, error, reason });
         }
-        safeReportError(error, {
-          feature: 'AdvancedPDFMerger.extractAllPages',
-          userNote: `fileIndex=${fileIndex}`
-        });
+        if (!this.config.suppressFileErrors) {
+          safeReportError(error, {
+            feature: 'AdvancedPDFMerger.extractAllPages',
+            userNote: `fileIndex=${fileIndex}`
+          });
+        }
         console.error(`Error extracting pages from file index ${fileIndex}:`, error);
         continue;
       }
     }
 
     if (this.pages.length === 0) {
+      if (readFailures > 0) {
+        const err = new Error('No pages could be extracted from the selected files.');
+        err.name = 'NoPagesExtractedError';
+        this.onAllFilesFailed();
+        return false;
+      }
       throw new Error('No pages could be extracted from the selected files.');
     }
 
