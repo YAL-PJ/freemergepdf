@@ -799,6 +799,46 @@
             color: #dc2626;
         }
 
+        .affiliate-card {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            color: #111827;
+            display: none;
+        }
+
+        .affiliate-card.show {
+            display: block;
+        }
+
+        .affiliate-card h3 {
+            font-size: 16px;
+            margin: 0 0 6px;
+            font-weight: 600;
+        }
+
+        .affiliate-card p {
+            margin: 0 0 12px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .affiliate-card a {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .affiliate-card a:hover {
+            background: #1d4ed8;
+        }
+
         /* ===== FEATURES & FAQ ===== */
         .features {
             background: white;
@@ -964,6 +1004,13 @@
             <div class="status-area status-ready" id="simpleStatus">
                 <span>Ready to merge</span>
             </div>
+            <div class="affiliate-card" id="simpleAffiliateCard">
+                <h3>Need to do more with this PDF?</h3>
+                <p>Collect signatures, upload files, or build a smart form in minutes.</p>
+                <a href="https://www.jotform.com/ai/agents/?partner=freemergepdf"
+                   target="_blank"
+                   rel="nofollow sponsored">Try Jotform AI →</a>
+            </div>
         </div>
     </div>
 
@@ -1007,6 +1054,13 @@
 
 
         <div class="memory-warning" id="expandedWarning"></div>
+        <div class="affiliate-card" id="expandedAffiliateCard">
+            <h3>Need to do more with this PDF?</h3>
+            <p>Collect signatures, upload files, or build a smart form in minutes.</p>
+            <a href="https://www.jotform.com/ai/agents/?partner=freemergepdf"
+               target="_blank"
+               rel="nofollow sponsored">Try Jotform AI →</a>
+        </div>
     </div>
 
     <!-- Feedback Form (appears after merge section on narrow screens) -->
@@ -1690,6 +1744,13 @@
             flashUploadGlow(elementId);
         }
 
+        function toggleAffiliateCard(show, isExpanded) {
+            const cardId = isExpanded ? 'expandedAffiliateCard' : 'simpleAffiliateCard';
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            card.classList.toggle('show', show);
+        }
+
         function promptSkipFile(file, error) {
             const name = file && file.name ? `"${file.name}"` : 'this file';
             const reason = error && error.message ? error.message : 'Unknown error';
@@ -2001,6 +2062,7 @@
                 document.querySelector('.mode-expanded').appendChild(statusElement);
             }
 
+            toggleAffiliateCard(false, true);
             statusElement.className = 'status-area status-processing';
             statusElement.innerHTML = '<span>⏳ Merging with custom order...</span>';
 
@@ -2125,6 +2187,7 @@
                     : 'Success! Download started';
                 statusElement.className = 'status-area status-success';
                 statusElement.innerHTML = '<span>' + successMsg + '</span>';
+                toggleAffiliateCard(true, true);
 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pdf_merge_success', {
@@ -2205,6 +2268,7 @@
                 statusElement.className = 'status-area status-processing';
                 statusElement.innerHTML = '<span>⏳ Processing...</span>';
             }
+            toggleAffiliateCard(false, isExpanded);
 
             try {
                 let skippedCount = 0;
@@ -2283,6 +2347,7 @@
                     statusElement.className = 'status-area status-success';
                     statusElement.innerHTML = '<span>' + successMsg + '</span>';
                 }
+                toggleAffiliateCard(true, isExpanded);
 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pdf_merge_success', {
@@ -2618,5 +2683,3 @@
     <script src="feedback.js"></script>
 </body>
 </html>
-
-
