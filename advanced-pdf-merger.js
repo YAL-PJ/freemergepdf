@@ -53,6 +53,9 @@ class AdvancedPDFMerger {
     this.cancelRender = false;
     this.dropIndicator = null;
     this.workerDisabled = false;
+    this.workerSrc = '/pdf.worker.min.js';
+    this.workerFallbackSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    this.workerFallbackUsed = false;
   }
 
   /**
@@ -131,7 +134,7 @@ class AdvancedPDFMerger {
 
   configurePdfJsWorker() {
     if (typeof pdfjsLib === 'undefined') return;
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = this.workerSrc;
     pdfjsLib.disableWorker = !!this.workerDisabled;
   }
 
@@ -140,7 +143,9 @@ class AdvancedPDFMerger {
     return text.includes('importscripts') ||
       text.includes('failed to load') ||
       text.includes('worker') && text.includes('failed') ||
-      text.includes('networkerror');
+      text.includes('networkerror') ||
+      text.includes('setting up fake worker failed') ||
+      text.includes('cannot load script');
   }
 
   async loadPdfDocument(arrayBuffer) {
@@ -152,6 +157,13 @@ class AdvancedPDFMerger {
       return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     } catch (error) {
       if (!this.workerDisabled && this.shouldDisableWorker(error)) {
+        if (!this.workerFallbackUsed && this.workerSrc !== this.workerFallbackSrc) {
+          this.workerSrc = this.workerFallbackSrc;
+          this.workerFallbackUsed = true;
+          this.configurePdfJsWorker();
+          return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        }
+
         this.workerDisabled = true;
         this.configurePdfJsWorker();
         return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
