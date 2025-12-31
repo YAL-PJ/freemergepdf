@@ -1285,6 +1285,7 @@
                 <div class="advanced-merge-page-count">
                     <strong id="pageCount">0</strong> pages total
                 </div>
+                <div class="memory-warning" id="advancedMergeWarning"></div>
                 <div class="advanced-merge-filename-input">
                     <label for="customFilename">Filename:</label>
                     <input type="text" id="customFilename" placeholder="merged.pdf" />
@@ -1713,6 +1714,7 @@
             renderPdfList();
             updateDocCount();
             updateExpandedMergeButton();
+            checkMemoryWarning(getMergeableFiles(expandedFiles), 'advancedMergeWarning');
             if (!advancedFileErrorShown) {
                 advancedFileErrorShown = true;
                 showError('One or more files could not be read and will be skipped.', 'expandedError');
@@ -1789,7 +1791,7 @@
             const warning = document.getElementById(elementId);
 
             if (totalSize > MEMORY_WARNING_THRESHOLD) {
-                warning.textContent = '⚠️ Large file size detected. Merge may take a moment and require significant memory.';
+                warning.textContent = '⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.';
                 warning.classList.add('show');
             } else {
                 warning.classList.remove('show');
@@ -1986,6 +1988,7 @@
             document.getElementById('customFilename').value = defaultName;
 
             await ensureAdvancedPrepared(mergeableFiles);
+            checkMemoryWarning(mergeableFiles, 'advancedMergeWarning');
 
             // Open modal once prewarmed (or immediately if already ready)
             document.getElementById('advancedMergeModal').classList.add('active');
@@ -2016,6 +2019,7 @@
             document.getElementById('customFilename').value = defaultName;
 
             await ensureAdvancedPrepared(mergeableFiles);
+            checkMemoryWarning(mergeableFiles, 'advancedMergeWarning');
 
             document.getElementById('advancedMergeModal').classList.add('active');
             document.getElementById('pageCount').textContent = advancedMerger?.pages?.length || 0;
