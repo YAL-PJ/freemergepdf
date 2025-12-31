@@ -413,6 +413,58 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.advanced-merge-compress-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #666;
+}
+
+.advanced-merge-compress-option label {
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.advanced-merge-compress-hint {
+  font-weight: 400;
+  color: #777;
+  font-size: 12px;
+}
+
+.advanced-merge-compress-settings {
+  display: none;
+  width: 100%;
+  max-width: 340px;
+  gap: 6px;
+  font-size: 12px;
+  color: #555;
+}
+
+.advanced-merge-compress-settings.active {
+  display: grid;
+}
+
+.advanced-merge-compress-settings label {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: #333;
+}
+
+.advanced-merge-compress-settings input[type="range"] {
+  width: 100%;
+}
+
+.advanced-merge-compress-value {
+  font-weight: 400;
+  color: #777;
+}
+
 .advanced-merge-page-count strong {
   color: #333;
   font-weight: 600;

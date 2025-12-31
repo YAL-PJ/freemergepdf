@@ -452,6 +452,7 @@
             gap: 8px;
             font-size: 13px;
             color: #555;
+            grid-column: 1 / -1;
         }
 
         .filename-input-row input {
@@ -460,6 +461,67 @@
             border: 1px solid #ddd;
             font-size: 13px;
             width: 230px;
+        }
+
+        .compression-options {
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .compression-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compression-option label {
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .compression-hint {
+            font-weight: 400;
+            color: #777;
+            font-size: 12px;
+        }
+
+        .compression-sliders {
+            display: none;
+            width: 100%;
+            max-width: 420px;
+            gap: 6px;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .compression-sliders.active {
+            display: grid;
+        }
+
+        .compression-sliders label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .compression-sliders input[type="range"] {
+            width: 100%;
+        }
+
+        .compression-value {
+            font-weight: 400;
+            color: #777;
         }
 
         /* ===== EXPANDED MODE ===== */
@@ -973,6 +1035,34 @@
                     <label for="simpleFilename">Download name:</label>
                     <input type="text" id="simpleFilename" />
                 </div>
+                <div class="compression-options">
+                    <div class="compression-option">
+                        <input type="checkbox" id="simpleCompressToggle" checked>
+                        <label for="simpleCompressToggle">
+                            Compress output
+                            <span class="compression-hint">smaller file</span>
+                        </label>
+                    </div>
+                    <div class="compression-option">
+                        <input type="checkbox" id="simpleRasterToggle">
+                        <label for="simpleRasterToggle">
+                            More compression
+                            <span class="compression-hint">compress image-heavy pages; text stays text</span>
+                        </label>
+                    </div>
+                    <div class="compression-sliders" id="simpleRasterSettings">
+                        <label for="simpleRasterQuality">
+                            JPEG quality
+                            <span class="compression-value" id="simpleRasterQualityValue">60%</span>
+                        </label>
+                        <input type="range" id="simpleRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
+                        <label for="simpleRasterScale">
+                            Resolution
+                            <span class="compression-value" id="simpleRasterScaleValue">100%</span>
+                        </label>
+                        <input type="range" id="simpleRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
+                    </div>
+                </div>
             </div>
 
             <div class="error-message" id="simpleError"></div>
@@ -1037,6 +1127,34 @@
         <div class="filename-input-row">
             <label for="expandedFilename">Download name:</label>
             <input type="text" id="expandedFilename" />
+        </div>
+        <div class="compression-options">
+            <div class="compression-option">
+                <input type="checkbox" id="expandedCompressToggle" checked>
+                <label for="expandedCompressToggle">
+                    Compress output
+                    <span class="compression-hint">smaller file</span>
+                </label>
+            </div>
+            <div class="compression-option">
+                <input type="checkbox" id="expandedRasterToggle">
+                <label for="expandedRasterToggle">
+                    More compression
+                    <span class="compression-hint">compress image-heavy pages; text stays text</span>
+                </label>
+            </div>
+            <div class="compression-sliders" id="expandedRasterSettings">
+                <label for="expandedRasterQuality">
+                    JPEG quality
+                    <span class="compression-value" id="expandedRasterQualityValue">60%</span>
+                </label>
+                <input type="range" id="expandedRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
+                <label for="expandedRasterScale">
+                    Resolution
+                    <span class="compression-value" id="expandedRasterScaleValue">100%</span>
+                </label>
+                <input type="range" id="expandedRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
+            </div>
         </div>
 
         <div class="button-group">
@@ -1289,6 +1407,32 @@
                 <div class="advanced-merge-filename-input">
                     <label for="customFilename">Filename:</label>
                     <input type="text" id="customFilename" placeholder="merged.pdf" />
+                </div>
+                <div class="advanced-merge-compress-option">
+                    <input type="checkbox" id="advancedCompressToggle" checked>
+                    <label for="advancedCompressToggle">
+                        Compress output
+                        <span class="advanced-merge-compress-hint">smaller file</span>
+                    </label>
+                </div>
+                <div class="advanced-merge-compress-option">
+                    <input type="checkbox" id="advancedRasterToggle">
+                    <label for="advancedRasterToggle">
+                        More compression
+                        <span class="advanced-merge-compress-hint">compress image-heavy pages; text stays text</span>
+                    </label>
+                </div>
+                <div class="advanced-merge-compress-settings" id="advancedRasterSettings">
+                    <label for="advancedRasterQuality">
+                        JPEG quality
+                        <span class="advanced-merge-compress-value" id="advancedRasterQualityValue">60%</span>
+                    </label>
+                    <input type="range" id="advancedRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
+                    <label for="advancedRasterScale">
+                        Resolution
+                        <span class="advanced-merge-compress-value" id="advancedRasterScaleValue">100%</span>
+                    </label>
+                    <input type="range" id="advancedRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
                 </div>
                 <div class="advanced-merge-actions">
                     <button class="advanced-merge-btn advanced-merge-btn-reset" onclick="resetPageOrder()">
@@ -2036,6 +2180,196 @@
             }
         }
 
+        function isCompressEnabledForMode(mode, fallback = true) {
+            const toggle = document.getElementById(`${mode}CompressToggle`);
+            return toggle ? toggle.checked : fallback;
+        }
+
+        function isMoreCompressEnabledForMode(mode) {
+            const toggle = document.getElementById(`${mode}RasterToggle`);
+            return toggle ? toggle.checked : false;
+        }
+
+        function getRasterSettingsForMode(mode) {
+            const scaleInput = document.getElementById(`${mode}RasterScale`);
+            const qualityInput = document.getElementById(`${mode}RasterQuality`);
+            const scale = scaleInput ? parseFloat(scaleInput.value) : 1.0;
+            const quality = qualityInput ? parseFloat(qualityInput.value) : 0.6;
+            return {
+                scale: Number.isFinite(scale) ? scale : 1.0,
+                quality: Number.isFinite(quality) ? quality : 0.6
+            };
+        }
+
+        function updateRasterValue(mode) {
+            const qualityInput = document.getElementById(`${mode}RasterQuality`);
+            const qualityValue = document.getElementById(`${mode}RasterQualityValue`);
+            if (qualityInput && qualityValue) {
+                qualityValue.textContent = `${Math.round(parseFloat(qualityInput.value) * 100)}%`;
+            }
+            const scaleInput = document.getElementById(`${mode}RasterScale`);
+            const scaleValue = document.getElementById(`${mode}RasterScaleValue`);
+            if (scaleInput && scaleValue) {
+                scaleValue.textContent = `${Math.round(parseFloat(scaleInput.value) * 100)}%`;
+            }
+        }
+
+        function setRasterControlsState(mode) {
+            const toggle = document.getElementById(`${mode}RasterToggle`);
+            const settings = document.getElementById(`${mode}RasterSettings`);
+            if (!toggle || !settings) return;
+            const enabled = toggle.checked;
+            settings.classList.toggle('active', enabled);
+            settings.querySelectorAll('input').forEach((input) => {
+                input.disabled = !enabled;
+            });
+            const compressToggle = document.getElementById(`${mode}CompressToggle`);
+            if (enabled && compressToggle) {
+                compressToggle.checked = true;
+            }
+        }
+
+        function setupCompressionControls(mode) {
+            updateRasterValue(mode);
+            setRasterControlsState(mode);
+            const toggle = document.getElementById(`${mode}RasterToggle`);
+            const qualityInput = document.getElementById(`${mode}RasterQuality`);
+            const scaleInput = document.getElementById(`${mode}RasterScale`);
+            if (toggle) {
+                toggle.addEventListener('change', () => setRasterControlsState(mode));
+            }
+            if (qualityInput) {
+                qualityInput.addEventListener('input', () => updateRasterValue(mode));
+            }
+            if (scaleInput) {
+                scaleInput.addEventListener('input', () => updateRasterValue(mode));
+            }
+        }
+
+        function isAdvancedCompressEnabled() {
+            return isCompressEnabledForMode('advanced', true);
+        }
+
+        function isAdvancedMoreCompressEnabled() {
+            return isMoreCompressEnabledForMode('advanced');
+        }
+
+        function getAdvancedRasterSettings() {
+            return getRasterSettingsForMode('advanced');
+        }
+
+        function dataUrlToUint8Array(dataUrl) {
+            const base64 = (dataUrl || '').split(',')[1] || '';
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        async function renderPdfJsPageToJpegBytes(page, settings) {
+            const viewport = page.getViewport({ scale: settings.scale });
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.floor(viewport.width);
+            canvas.height = Math.floor(viewport.height);
+            const context = canvas.getContext('2d');
+            if (!context) {
+                throw new Error('Could not get canvas context');
+            }
+            const renderTask = page.render({ canvasContext: context, viewport });
+            await renderTask.promise;
+            const dataUrl = canvas.toDataURL('image/jpeg', settings.quality);
+            return {
+                bytes: dataUrlToUint8Array(dataUrl),
+                width: viewport.width,
+                height: viewport.height
+            };
+        }
+
+        async function renderPageToJpegBytes(pageData, settings) {
+            if (!pageData || !pageData.pdfDoc) {
+                throw new Error('Page source not available for compression');
+            }
+            const page = await pageData.pdfDoc.getPage(pageData.pageIndex + 1);
+            return renderPdfJsPageToJpegBytes(page, settings);
+        }
+
+        const IMAGE_HEAVY_TEXT_CHARS = 80;
+        const IMAGE_HEAVY_TEXT_ITEMS = 12;
+
+        function getImageOpSet() {
+            if (typeof pdfjsLib === 'undefined' || !pdfjsLib.OPS) return new Set();
+            const ops = pdfjsLib.OPS;
+            return new Set([
+                ops.paintImageXObject,
+                ops.paintJpegXObject,
+                ops.paintImageMaskXObject,
+                ops.paintInlineImageXObject,
+                ops.paintInlineImageXObjectGroup
+            ].filter((value) => typeof value === 'number'));
+        }
+
+        async function isImageHeavyPdfJsPage(page) {
+            try {
+                const [textContent, opList] = await Promise.all([
+                    page.getTextContent(),
+                    page.getOperatorList()
+                ]);
+                const items = textContent.items || [];
+                const textChars = items.reduce((sum, item) => {
+                    const text = item?.str || '';
+                    return sum + text.trim().length;
+                }, 0);
+                const textItems = items.length;
+                const imageOps = getImageOpSet();
+                const imageCount = (opList.fnArray || []).reduce((sum, op) => {
+                    return sum + (imageOps.has(op) ? 1 : 0);
+                }, 0);
+                return imageCount > 0 && textChars <= IMAGE_HEAVY_TEXT_CHARS && textItems <= IMAGE_HEAVY_TEXT_ITEMS;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function ensurePdfJsWorker() {
+            if (typeof pdfjsLib === 'undefined' || !pdfjsLib.GlobalWorkerOptions) return;
+            if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+            }
+        }
+
+        async function rasterizeFileToPdf(pdfDoc, file, settings, onProgress) {
+            if (typeof pdfjsLib === 'undefined') {
+                throw new Error('pdf.js is not available');
+            }
+            ensurePdfJsWorker();
+            const arrayBuffer = await file.arrayBuffer();
+            const sourcePdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const pageCount = sourcePdf.numPages;
+            for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+                const raster = await renderPageToJpegBytes({ pdfDoc: sourcePdf, pageIndex }, settings);
+                const image = await pdfDoc.embedJpg(raster.bytes);
+                const page = pdfDoc.addPage([raster.width, raster.height]);
+                page.drawImage(image, {
+                    x: 0,
+                    y: 0,
+                    width: raster.width,
+                    height: raster.height
+                });
+                if (typeof onProgress === 'function') {
+                    onProgress(pageIndex + 1, pageCount);
+                }
+            }
+            if (typeof sourcePdf.cleanup === 'function') {
+                sourcePdf.cleanup();
+            }
+            if (typeof sourcePdf.destroy === 'function') {
+                sourcePdf.destroy();
+            }
+            return pageCount;
+        }
+
         async function finalizeAdvancedMerge() {
             if (!advancedMerger) return;
 
@@ -2048,10 +2382,15 @@
             const customFilename = document.getElementById('customFilename').value.trim() || 'merged.pdf';
             const filename = customFilename.endsWith('.pdf') ? customFilename : customFilename + '.pdf';
             const mergeStart = performance.now();
+            const compressEnabled = isAdvancedCompressEnabled();
+            const moreCompressEnabled = isAdvancedMoreCompressEnabled();
+            const useObjectStreams = compressEnabled || moreCompressEnabled;
             const mergeFiles = advancedMergerFiles && advancedMergerFiles.length ? advancedMergerFiles : getMergeableFiles(expandedFiles);
             const stats = getFileStats(mergeFiles);
             const skippedFileIndices = new Set();
             let skippedCount = 0;
+            let rasterizedPages = 0;
+            let compressionNote = '';
             mergeInProgress = true;
             
             const btn = document.getElementById('expandedMergeBtn');
@@ -2074,6 +2413,9 @@
 
             statusElement.className = 'status-area status-processing';
             statusElement.innerHTML = '<span>⏳ Merging with custom order...</span>';
+            if (moreCompressEnabled) {
+                statusElement.innerHTML = '<span>Compressing pages...</span>';
+            }
 
             try {
                 if (mergeFiles.length < 2) {
@@ -2092,24 +2434,220 @@
                     statusElement.innerHTML = '<span>🔒 Password-protected PDF detected. Remove the password to merge.</span>';
                     return;
                 }
-                const loadedPdfs = new Map();
+                if (moreCompressEnabled) {
+                    const rasterSettings = getAdvancedRasterSettings();
+                    const totalPages = orderedPages.length;
+                    const loadedPdfs = new Map();
+                    ensurePdfJsWorker();
 
-                for (const pageData of orderedPages) {
-                    const fileIndex = pageData.fileIndex;
-                    if (skippedFileIndices.has(fileIndex)) continue;
+                    for (let i = 0; i < orderedPages.length; i++) {
+                        const pageData = orderedPages[i];
+                        const fileIndex = pageData.fileIndex;
+                        if (skippedFileIndices.has(fileIndex)) continue;
 
-                    const file = mergeFiles[fileIndex];
-                    if (!file) {
-                        skippedFileIndices.add(fileIndex);
-                        skippedCount += 1;
-                        continue;
+                        const file = mergeFiles[fileIndex];
+                        if (!file) {
+                            skippedFileIndices.add(fileIndex);
+                            skippedCount += 1;
+                            continue;
+                        }
+
+                        let pdfJsPage = null;
+                        try {
+                            pdfJsPage = await pageData.pdfDoc.getPage(pageData.pageIndex + 1);
+                        } catch (error) {
+                            const shouldSkip = promptSkipFile(file, error);
+                            if (shouldSkip) {
+                                skippedFileIndices.add(fileIndex);
+                                skippedCount += 1;
+                                markFileIssue(file, 'Skipped due to read error');
+                                renderPdfList();
+                                updateDocCount();
+                                updateExpandedMergeButton();
+                                reportMergeError(error, {
+                                    mode: 'advanced_sorted',
+                                    step: 'mergeWithCustomOrder-rasterize-skip',
+                                    fileCount: mergeFiles?.length || 0,
+                                    pageCount: orderedPages?.length || 0,
+                                    totalBytes: stats.totalBytes,
+                                    maxBytes: stats.maxBytes,
+                                    durationMs: performance.now() - mergeStart,
+                                    source: 'pdfjs-raster',
+                                    userNote: `user_action=skip;fileIndex=${fileIndex}`
+                                });
+                                continue;
+                            }
+                            throw error;
+                        }
+
+                        const shouldRasterize = await isImageHeavyPdfJsPage(pdfJsPage);
+
+                        if (shouldRasterize) {
+                            try {
+                                const raster = await renderPdfJsPageToJpegBytes(pdfJsPage, rasterSettings);
+                                const image = await pdfDoc.embedJpg(raster.bytes);
+                                const page = pdfDoc.addPage([raster.width, raster.height]);
+                                page.drawImage(image, {
+                                    x: 0,
+                                    y: 0,
+                                    width: raster.width,
+                                    height: raster.height
+                                });
+                                rasterizedPages += 1;
+                            } catch (error) {
+                                const shouldSkip = promptSkipFile(file, error);
+                                if (shouldSkip) {
+                                    skippedFileIndices.add(fileIndex);
+                                    skippedCount += 1;
+                                    markFileIssue(file, 'Skipped due to read error');
+                                    renderPdfList();
+                                    updateDocCount();
+                                    updateExpandedMergeButton();
+                                    reportMergeError(error, {
+                                        mode: 'advanced_sorted',
+                                        step: 'mergeWithCustomOrder-rasterize-skip',
+                                        fileCount: mergeFiles?.length || 0,
+                                        pageCount: orderedPages?.length || 0,
+                                        totalBytes: stats.totalBytes,
+                                        maxBytes: stats.maxBytes,
+                                        durationMs: performance.now() - mergeStart,
+                                        source: 'pdfjs-raster',
+                                        userNote: `user_action=skip;fileIndex=${fileIndex}`
+                                    });
+                                    continue;
+                                }
+                                throw error;
+                            }
+                        } else {
+                            if (!loadedPdfs.has(fileIndex)) {
+                                try {
+                                    const arrayBuffer = await file.arrayBuffer();
+                                    const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                                    loadedPdfs.set(fileIndex, pdf);
+                                } catch (error) {
+                                    const shouldSkip = promptSkipFile(file, error);
+                                    if (shouldSkip) {
+                                        skippedFileIndices.add(fileIndex);
+                                        skippedCount += 1;
+                                        markFileIssue(file, 'Skipped due to read error');
+                                        renderPdfList();
+                                        updateDocCount();
+                                        updateExpandedMergeButton();
+                                        reportMergeError(error, {
+                                            mode: 'advanced_sorted',
+                                            step: 'mergeWithCustomOrder-skip',
+                                            fileCount: mergeFiles?.length || 0,
+                                            pageCount: orderedPages?.length || 0,
+                                            totalBytes: stats.totalBytes,
+                                            maxBytes: stats.maxBytes,
+                                            durationMs: performance.now() - mergeStart,
+                                            source: 'pdf-lib',
+                                            userNote: `user_action=skip;fileIndex=${fileIndex}`
+                                        });
+                                        continue;
+                                    }
+                                    throw error;
+                                }
+                            }
+
+                            if (skippedFileIndices.has(fileIndex)) continue;
+
+                            try {
+                                const sourcePdf = loadedPdfs.get(fileIndex);
+                                if (!sourcePdf) continue;
+                                const copiedPages = await pdfDoc.copyPages(sourcePdf, [pageData.pageIndex]);
+                                copiedPages.forEach((page) => {
+                                    pdfDoc.addPage(page);
+                                });
+                            } catch (error) {
+                                const shouldSkip = promptSkipFile(file, error);
+                                if (shouldSkip) {
+                                    skippedFileIndices.add(fileIndex);
+                                    skippedCount += 1;
+                                    markFileIssue(file, 'Skipped due to read error');
+                                    renderPdfList();
+                                    updateDocCount();
+                                    updateExpandedMergeButton();
+                                    reportMergeError(error, {
+                                        mode: 'advanced_sorted',
+                                        step: 'mergeWithCustomOrder-skip',
+                                        fileCount: mergeFiles?.length || 0,
+                                        pageCount: orderedPages?.length || 0,
+                                        totalBytes: stats.totalBytes,
+                                        maxBytes: stats.maxBytes,
+                                        durationMs: performance.now() - mergeStart,
+                                        source: 'pdf-lib',
+                                        userNote: `user_action=skip;fileIndex=${fileIndex}`
+                                    });
+                                    continue;
+                                }
+                                throw error;
+                            }
+                        }
+
+                        if ((i + 1) % 10 === 0 || i === totalPages - 1) {
+                            statusElement.innerHTML = '<span>Compressing pages... ' + (i + 1) + '/' + totalPages + '</span>';
+                        }
                     }
 
-                    if (!loadedPdfs.has(fileIndex)) {
+                    if (rasterizedPages === 0) {
+                        compressionNote = 'Note: No image-heavy pages found; compression is minimal.';
+                    }
+                } else {
+                    const loadedPdfs = new Map();
+
+                    for (const pageData of orderedPages) {
+                        const fileIndex = pageData.fileIndex;
+                        if (skippedFileIndices.has(fileIndex)) continue;
+
+                        const file = mergeFiles[fileIndex];
+                        if (!file) {
+                            skippedFileIndices.add(fileIndex);
+                            skippedCount += 1;
+                            continue;
+                        }
+
+                        if (!loadedPdfs.has(fileIndex)) {
+                            try {
+                                const arrayBuffer = await file.arrayBuffer();
+                                const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                                loadedPdfs.set(fileIndex, pdf);
+                            } catch (error) {
+                                const shouldSkip = promptSkipFile(file, error);
+                                if (shouldSkip) {
+                                    skippedFileIndices.add(fileIndex);
+                                    skippedCount += 1;
+                                    markFileIssue(file, 'Skipped due to read error');
+                                    renderPdfList();
+                                    updateDocCount();
+                                    updateExpandedMergeButton();
+                                    reportMergeError(error, {
+                                        mode: 'advanced_sorted',
+                                        step: 'mergeWithCustomOrder-skip',
+                                        fileCount: mergeFiles?.length || 0,
+                                        pageCount: orderedPages?.length || 0,
+                                        totalBytes: stats.totalBytes,
+                                        maxBytes: stats.maxBytes,
+                                        durationMs: performance.now() - mergeStart,
+                                        source: 'pdf-lib',
+                                        userNote: `user_action=skip;fileIndex=${fileIndex}`
+                                    });
+                                    continue;
+                                }
+                                throw error;
+                            }
+                        }
+
+                        if (skippedFileIndices.has(fileIndex)) continue;
+
                         try {
-                            const arrayBuffer = await file.arrayBuffer();
-                            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-                            loadedPdfs.set(fileIndex, pdf);
+                            const sourcePdf = loadedPdfs.get(fileIndex);
+                            if (!sourcePdf) continue;
+                            const copiedPages = await pdfDoc.copyPages(sourcePdf, [pageData.pageIndex]);
+                            
+                            copiedPages.forEach((page) => {
+                                pdfDoc.addPage(page);
+                            });
                         } catch (error) {
                             const shouldSkip = promptSkipFile(file, error);
                             if (shouldSkip) {
@@ -2135,41 +2673,6 @@
                             throw error;
                         }
                     }
-
-                    if (skippedFileIndices.has(fileIndex)) continue;
-
-                    try {
-                        const sourcePdf = loadedPdfs.get(fileIndex);
-                        if (!sourcePdf) continue;
-                        const copiedPages = await pdfDoc.copyPages(sourcePdf, [pageData.pageIndex]);
-                        
-                        copiedPages.forEach((page) => {
-                            pdfDoc.addPage(page);
-                        });
-                    } catch (error) {
-                        const shouldSkip = promptSkipFile(file, error);
-                        if (shouldSkip) {
-                            skippedFileIndices.add(fileIndex);
-                            skippedCount += 1;
-                            markFileIssue(file, 'Skipped due to read error');
-                            renderPdfList();
-                            updateDocCount();
-                            updateExpandedMergeButton();
-                            reportMergeError(error, {
-                                mode: 'advanced_sorted',
-                                step: 'mergeWithCustomOrder-skip',
-                                fileCount: mergeFiles?.length || 0,
-                                pageCount: orderedPages?.length || 0,
-                                totalBytes: stats.totalBytes,
-                                maxBytes: stats.maxBytes,
-                                durationMs: performance.now() - mergeStart,
-                                source: 'pdf-lib',
-                                userNote: `user_action=skip;fileIndex=${fileIndex}`
-                            });
-                            continue;
-                        }
-                        throw error;
-                    }
                 }
 
                 if (pdfDoc.getPageCount() === 0) {
@@ -2188,14 +2691,15 @@
                     return;
                 }
 
-                const pdfBytes = await pdfDoc.save();
+                const pdfBytes = await pdfDoc.save({ useObjectStreams });
                 downloadPDF(pdfBytes, filename);
 
                 const successMsg = skippedCount > 0
                     ? `Merged with ${skippedCount} skipped file${skippedCount !== 1 ? 's' : ''}. Download started.`
                     : 'Success! Download started.';
                 statusElement.className = 'status-area status-success';
-                statusElement.innerHTML = '<span>' + successMsg + getAffiliateInlineHtml() + '</span>';
+                const noteText = compressionNote ? ' ' + compressionNote : '';
+                statusElement.innerHTML = '<span>' + successMsg + noteText + getAffiliateInlineHtml() + '</span>';
 
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'pdf_merge_success', {
@@ -2271,7 +2775,14 @@
             btn.classList.add('loading');
             btn.disabled = true;
 
-            const statusElement = isExpanded ? null : document.getElementById('simpleStatus');
+            const statusElement = isExpanded
+                ? document.getElementById('expandedStatus') || document.createElement('div')
+                : document.getElementById('simpleStatus');
+            if (isExpanded && statusElement && !statusElement.id) {
+                statusElement.id = 'expandedStatus';
+                statusElement.className = 'status-area status-processing';
+                document.querySelector('.mode-expanded').appendChild(statusElement);
+            }
             if (statusElement) {
                 statusElement.className = 'status-area status-processing';
                 statusElement.innerHTML = '<span>⏳ Processing...</span>';
@@ -2279,7 +2790,17 @@
 
             try {
                 let skippedCount = 0;
+                let compressionNote = '';
                 stats = getFileStats(files);
+                const modeKey = isExpanded ? 'expanded' : 'simple';
+                const compressEnabled = isCompressEnabledForMode(modeKey, true);
+                const moreCompressEnabled = isMoreCompressEnabledForMode(modeKey);
+                const useObjectStreams = compressEnabled || moreCompressEnabled;
+                const rasterSettings = getRasterSettingsForMode(modeKey);
+                if (statusElement && moreCompressEnabled) {
+                    statusElement.className = 'status-area status-processing';
+                    statusElement.innerHTML = '<span>Compressing pages...</span>';
+                }
                 // Generate filename based on mode and input
                 let filename;
                 if (isExpanded) {
@@ -2310,41 +2831,152 @@
                     return;
                 }
 
-                for (const file of files) {
-                    try {
-                        const arrayBuffer = await file.arrayBuffer();
-                        const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
-                        const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
-                        copiedPages.forEach((page) => {
-                            pdfDoc.addPage(page);
-                        });
-                    } catch (error) {
-                        const shouldSkip = promptSkipFile(file, error);
-                        if (shouldSkip) {
-                            skippedCount += 1;
-                            markFileIssue(file, 'Skipped due to read error');
-                            if (isExpanded) {
-                                renderPdfList();
-                                updateDocCount();
-                                updateExpandedMergeButton();
+                if (moreCompressEnabled) {
+                    let processedPages = 0;
+                    let totalPages = 0;
+                    let rasterizedCount = 0;
+                    ensurePdfJsWorker();
+
+                    for (const file of files) {
+                        let pdfJsDoc = null;
+                        let pdfLibDoc = null;
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                            pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                            totalPages += pdfJsDoc.numPages;
+                        } catch (error) {
+                            const shouldSkip = promptSkipFile(file, error);
+                            if (shouldSkip) {
+                                skippedCount += 1;
+                                markFileIssue(file, 'Skipped due to read error');
+                                if (isExpanded) {
+                                    renderPdfList();
+                                    updateDocCount();
+                                    updateExpandedMergeButton();
+                                }
+                                reportMergeError(error, {
+                                    mode: isExpanded ? 'expanded' : 'simple',
+                                    step: 'mergePDFs-rasterize-skip',
+                                    fileCount: files?.length || 0,
+                                    totalBytes: stats.totalBytes,
+                                    maxBytes: stats.maxBytes,
+                                    durationMs: performance.now() - mergeStart,
+                                    source: 'pdfjs-raster',
+                                    userNote: 'user_action=skip'
+                                });
+                                continue;
                             }
-                            reportMergeError(error, {
-                                mode: isExpanded ? 'expanded' : 'simple',
-                                step: 'mergePDFs-skip',
-                                fileCount: files?.length || 0,
-                                totalBytes: stats.totalBytes,
-                                maxBytes: stats.maxBytes,
-                                durationMs: performance.now() - mergeStart,
-                                source: 'pdf-lib',
-                                userNote: 'user_action=skip'
-                            });
+                            throw error;
+                        }
+
+                        let skipCurrentFile = false;
+                        for (let pageIndex = 0; pageIndex < pdfJsDoc.numPages; pageIndex++) {
+                            let page = null;
+                            try {
+                                page = await pdfJsDoc.getPage(pageIndex + 1);
+                                const shouldRasterize = await isImageHeavyPdfJsPage(page);
+                                if (shouldRasterize) {
+                                    const raster = await renderPdfJsPageToJpegBytes(page, rasterSettings);
+                                    const image = await pdfDoc.embedJpg(raster.bytes);
+                                    const newPage = pdfDoc.addPage([raster.width, raster.height]);
+                                    newPage.drawImage(image, {
+                                        x: 0,
+                                        y: 0,
+                                        width: raster.width,
+                                        height: raster.height
+                                    });
+                                    rasterizedCount += 1;
+                                } else {
+                                    const copiedPages = await pdfDoc.copyPages(pdfLibDoc, [pageIndex]);
+                                    copiedPages.forEach((copiedPage) => {
+                                        pdfDoc.addPage(copiedPage);
+                                    });
+                                }
+                            } catch (error) {
+                                const shouldSkip = promptSkipFile(file, error);
+                                if (shouldSkip) {
+                                    skippedCount += 1;
+                                    markFileIssue(file, 'Skipped due to read error');
+                                    if (isExpanded) {
+                                        renderPdfList();
+                                        updateDocCount();
+                                        updateExpandedMergeButton();
+                                    }
+                                    reportMergeError(error, {
+                                        mode: isExpanded ? 'expanded' : 'simple',
+                                        step: 'mergePDFs-rasterize-skip',
+                                        fileCount: files?.length || 0,
+                                        totalBytes: stats.totalBytes,
+                                        maxBytes: stats.maxBytes,
+                                        durationMs: performance.now() - mergeStart,
+                                        source: 'pdfjs-raster',
+                                        userNote: 'user_action=skip'
+                                    });
+                                    skipCurrentFile = true;
+                                    break;
+                                }
+                                throw error;
+                            } finally {
+                                processedPages += 1;
+                                if (statusElement && totalPages > 0 && (processedPages % 10 === 0 || processedPages === totalPages)) {
+                                    statusElement.innerHTML = '<span>Compressing pages... ' + processedPages + '/' + totalPages + '</span>';
+                                }
+                            }
+                        }
+
+                        if (typeof pdfJsDoc?.cleanup === 'function') {
+                            pdfJsDoc.cleanup();
+                        }
+                        if (typeof pdfJsDoc?.destroy === 'function') {
+                            pdfJsDoc.destroy();
+                        }
+
+                        if (skipCurrentFile) {
                             continue;
                         }
-                        throw error;
+                    }
+
+                    if (rasterizedCount === 0) {
+                        compressionNote = 'Note: No image-heavy pages found; compression is minimal.';
+                    }
+                } else {
+                    for (const file of files) {
+                        try {
+                            const arrayBuffer = await file.arrayBuffer();
+                            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                            const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
+                            copiedPages.forEach((page) => {
+                                pdfDoc.addPage(page);
+                            });
+                        } catch (error) {
+                            const shouldSkip = promptSkipFile(file, error);
+                            if (shouldSkip) {
+                                skippedCount += 1;
+                                markFileIssue(file, 'Skipped due to read error');
+                                if (isExpanded) {
+                                    renderPdfList();
+                                    updateDocCount();
+                                    updateExpandedMergeButton();
+                                }
+                                reportMergeError(error, {
+                                    mode: isExpanded ? 'expanded' : 'simple',
+                                    step: 'mergePDFs-skip',
+                                    fileCount: files?.length || 0,
+                                    totalBytes: stats.totalBytes,
+                                    maxBytes: stats.maxBytes,
+                                    durationMs: performance.now() - mergeStart,
+                                    source: 'pdf-lib',
+                                    userNote: 'user_action=skip'
+                                });
+                                continue;
+                            }
+                            throw error;
+                        }
                     }
                 }
 
-                const pdfBytes = await pdfDoc.save();
+                const pdfBytes = await pdfDoc.save({ useObjectStreams });
                 downloadPDF(pdfBytes, filename);
 
                 if (statusElement) {
@@ -2352,7 +2984,8 @@
                         ? `Merged with ${skippedCount} skipped file${skippedCount !== 1 ? 's' : ''}. Download started.`
                         : 'Success! Download started.';
                     statusElement.className = 'status-area status-success';
-                    statusElement.innerHTML = '<span>' + successMsg + getAffiliateInlineHtml() + '</span>';
+                    const noteText = compressionNote ? ' ' + compressionNote : '';
+                    statusElement.innerHTML = '<span>' + successMsg + noteText + getAffiliateInlineHtml() + '</span>';
                 }
 
                 if (typeof gtag !== 'undefined') {
@@ -2598,6 +3231,9 @@
             setupSimpleFileInputs();
             setupExpandedFileInputs();
             setupFilenameInputs();
+            setupCompressionControls('simple');
+            setupCompressionControls('expanded');
+            setupCompressionControls('advanced');
 
             const modal = document.getElementById('advancedMergeModal');
             
