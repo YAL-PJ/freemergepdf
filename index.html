@@ -1292,8 +1292,11 @@
                     <input type="text" id="customFilename" placeholder="merged.pdf" />
                 </div>
                 <div class="advanced-merge-compression">
-                    <div class="advanced-merge-compression-title">Compression</div>
-                    <div class="advanced-merge-compression-options" role="radiogroup" aria-label="Compression mode">
+                    <div class="advanced-merge-compression-toggle">
+                        <input type="checkbox" id="advancedCompressionToggle">
+                        <label for="advancedCompressionToggle" class="advanced-merge-compression-toggle-btn">Compression Off</label>
+                    </div>
+                    <div class="advanced-merge-compression-options" id="advancedCompressionOptions" role="radiogroup" aria-label="Compression mode">
                         <div class="advanced-merge-compression-option">
                             <input type="radio" name="advancedCompressionMode" id="advancedCompressionStandard" value="standard" checked>
                             <label for="advancedCompressionStandard">
@@ -2104,24 +2107,53 @@
             }
         }
 
+        function isAdvancedCompressionEnabled() {
+            const toggle = document.getElementById('advancedCompressionToggle');
+            return toggle ? toggle.checked : false;
+        }
+
         function getAdvancedCompressionMode() {
+            if (!isAdvancedCompressionEnabled()) return 'none';
             const selected = document.querySelector('input[name="advancedCompressionMode"]:checked');
             return selected ? selected.value : 'standard';
         }
 
+        function updateAdvancedCompressionToggleLabel() {
+            const toggle = document.getElementById('advancedCompressionToggle');
+            const label = document.querySelector('label[for="advancedCompressionToggle"]');
+            if (!toggle || !label) return;
+            const enabled = toggle.checked;
+            label.textContent = enabled ? 'Compression On' : 'Compression Off';
+            label.classList.toggle('is-on', enabled);
+        }
+
         function updateAdvancedCompressionSettings() {
             const settings = document.getElementById('advancedRasterSettings');
-            if (!settings) return;
-            const enabled = getAdvancedCompressionMode() === 'images';
-            settings.classList.toggle('active', enabled);
-            settings.querySelectorAll('input').forEach((input) => {
+            const options = document.getElementById('advancedCompressionOptions');
+            if (!settings || !options) return;
+            const enabled = isAdvancedCompressionEnabled();
+            options.classList.toggle('active', enabled);
+            options.querySelectorAll('input').forEach((input) => {
                 input.disabled = !enabled;
+            });
+            const showSettings = enabled && getAdvancedCompressionMode() === 'images';
+            settings.classList.toggle('active', showSettings);
+            settings.querySelectorAll('input').forEach((input) => {
+                input.disabled = !showSettings;
             });
             updateRasterValue('advanced');
         }
 
         function setupAdvancedCompressionControls() {
+            updateAdvancedCompressionToggleLabel();
             updateAdvancedCompressionSettings();
+            const toggle = document.getElementById('advancedCompressionToggle');
+            if (toggle) {
+                toggle.addEventListener('change', () => {
+                    updateAdvancedCompressionToggleLabel();
+                    updateAdvancedCompressionSettings();
+                });
+            }
             document.querySelectorAll('input[name="advancedCompressionMode"]').forEach((input) => {
                 input.addEventListener('change', updateAdvancedCompressionSettings);
             });
@@ -2136,11 +2168,11 @@
         }
 
         function isAdvancedCompressEnabled() {
-            return true;
+            return isAdvancedCompressionEnabled();
         }
 
         function isAdvancedMoreCompressEnabled() {
-            return getAdvancedCompressionMode() === 'images';
+            return isAdvancedCompressionEnabled() && getAdvancedCompressionMode() === 'images';
         }
 
         function getAdvancedRasterSettings() {

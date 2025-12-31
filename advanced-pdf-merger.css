@@ -419,18 +419,54 @@
   gap: 8px;
   font-size: 13px;
   color: #666;
-  min-width: 260px;
+  flex: 1 1 100%;
+  align-items: flex-start;
+  margin-right: auto;
 }
 
-.advanced-merge-compression-title {
-  font-weight: 600;
+.advanced-merge-compression-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advanced-merge-compression-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.advanced-merge-compression-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f3f4f6;
   color: #333;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advanced-merge-compression-toggle-btn.is-on {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
 }
 
 .advanced-merge-compression-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 8px;
+  display: none;
+  flex-direction: row;
+  gap: 10px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.advanced-merge-compression-options.active {
+  display: flex;
 }
 
 .advanced-merge-compression-option {
@@ -454,6 +490,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-height: 96px;
+  flex: 1 1 220px;
 }
 
 .advanced-merge-compression-option label:hover {
