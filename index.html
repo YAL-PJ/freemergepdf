@@ -463,67 +463,6 @@
             width: 230px;
         }
 
-        .compression-options {
-            margin-top: 6px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            color: #666;
-            grid-column: 1 / -1;
-        }
-
-        .compression-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .compression-option label {
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .compression-hint {
-            font-weight: 400;
-            color: #777;
-            font-size: 12px;
-        }
-
-        .compression-sliders {
-            display: none;
-            width: 100%;
-            max-width: 420px;
-            gap: 6px;
-            font-size: 12px;
-            color: #555;
-        }
-
-        .compression-sliders.active {
-            display: grid;
-        }
-
-        .compression-sliders label {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .compression-sliders input[type="range"] {
-            width: 100%;
-        }
-
-        .compression-value {
-            font-weight: 400;
-            color: #777;
-        }
-
         /* ===== EXPANDED MODE ===== */
         .mode-expanded {
             display: none;
@@ -1035,34 +974,6 @@
                     <label for="simpleFilename">Download name:</label>
                     <input type="text" id="simpleFilename" />
                 </div>
-                <div class="compression-options">
-                    <div class="compression-option">
-                        <input type="checkbox" id="simpleCompressToggle" checked>
-                        <label for="simpleCompressToggle">
-                            Compress output
-                            <span class="compression-hint">smaller file</span>
-                        </label>
-                    </div>
-                    <div class="compression-option">
-                        <input type="checkbox" id="simpleRasterToggle">
-                        <label for="simpleRasterToggle">
-                            More compression
-                            <span class="compression-hint">compress image-heavy pages; text stays text</span>
-                        </label>
-                    </div>
-                    <div class="compression-sliders" id="simpleRasterSettings">
-                        <label for="simpleRasterQuality">
-                            JPEG quality
-                            <span class="compression-value" id="simpleRasterQualityValue">60%</span>
-                        </label>
-                        <input type="range" id="simpleRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
-                        <label for="simpleRasterScale">
-                            Resolution
-                            <span class="compression-value" id="simpleRasterScaleValue">100%</span>
-                        </label>
-                        <input type="range" id="simpleRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
-                    </div>
-                </div>
             </div>
 
             <div class="error-message" id="simpleError"></div>
@@ -1079,7 +990,7 @@
                 <!-- ADVANCED OPTIONS -->
                 <div class="simple-options-section">
                     <button class="simple-options-btn" id="simpleAdvancedBtn" onclick="openAdvancedSortFromSimple()" disabled>
-                        ✏️ Advanced Merge (Sort Pages)
+                        ✏️ Advanced Merge + Compress (Sort Pages)
                     </button>
                     <button class="expand-btn merge-btn" id="expandBtn" onclick="toggleMode()">
                         ➕ Merge more than 2 files
@@ -1128,38 +1039,10 @@
             <label for="expandedFilename">Download name:</label>
             <input type="text" id="expandedFilename" />
         </div>
-        <div class="compression-options">
-            <div class="compression-option">
-                <input type="checkbox" id="expandedCompressToggle" checked>
-                <label for="expandedCompressToggle">
-                    Compress output
-                    <span class="compression-hint">smaller file</span>
-                </label>
-            </div>
-            <div class="compression-option">
-                <input type="checkbox" id="expandedRasterToggle">
-                <label for="expandedRasterToggle">
-                    More compression
-                    <span class="compression-hint">compress image-heavy pages; text stays text</span>
-                </label>
-            </div>
-            <div class="compression-sliders" id="expandedRasterSettings">
-                <label for="expandedRasterQuality">
-                    JPEG quality
-                    <span class="compression-value" id="expandedRasterQualityValue">60%</span>
-                </label>
-                <input type="range" id="expandedRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
-                <label for="expandedRasterScale">
-                    Resolution
-                    <span class="compression-value" id="expandedRasterScaleValue">100%</span>
-                </label>
-                <input type="range" id="expandedRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
-            </div>
-        </div>
 
         <div class="button-group">
             <button class="merge-btn" id="advancedSortBtn" onclick="openAdvancedSort()" disabled>
-                ✏️ Advanced Merge (Sort Pages)
+                ✏️ Advanced Merge + Compress (Sort Pages)
             </button>
             <button class="merge-btn" id="expandedMergeBtn" onclick="mergePDFs()" disabled>
                 Merge All PDFs
@@ -1319,7 +1202,7 @@
         <p>Absolutely. FreeMergePDF is extremely safe because your files are processed entirely within your browser using client-side JavaScript. No data is transmitted over the internet, stored on any server, or accessible to anyone else. Unlike cloud-based PDF mergers that require signup and upload your files, FreeMergePDF keeps everything private. This free PDF merger is ideal for merging confidential documents, contracts, medical records, and sensitive files.</p>
 
         <h3>Can I reorder PDFs before merging with the free PDF merger?</h3>
-        <p>Yes! In expanded mode, simply click "Advanced Merge (Sort Pages)" to sort individual pages from all your PDFs. You can drag and drop pages to arrange them in any order. The numbered cards will update automatically to show the merge order. FreeMergePDF's free PDF combiner gives you complete control before you merge.</p>
+        <p>Yes! In expanded mode, simply click "Advanced Merge + Compress (Sort Pages)" to sort individual pages from all your PDFs. You can drag and drop pages to arrange them in any order. The numbered cards will update automatically to show the merge order. FreeMergePDF's free PDF combiner gives you complete control before you merge.</p>
     </div>
         </div>
         </details>
@@ -1408,31 +1291,38 @@
                     <label for="customFilename">Filename:</label>
                     <input type="text" id="customFilename" placeholder="merged.pdf" />
                 </div>
-                <div class="advanced-merge-compress-option">
-                    <input type="checkbox" id="advancedCompressToggle" checked>
-                    <label for="advancedCompressToggle">
-                        Compress output
-                        <span class="advanced-merge-compress-hint">smaller file</span>
-                    </label>
-                </div>
-                <div class="advanced-merge-compress-option">
-                    <input type="checkbox" id="advancedRasterToggle">
-                    <label for="advancedRasterToggle">
-                        More compression
-                        <span class="advanced-merge-compress-hint">compress image-heavy pages; text stays text</span>
-                    </label>
-                </div>
-                <div class="advanced-merge-compress-settings" id="advancedRasterSettings">
-                    <label for="advancedRasterQuality">
-                        JPEG quality
-                        <span class="advanced-merge-compress-value" id="advancedRasterQualityValue">60%</span>
-                    </label>
-                    <input type="range" id="advancedRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
-                    <label for="advancedRasterScale">
-                        Resolution
-                        <span class="advanced-merge-compress-value" id="advancedRasterScaleValue">100%</span>
-                    </label>
-                    <input type="range" id="advancedRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
+                <div class="advanced-merge-compression">
+                    <div class="advanced-merge-compression-title">Compression</div>
+                    <div class="advanced-merge-compression-options" role="radiogroup" aria-label="Compression mode">
+                        <div class="advanced-merge-compression-option">
+                            <input type="radio" name="advancedCompressionMode" id="advancedCompressionStandard" value="standard" checked>
+                            <label for="advancedCompressionStandard">
+                                <span class="advanced-merge-compression-name">Standard</span>
+                                <span class="advanced-merge-compression-desc">Keep text + images. Light structural compression.</span>
+                                <span class="advanced-merge-compression-badge">Fast</span>
+                            </label>
+                        </div>
+                        <div class="advanced-merge-compression-option">
+                            <input type="radio" name="advancedCompressionMode" id="advancedCompressionImages" value="images">
+                            <label for="advancedCompressionImages">
+                                <span class="advanced-merge-compression-name">Image-heavy pages</span>
+                                <span class="advanced-merge-compression-desc">Recompress scanned/image pages. Text stays text.</span>
+                                <span class="advanced-merge-compression-badge advanced-merge-compression-badge-strong">Smaller</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="advanced-merge-compression-settings" id="advancedRasterSettings">
+                        <label for="advancedRasterQuality">
+                            JPEG quality
+                            <span class="advanced-merge-compress-value" id="advancedRasterQualityValue">60%</span>
+                        </label>
+                        <input type="range" id="advancedRasterQuality" min="0.4" max="0.9" step="0.05" value="0.6">
+                        <label for="advancedRasterScale">
+                            Resolution
+                            <span class="advanced-merge-compress-value" id="advancedRasterScaleValue">100%</span>
+                        </label>
+                        <input type="range" id="advancedRasterScale" min="0.5" max="1.0" step="0.05" value="1.0">
+                    </div>
                 </div>
                 <div class="advanced-merge-actions">
                     <button class="advanced-merge-btn advanced-merge-btn-reset" onclick="resetPageOrder()">
@@ -2214,44 +2104,43 @@
             }
         }
 
-        function setRasterControlsState(mode) {
-            const toggle = document.getElementById(`${mode}RasterToggle`);
-            const settings = document.getElementById(`${mode}RasterSettings`);
-            if (!toggle || !settings) return;
-            const enabled = toggle.checked;
+        function getAdvancedCompressionMode() {
+            const selected = document.querySelector('input[name="advancedCompressionMode"]:checked');
+            return selected ? selected.value : 'standard';
+        }
+
+        function updateAdvancedCompressionSettings() {
+            const settings = document.getElementById('advancedRasterSettings');
+            if (!settings) return;
+            const enabled = getAdvancedCompressionMode() === 'images';
             settings.classList.toggle('active', enabled);
             settings.querySelectorAll('input').forEach((input) => {
                 input.disabled = !enabled;
             });
-            const compressToggle = document.getElementById(`${mode}CompressToggle`);
-            if (enabled && compressToggle) {
-                compressToggle.checked = true;
-            }
+            updateRasterValue('advanced');
         }
 
-        function setupCompressionControls(mode) {
-            updateRasterValue(mode);
-            setRasterControlsState(mode);
-            const toggle = document.getElementById(`${mode}RasterToggle`);
-            const qualityInput = document.getElementById(`${mode}RasterQuality`);
-            const scaleInput = document.getElementById(`${mode}RasterScale`);
-            if (toggle) {
-                toggle.addEventListener('change', () => setRasterControlsState(mode));
-            }
+        function setupAdvancedCompressionControls() {
+            updateAdvancedCompressionSettings();
+            document.querySelectorAll('input[name="advancedCompressionMode"]').forEach((input) => {
+                input.addEventListener('change', updateAdvancedCompressionSettings);
+            });
+            const qualityInput = document.getElementById('advancedRasterQuality');
+            const scaleInput = document.getElementById('advancedRasterScale');
             if (qualityInput) {
-                qualityInput.addEventListener('input', () => updateRasterValue(mode));
+                qualityInput.addEventListener('input', () => updateRasterValue('advanced'));
             }
             if (scaleInput) {
-                scaleInput.addEventListener('input', () => updateRasterValue(mode));
+                scaleInput.addEventListener('input', () => updateRasterValue('advanced'));
             }
         }
 
         function isAdvancedCompressEnabled() {
-            return isCompressEnabledForMode('advanced', true);
+            return true;
         }
 
         function isAdvancedMoreCompressEnabled() {
-            return isMoreCompressEnabledForMode('advanced');
+            return getAdvancedCompressionMode() === 'images';
         }
 
         function getAdvancedRasterSettings() {
@@ -2337,37 +2226,6 @@
             if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
             }
-        }
-
-        async function rasterizeFileToPdf(pdfDoc, file, settings, onProgress) {
-            if (typeof pdfjsLib === 'undefined') {
-                throw new Error('pdf.js is not available');
-            }
-            ensurePdfJsWorker();
-            const arrayBuffer = await file.arrayBuffer();
-            const sourcePdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-            const pageCount = sourcePdf.numPages;
-            for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-                const raster = await renderPageToJpegBytes({ pdfDoc: sourcePdf, pageIndex }, settings);
-                const image = await pdfDoc.embedJpg(raster.bytes);
-                const page = pdfDoc.addPage([raster.width, raster.height]);
-                page.drawImage(image, {
-                    x: 0,
-                    y: 0,
-                    width: raster.width,
-                    height: raster.height
-                });
-                if (typeof onProgress === 'function') {
-                    onProgress(pageIndex + 1, pageCount);
-                }
-            }
-            if (typeof sourcePdf.cleanup === 'function') {
-                sourcePdf.cleanup();
-            }
-            if (typeof sourcePdf.destroy === 'function') {
-                sourcePdf.destroy();
-            }
-            return pageCount;
         }
 
         async function finalizeAdvancedMerge() {
@@ -3231,9 +3089,7 @@
             setupSimpleFileInputs();
             setupExpandedFileInputs();
             setupFilenameInputs();
-            setupCompressionControls('simple');
-            setupCompressionControls('expanded');
-            setupCompressionControls('advanced');
+            setupAdvancedCompressionControls();
 
             const modal = document.getElementById('advancedMergeModal');
             
@@ -3325,4 +3181,5 @@
     <script src="feedback.js"></script>
 </body>
 </html>
+
 

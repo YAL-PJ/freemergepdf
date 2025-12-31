@@ -413,50 +413,105 @@
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.advanced-merge-compress-option {
+.advanced-merge-compression {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  flex-wrap: wrap;
   font-size: 13px;
+  color: #666;
+  min-width: 260px;
+}
+
+.advanced-merge-compression-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.advanced-merge-compression-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.advanced-merge-compression-option {
+  position: relative;
+}
+
+.advanced-merge-compression-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.advanced-merge-compression-option label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 96px;
+}
+
+.advanced-merge-compression-option label:hover {
+  border-color: #c7d2fe;
+}
+
+.advanced-merge-compression-option input:checked + label {
+  border-color: #667eea;
+  background: #eef2ff;
+  box-shadow: 0 6px 14px rgba(102, 126, 234, 0.18);
+}
+
+.advanced-merge-compression-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.advanced-merge-compression-desc {
+  font-size: 12px;
   color: #666;
 }
 
-.advanced-merge-compress-option label {
+.advanced-merge-compression-badge {
+  align-self: flex-start;
+  font-size: 11px;
   font-weight: 600;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: #e0e7ff;
+  color: #3730a3;
 }
 
-.advanced-merge-compress-hint {
-  font-weight: 400;
-  color: #777;
-  font-size: 12px;
+.advanced-merge-compression-badge-strong {
+  background: #fee2e2;
+  color: #991b1b;
 }
 
-.advanced-merge-compress-settings {
+.advanced-merge-compression-settings {
   display: none;
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   gap: 6px;
   font-size: 12px;
   color: #555;
 }
 
-.advanced-merge-compress-settings.active {
+.advanced-merge-compression-settings.active {
   display: grid;
 }
 
-.advanced-merge-compress-settings label {
+.advanced-merge-compression-settings label {
   display: flex;
   justify-content: space-between;
   font-weight: 600;
   color: #333;
 }
 
-.advanced-merge-compress-settings input[type="range"] {
+.advanced-merge-compression-settings input[type="range"] {
   width: 100%;
 }
 
