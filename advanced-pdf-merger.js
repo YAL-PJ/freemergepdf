@@ -53,9 +53,12 @@ class AdvancedPDFMerger {
     this.cancelRender = false;
     this.dropIndicator = null;
     this.workerDisabled = false;
-    this.workerSrc = '/pdf.worker.min.js';
+    this.workerBaseSrc = '/pdf.worker.min.js?v=3';
+    this.workerSrc = this.workerBaseSrc;
     this.workerFallbackSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     this.workerFallbackUsed = false;
+    this.workerWrapperEnabled = false;
+    this.workerWrapperUrl = '';
   }
 
   /**
@@ -114,6 +117,7 @@ class AdvancedPDFMerger {
    */
   formatUserError(err) {
     const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    const isEncrypted = text.includes('encrypted') || text.includes('password');
     const isFileAccess =
       text.includes('notreadable') ||
       text.includes('could not be read') ||
@@ -125,11 +129,36 @@ class AdvancedPDFMerger {
       text.includes('abort') ||
       text.includes('aborted');
 
+    if (isEncrypted) {
+      return 'Password-protected PDF. Please remove the password and try again.';
+    }
+
     if (isFileAccess) {
       return 'Could not read this file. It may have been moved, renamed, or is in a sync/network folder. Please copy it to your local drive (e.g., Desktop), close other apps using it (sync/preview/AV), and select it again.';
     }
 
     return `Error: ${err?.message || 'Something went wrong'}`;
+  }
+
+  setWorkerSrc(baseSrc) {
+    this.workerBaseSrc = baseSrc;
+    if (this.workerWrapperUrl && this.workerWrapperUrl.startsWith('blob:') &&
+        typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+      URL.revokeObjectURL(this.workerWrapperUrl);
+      this.workerWrapperUrl = '';
+    }
+    if (this.workerWrapperEnabled) {
+      this.workerWrapperUrl = this.buildWorkerWrapperUrl(baseSrc);
+      this.workerSrc = this.workerWrapperUrl;
+      return;
+    }
+    this.workerSrc = baseSrc;
+  }
+
+  enableWorkerWrapper() {
+    if (this.workerWrapperEnabled) return;
+    this.workerWrapperEnabled = true;
+    this.setWorkerSrc(this.workerBaseSrc);
   }
 
   configurePdfJsWorker() {
@@ -145,21 +174,25 @@ class AdvancedPDFMerger {
       text.includes('worker') && text.includes('failed') ||
       text.includes('networkerror') ||
       text.includes('setting up fake worker failed') ||
-      text.includes('cannot load script');
+      text.includes('cannot load script') ||
+      text.includes('unexpected token');
   }
 
   async loadPdfDocument(arrayBuffer) {
     if (typeof pdfjsLib === 'undefined') {
       throw new Error('pdf.js is not available');
     }
+    if (this.isLegacySafari()) {
+      this.enableWorkerWrapper();
+    }
     this.configurePdfJsWorker();
     try {
       return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     } catch (error) {
       if (!this.workerDisabled && this.shouldDisableWorker(error)) {
-        if (!this.workerFallbackUsed && this.workerSrc !== this.workerFallbackSrc) {
-          this.workerSrc = this.workerFallbackSrc;
+        if (this.isWorkerFetchFailure(error) && !this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
           this.workerFallbackUsed = true;
+          this.setWorkerSrc(this.workerFallbackSrc);
           this.configurePdfJsWorker();
           return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         }
@@ -170,6 +203,79 @@ class AdvancedPDFMerger {
       }
       throw error;
     }
+  }
+
+  isWorkerFetchFailure(err) {
+    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    return text.includes('unexpected token') ||
+      text.includes('text/html') ||
+      text.includes('workermessagehandler') ||
+      text.includes('cannot load script');
+  }
+
+  isLegacySafari() {
+    try {
+      const ua = navigator.userAgent || '';
+      if (!/safari/i.test(ua) || /chrome|crios|fxios|edgios|opr|opera/i.test(ua)) return false;
+      const versionMatch = ua.match(/version\/(\d+)\./i);
+      const version = versionMatch ? parseInt(versionMatch[1], 10) : 0;
+      return version > 0 && version < 16;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  buildWorkerWrapperUrl(workerSrc) {
+    const target = workerSrc || '/pdf.worker.min.js?v=3';
+    if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
+      return target;
+    }
+    const wrapper = `
+      (function() {
+        function atPolyfill(idx) {
+          var len = this.length >>> 0;
+          var i = Number(idx) || 0;
+          if (i < 0) i = len + i;
+          return this[i];
+        }
+        function defineAt(proto) {
+          if (!proto || proto.at) return;
+          try {
+            Object.defineProperty(proto, 'at', {
+              value: atPolyfill,
+              writable: true,
+              configurable: true
+            });
+          } catch (e) {
+            proto.at = atPolyfill;
+          }
+        }
+        defineAt(Array.prototype);
+        defineAt(String.prototype);
+        if (typeof Int8Array !== 'undefined') defineAt(Int8Array.prototype);
+        if (typeof Uint8Array !== 'undefined') defineAt(Uint8Array.prototype);
+        if (typeof Uint8ClampedArray !== 'undefined') defineAt(Uint8ClampedArray.prototype);
+        if (typeof Int16Array !== 'undefined') defineAt(Int16Array.prototype);
+        if (typeof Uint16Array !== 'undefined') defineAt(Uint16Array.prototype);
+        if (typeof Int32Array !== 'undefined') defineAt(Int32Array.prototype);
+        if (typeof Uint32Array !== 'undefined') defineAt(Uint32Array.prototype);
+        if (typeof Float32Array !== 'undefined') defineAt(Float32Array.prototype);
+        if (typeof Float64Array !== 'undefined') defineAt(Float64Array.prototype);
+        var src = '${target}';
+        if (typeof importScripts === 'function') {
+          importScripts(src);
+          return;
+        }
+        if (typeof document !== 'undefined') {
+          var script = document.createElement('script');
+          script.src = src;
+          script.async = false;
+          var parent = document.head || document.body || document.documentElement;
+          if (parent) parent.appendChild(script);
+        }
+      })();
+    `;
+    return URL.createObjectURL(new Blob([wrapper], { type: 'application/javascript' }));
   }
 
   /**

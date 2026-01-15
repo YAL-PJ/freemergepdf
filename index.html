@@ -1344,7 +1344,7 @@
 
     <!-- Scripts -->
     <script src="error-reporting.js?v=2"></script>
-    <script src="advanced-pdf-merger.js?v=3"></script>
+    <script src="advanced-pdf-merger.js?v=4"></script>
 
     <script>
         const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
@@ -2949,8 +2949,13 @@
         }
 
         function isEncryptedPdfError(err) {
-            const msg = `${err?.message || ''}`.toLowerCase();
-            return msg.includes('encrypted') || msg.includes('password-protected') || msg.includes('password protected');
+            const msg = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            return msg.includes('encrypted') ||
+                msg.includes('password-protected') ||
+                msg.includes('password protected') ||
+                msg.includes('no password') ||
+                msg.includes('password required') ||
+                msg.includes('password');
         }
 
         function isFileReadError(err) {
