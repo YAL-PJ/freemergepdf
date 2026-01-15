@@ -28,8 +28,11 @@ class AdvancedPDFMerger {
     this.files = [];
     this.pages = [];
     this.originalPages = [];
+    this.fileOrder = [];
+    this.originalFileOrder = [];
     this.pageMap = new Map(); // For efficient lookups
     this.draggedIndex = null;
+    this.draggedFileOrderIndex = null;
     this.thumbnailCache = new Map();
     this.failedFileIndices = new Set();
 
@@ -46,12 +49,20 @@ class AdvancedPDFMerger {
     // DOM references
     this.containerEl = null;
     this.legendEl = null;
+    this.legendItemsEl = null;
     this.gridEl = null;
+    this.fileGridEl = null;
     this.statusEl = null;
     this.scrollContainer = null;
     this.preRenderStarted = false;
     this.cancelRender = false;
     this.dropIndicator = null;
+    this.fileDropIndicator = null;
+    this.tabsEl = null;
+    this.viewsEl = null;
+    this.pagesViewEl = null;
+    this.filesViewEl = null;
+    this.activeView = 'pages';
     this.workerDisabled = false;
     this.workerBaseSrc = '/pdf.worker.min.js?v=3';
     this.workerSrc = this.workerBaseSrc;
@@ -80,6 +91,9 @@ class AdvancedPDFMerger {
       
       // Store files and extract pages
       this.files = Array.from(uploadedFiles || []).filter((file) => file && typeof file.name === 'string');
+      this.fileOrder = this.files.map((_, index) => index);
+      this.originalFileOrder = [...this.fileOrder];
+      this.activeView = 'pages';
       this.failedFileIndices.clear();
       const extracted = await this.extractAllPages();
       if (extracted === false) {
@@ -437,6 +451,42 @@ class AdvancedPDFMerger {
   }
 
   /**
+   * Create a draggable file card DOM element
+   */
+  createFileCard(fileIndex, orderIndex) {
+    const file = this.files[fileIndex];
+    if (!file) return null;
+
+    const card = document.createElement('div');
+    card.className = 'file-card';
+    card.draggable = true;
+    card.dataset.fileIndex = fileIndex;
+    card.dataset.orderIndex = orderIndex;
+
+    const color = this.fileColors[fileIndex % this.fileColors.length];
+    card.style.borderColor = color;
+
+    const pageCount = this.countPagesForFile(fileIndex);
+    const failed = this.failedFileIndices.has(fileIndex);
+    const suffix = failed ? ' (skipped)' : '';
+
+    card.innerHTML = `
+      <div class="file-card-content">
+        <div class="file-card-order">${orderIndex + 1}</div>
+        <div class="file-card-title">${this.truncateFileName(file.name, 26)}</div>
+        <div class="file-card-meta">${this.formatPageCount(pageCount)}${suffix}</div>
+      </div>
+    `;
+
+    card.addEventListener('dragstart', (e) => this.handleFileDragStart(e));
+    card.addEventListener('dragover', (e) => this.handleFileDragOver(e));
+    card.addEventListener('drop', (e) => this.handleFileDrop(e));
+    card.addEventListener('dragend', () => this.handleFileDragEnd());
+
+    return card;
+  }
+
+  /**
    * Create a draggable page card DOM element
    */
   createPageCard(pageData, index, thumbnail) {
@@ -485,11 +535,112 @@ class AdvancedPDFMerger {
   }
 
   /**
+   * Get numeric order index from file card element
+   */
+  getFileCardOrderIndex(card) {
+    if (!card) return null;
+    const val = parseInt(card.dataset.orderIndex, 10);
+    return Number.isNaN(val) ? null : val;
+  }
+
+  /**
+   * Handle file drag start
+   */
+  handleFileDragStart(e) {
+    const card = e.target.closest('.file-card');
+    this.draggedFileOrderIndex = this.getFileCardOrderIndex(card);
+    this.draggedIndex = null;
+    this.hideDropIndicator();
+    e.dataTransfer.effectAllowed = 'move';
+    if (card) {
+      card.style.opacity = '0.6';
+    }
+  }
+
+  /**
+   * Handle file drag over
+   */
+  handleFileDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const targetCard = e.target.closest('.file-card');
+    targetCard?.classList.add('drag-over');
+    this.handleFileDropIndicator(e, targetCard);
+    this.handleAutoScroll(e);
+  }
+
+  /**
+   * Handle file drop - Insert dragged file at target position
+   */
+  handleFileDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const targetCard = e.target.closest('.file-card');
+    targetCard?.classList.remove('drag-over');
+    this.hideFileDropIndicator();
+
+    if (this.draggedFileOrderIndex === null || this.draggedFileOrderIndex === undefined) {
+      return;
+    }
+
+    const targetIndex = this.getFileCardOrderIndex(targetCard);
+    if (targetIndex === null || targetIndex === undefined) {
+      return;
+    }
+
+    if (this.draggedFileOrderIndex === targetIndex) {
+      return;
+    }
+
+    if (this.draggedFileOrderIndex < 0 || this.draggedFileOrderIndex >= this.fileOrder.length) {
+      this.draggedFileOrderIndex = null;
+      return;
+    }
+
+    if (targetIndex < 0 || targetIndex >= this.fileOrder.length) {
+      this.draggedFileOrderIndex = null;
+      return;
+    }
+
+    const draggedFileIndex = this.fileOrder[this.draggedFileOrderIndex];
+    this.fileOrder.splice(this.draggedFileOrderIndex, 1);
+
+    let insertIndex;
+    if (this.draggedFileOrderIndex < targetIndex) {
+      insertIndex = targetIndex - 1;
+    } else {
+      insertIndex = targetIndex;
+    }
+
+    insertIndex = Math.max(0, Math.min(insertIndex, this.fileOrder.length));
+    this.fileOrder.splice(insertIndex, 0, draggedFileIndex);
+    this.draggedFileOrderIndex = null;
+
+    this.applyFileOrder();
+  }
+
+  /**
+   * Handle file drag end
+   */
+  handleFileDragEnd() {
+    if (this.filesViewEl) {
+      this.filesViewEl.querySelectorAll('.file-card').forEach(card => {
+        card.style.opacity = '1';
+        card.classList.remove('drag-over');
+      });
+    }
+    this.draggedFileOrderIndex = null;
+    this.hideFileDropIndicator();
+  }
+
+  /**
    * Handle drag start
    */
   handleDragStart(e) {
     const card = e.target.closest('.page-card');
     this.draggedIndex = this.getCardIndex(card);
+    this.draggedFileOrderIndex = null;
+    this.hideFileDropIndicator();
     e.dataTransfer.effectAllowed = 'move';
     e.target.closest('.page-card').style.opacity = '0.6';
   }
@@ -584,6 +735,7 @@ class AdvancedPDFMerger {
     });
     this.draggedIndex = null;
     this.hideDropIndicator();
+    this.hideFileDropIndicator();
   }
 
   /**
@@ -601,6 +753,8 @@ class AdvancedPDFMerger {
       card?.remove();
       this.syncGridToPages();
     }
+    this.updateFileCardCounts();
+    this.syncLegendToOrder();
     this.showStatus('Page removed');
     this.notifyPageCountChange();
     this.hideDropIndicator();
@@ -654,11 +808,131 @@ class AdvancedPDFMerger {
     // Clear container
     this.containerEl.innerHTML = '';
 
+    // Tabs for switching between page and file views
+    this.renderTabs();
+
     // Create legend
     this.renderLegend();
 
-    // Create grid
+    // Create view containers
+    this.renderViews();
+
+    // Create grids
     await this.renderGrid();
+    this.renderFileGrid();
+
+    // Ensure correct view is visible
+    this.setActiveView(this.activeView, { suppressFocus: true });
+  }
+
+  /**
+   * Render tabs to switch between page and file views
+   */
+  renderTabs() {
+    const tabs = document.createElement('div');
+    tabs.className = 'page-sorter-tabs';
+    tabs.setAttribute('role', 'tablist');
+
+    const pagesTab = document.createElement('button');
+    pagesTab.type = 'button';
+    pagesTab.className = 'page-sorter-tab';
+    pagesTab.textContent = 'Pages';
+    pagesTab.dataset.view = 'pages';
+    pagesTab.id = 'pageSorterTabPages';
+    pagesTab.setAttribute('role', 'tab');
+    pagesTab.setAttribute('aria-controls', 'pageSorterPagesView');
+    pagesTab.addEventListener('click', () => this.setActiveView('pages'));
+
+    const filesTab = document.createElement('button');
+    filesTab.type = 'button';
+    filesTab.className = 'page-sorter-tab';
+    filesTab.textContent = 'Files';
+    filesTab.dataset.view = 'files';
+    filesTab.id = 'pageSorterTabFiles';
+    filesTab.setAttribute('role', 'tab');
+    filesTab.setAttribute('aria-controls', 'pageSorterFilesView');
+    filesTab.addEventListener('click', () => this.setActiveView('files'));
+
+    tabs.appendChild(pagesTab);
+    tabs.appendChild(filesTab);
+
+    this.tabsEl = tabs;
+    this.containerEl.appendChild(tabs);
+  }
+
+  /**
+   * Render containers for pages and files views
+   */
+  renderViews() {
+    const views = document.createElement('div');
+    views.className = 'page-sorter-views';
+
+    const pagesView = document.createElement('div');
+    pagesView.className = 'page-sorter-view page-sorter-view-pages';
+    pagesView.id = 'pageSorterPagesView';
+    pagesView.setAttribute('role', 'tabpanel');
+    pagesView.setAttribute('aria-labelledby', 'pageSorterTabPages');
+
+    const filesView = document.createElement('div');
+    filesView.className = 'page-sorter-view page-sorter-view-files';
+    filesView.id = 'pageSorterFilesView';
+    filesView.setAttribute('role', 'tabpanel');
+    filesView.setAttribute('aria-labelledby', 'pageSorterTabFiles');
+
+    const filesHint = document.createElement('div');
+    filesHint.className = 'file-sorter-hint';
+    filesHint.textContent = 'Drag files to move all their pages together.';
+    filesView.appendChild(filesHint);
+
+    views.appendChild(pagesView);
+    views.appendChild(filesView);
+
+    this.viewsEl = views;
+    this.pagesViewEl = pagesView;
+    this.filesViewEl = filesView;
+    this.containerEl.appendChild(views);
+  }
+
+  /**
+   * Switch between pages and files views without re-rendering cards
+   */
+  setActiveView(view, options = {}) {
+    const nextView = view === 'files' ? 'files' : 'pages';
+    this.activeView = nextView;
+
+    if (this.pagesViewEl) {
+      this.pagesViewEl.classList.toggle('active', nextView === 'pages');
+      this.pagesViewEl.setAttribute('aria-hidden', nextView === 'pages' ? 'false' : 'true');
+    }
+    if (this.filesViewEl) {
+      this.filesViewEl.classList.toggle('active', nextView === 'files');
+      this.filesViewEl.setAttribute('aria-hidden', nextView === 'files' ? 'false' : 'true');
+    }
+
+    if (this.tabsEl) {
+      const tabs = Array.from(this.tabsEl.querySelectorAll('.page-sorter-tab'));
+      tabs.forEach((tab) => {
+        const isActive = tab.dataset.view === nextView;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.tabIndex = isActive ? 0 : -1;
+      });
+    }
+
+    this.updateHeaderHint(nextView);
+
+    if (!options.suppressFocus && this.tabsEl) {
+      const activeTab = this.tabsEl.querySelector('.page-sorter-tab.active');
+      activeTab?.focus({ preventScroll: true });
+    }
+  }
+
+  updateHeaderHint(view) {
+    const hint = document.querySelector('.advanced-merge-header-info');
+    if (!hint) return;
+    hint.textContent = view === 'files'
+      ? 'Drag files to move all their pages together'
+      : 'Drag to reorder pages from different files';
   }
 
   /**
@@ -675,38 +949,52 @@ class AdvancedPDFMerger {
 
     const items = document.createElement('div');
     items.className = 'legend-items';
+    this.legendItemsEl = items;
 
-    this.files.forEach((file, index) => {
+    legend.appendChild(items);
+    this.containerEl.appendChild(legend);
+    this.legendEl = legend;
+    this.syncLegendToOrder();
+  }
+
+  /**
+   * Update legend entries to match current file order
+   */
+  syncLegendToOrder() {
+    if (!this.legendItemsEl) return;
+    this.legendItemsEl.innerHTML = '';
+
+    this.fileOrder.forEach((fileIndex) => {
+      const file = this.files[fileIndex];
       if (!file || typeof file.name !== 'string') return;
       const item = document.createElement('div');
       item.className = 'legend-item';
 
-      const color = this.fileColors[index % this.fileColors.length];
+      const color = this.fileColors[fileIndex % this.fileColors.length];
       const colorDot = document.createElement('div');
       colorDot.className = 'legend-color';
       colorDot.style.backgroundColor = color;
 
       const label = document.createElement('span');
-      const pageCount = this.countPagesForFile(index);
-      const failed = this.failedFileIndices.has(index);
+      const pageCount = this.countPagesForFile(fileIndex);
+      const failed = this.failedFileIndices.has(fileIndex);
       const suffix = failed ? ' (skipped)' : '';
-      label.textContent = `${this.truncateFileName(file.name)} (${pageCount} pages${suffix})`;
+      label.textContent = `${this.truncateFileName(file.name)} (${this.formatPageCount(pageCount)}${suffix})`;
 
       item.appendChild(colorDot);
       item.appendChild(label);
-      items.appendChild(item);
+      this.legendItemsEl.appendChild(item);
     });
-
-    legend.appendChild(items);
-    this.containerEl.appendChild(legend);
   }
 
   /**
    * Render grid of page cards with lazy thumbnail loading
    */
   async renderGrid() {
+    if (!this.pagesViewEl) return;
+
     // Remove any existing grid
-    const existingGrid = this.containerEl.querySelector('.page-sorter-grid');
+    const existingGrid = this.pagesViewEl.querySelector('.page-sorter-grid');
     if (existingGrid) {
       existingGrid.remove();
     }
@@ -731,13 +1019,125 @@ class AdvancedPDFMerger {
       grid.appendChild(card);
     }
 
-    this.containerEl.appendChild(grid);
+    this.pagesViewEl.appendChild(grid);
 
     // Now render thumbnails in the background, one by one
     this.cancelRender = false;
     this.renderThumbnailsInBackground(grid);
 
     this.notifyPageCountChange();
+  }
+
+  /**
+   * Render grid of file cards for file-level reordering
+   */
+  renderFileGrid() {
+    if (!this.filesViewEl) return;
+
+    const existingGrid = this.filesViewEl.querySelector('.file-sorter-grid');
+    if (existingGrid) {
+      existingGrid.remove();
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'file-sorter-grid';
+    this.fileGridEl = grid;
+
+    this.fileDropIndicator = document.createElement('div');
+    this.fileDropIndicator.className = 'drop-indicator hidden';
+    grid.appendChild(this.fileDropIndicator);
+
+    this.fileOrder.forEach((fileIndex, orderIndex) => {
+      const card = this.createFileCard(fileIndex, orderIndex);
+      if (card) {
+        grid.appendChild(card);
+      }
+    });
+
+    this.filesViewEl.appendChild(grid);
+  }
+
+  /**
+   * Apply the current file order to the page list (grouped by file)
+   */
+  applyFileOrder() {
+    const pagesByFile = new Map();
+    this.pages.forEach((page) => {
+      if (!pagesByFile.has(page.fileIndex)) {
+        pagesByFile.set(page.fileIndex, []);
+      }
+      pagesByFile.get(page.fileIndex).push(page);
+    });
+
+    const newPages = [];
+    this.fileOrder.forEach((fileIndex) => {
+      const group = pagesByFile.get(fileIndex);
+      if (group && group.length) {
+        newPages.push(...group);
+      }
+    });
+
+    if (newPages.length !== this.pages.length) {
+      const groupedIds = new Set(newPages.map(page => page.id));
+      this.pages.forEach((page) => {
+        if (!groupedIds.has(page.id)) {
+          newPages.push(page);
+        }
+      });
+    }
+
+    this.pages = newPages;
+    this.syncGridToPages();
+    this.syncFileGridToOrder();
+    this.syncLegendToOrder();
+    this.showStatus('File order updated');
+  }
+
+  /**
+   * Reorder existing file cards without re-rendering
+   */
+  syncFileGridToOrder() {
+    if (!this.fileGridEl) return;
+    const cards = Array.from(this.fileGridEl.querySelectorAll('.file-card'));
+    const cardMap = new Map(cards.map(card => [card.dataset.fileIndex, card]));
+
+    this.fileGridEl.querySelectorAll('.file-card').forEach(card => card.remove());
+    if (this.fileDropIndicator && !this.fileDropIndicator.isConnected) {
+      this.fileGridEl.appendChild(this.fileDropIndicator);
+    }
+
+    this.fileOrder.forEach((fileIndex, orderIndex) => {
+      const card = cardMap.get(String(fileIndex));
+      if (card) {
+        card.dataset.orderIndex = orderIndex;
+        const orderLabel = card.querySelector('.file-card-order');
+        if (orderLabel) {
+          orderLabel.textContent = `${orderIndex + 1}`;
+        }
+        this.fileGridEl.appendChild(card);
+      }
+    });
+
+    this.updateFileCardCounts();
+  }
+
+  /**
+   * Update file card page counts without rebuilding the grid
+   */
+  updateFileCardCounts() {
+    if (!this.fileGridEl) return;
+    const cards = Array.from(this.fileGridEl.querySelectorAll('.file-card'));
+    cards.forEach((card) => {
+      const fileIndex = parseInt(card.dataset.fileIndex, 10);
+      if (!Number.isFinite(fileIndex)) return;
+      const count = this.countPagesForFile(fileIndex);
+      const failed = this.failedFileIndices.has(fileIndex);
+      const meta = card.querySelector('.file-card-meta');
+      if (meta) {
+        const suffix = failed ? ' (skipped)' : '';
+        meta.textContent = `${this.formatPageCount(count)}${suffix}`;
+      }
+    });
   }
 
   /**
@@ -794,6 +1194,7 @@ class AdvancedPDFMerger {
   resetOrder() {
     // Restore the original snapshot (including previously deleted pages)
     this.pages = this.originalPages.map(p => ({ ...p }));
+    this.fileOrder = [...this.originalFileOrder];
 
     // Rebuild page map
     this.pageMap.clear();
@@ -801,6 +1202,8 @@ class AdvancedPDFMerger {
 
     // Rebuild the grid
     this.renderGrid();
+    this.syncFileGridToOrder();
+    this.syncLegendToOrder();
     this.showStatus('Order reset to original');
     this.notifyPageCountChange();
   }
@@ -818,6 +1221,14 @@ class AdvancedPDFMerger {
    */
   countPagesForFile(fileIndex) {
     return this.pages.filter(p => p.fileIndex === fileIndex).length;
+  }
+
+  /**
+   * Utility: Format page count label
+   */
+  formatPageCount(count) {
+    const safeCount = Number.isFinite(count) ? count : 0;
+    return `${safeCount} page${safeCount === 1 ? '' : 's'}`;
   }
 
   /**
@@ -848,9 +1259,24 @@ class AdvancedPDFMerger {
     this.pages = [];
     this.originalPages = [];
     this.files = [];
+    this.fileOrder = [];
+    this.originalFileOrder = [];
     this.pageMap.clear();
     this.thumbnailCache.clear();
     this.containerEl.innerHTML = '';
+    this.legendEl = null;
+    this.legendItemsEl = null;
+    this.gridEl = null;
+    this.fileGridEl = null;
+    this.tabsEl = null;
+    this.viewsEl = null;
+    this.pagesViewEl = null;
+    this.filesViewEl = null;
+    this.dropIndicator = null;
+    this.fileDropIndicator = null;
+    this.draggedIndex = null;
+    this.draggedFileOrderIndex = null;
+    this.activeView = 'pages';
     this.notifyPageCountChange();
   }
 
@@ -959,11 +1385,49 @@ class AdvancedPDFMerger {
   }
 
   /**
+   * Show drop indicator for file cards
+   */
+  handleFileDropIndicator(e, targetCard) {
+    if (!this.fileDropIndicator || !targetCard || !this.fileGridEl) return;
+
+    const cardLeft = targetCard.offsetLeft;
+    const cardTop = targetCard.offsetTop;
+    const cardWidth = targetCard.offsetWidth;
+    const cardHeight = targetCard.offsetHeight;
+    const indicatorWidth = 4;
+    const targetIndex = this.getFileCardOrderIndex(targetCard);
+    if (targetIndex === null || targetIndex === undefined) return;
+    const isAfter = this.draggedFileOrderIndex !== null && this.draggedFileOrderIndex < targetIndex;
+
+    const styles = window.getComputedStyle(this.fileGridEl);
+    const gap = parseFloat(styles.columnGap || '0') || 0;
+    const offset = gap / 2;
+
+    const baseLeft = isAfter ? (cardLeft + cardWidth) : cardLeft;
+    const left = baseLeft + (isAfter ? offset : -offset) - indicatorWidth / 2;
+    const top = cardTop;
+
+    this.fileDropIndicator.style.height = `${cardHeight}px`;
+    this.fileDropIndicator.style.width = `${indicatorWidth}px`;
+    this.fileDropIndicator.style.transform = `translate(${left}px, ${top}px)`;
+    this.fileDropIndicator.classList.remove('hidden');
+  }
+
+  /**
    * Hide the drop indicator
    */
   hideDropIndicator() {
     if (this.dropIndicator) {
       this.dropIndicator.classList.add('hidden');
+    }
+  }
+
+  /**
+   * Hide the file drop indicator
+   */
+  hideFileDropIndicator() {
+    if (this.fileDropIndicator) {
+      this.fileDropIndicator.classList.add('hidden');
     }
   }
 
