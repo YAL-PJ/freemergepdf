@@ -605,13 +605,7 @@ class AdvancedPDFMerger {
     const draggedFileIndex = this.fileOrder[this.draggedFileOrderIndex];
     this.fileOrder.splice(this.draggedFileOrderIndex, 1);
 
-    let insertIndex;
-    if (this.draggedFileOrderIndex < targetIndex) {
-      insertIndex = targetIndex - 1;
-    } else {
-      insertIndex = targetIndex;
-    }
-
+    let insertIndex = targetIndex;
     insertIndex = Math.max(0, Math.min(insertIndex, this.fileOrder.length));
     this.fileOrder.splice(insertIndex, 0, draggedFileIndex);
     this.draggedFileOrderIndex = null;
@@ -703,16 +697,7 @@ class AdvancedPDFMerger {
     this.pages.splice(this.draggedIndex, 1);
 
     // Calculate new insert position
-    let insertIndex;
-    if (this.draggedIndex < targetIndex) {
-      // Dragging right: target index shifted left after removal
-      insertIndex = targetIndex - 1;
-    } else {
-      // Dragging left: target index unchanged
-      insertIndex = targetIndex;
-    }
-
-    // Ensure insertIndex is valid
+    let insertIndex = targetIndex;
     insertIndex = Math.max(0, Math.min(insertIndex, this.pages.length));
 
     // Insert at new position
