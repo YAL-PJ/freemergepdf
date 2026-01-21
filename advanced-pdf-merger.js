@@ -64,12 +64,13 @@ class AdvancedPDFMerger {
     this.filesViewEl = null;
     this.activeView = 'pages';
     this.workerDisabled = false;
-    this.workerBaseSrc = '/pdf.worker.min.js?v=3';
+    this.workerBaseSrc = '/pdf.worker.min.js?v=4';
     this.workerSrc = this.workerBaseSrc;
     this.workerFallbackSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     this.workerFallbackUsed = false;
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
+    this.workerPreflighted = false;
   }
 
   /**
@@ -87,6 +88,7 @@ class AdvancedPDFMerger {
     this.cancelRender = false;
 
     try {
+      await this.preflightWorker();
       this.showStatus('Extracting pages from PDFs...');
       
       // Store files and extract pages
@@ -181,6 +183,70 @@ class AdvancedPDFMerger {
     pdfjsLib.disableWorker = !!this.workerDisabled;
   }
 
+  async preflightWorker() {
+    if (this.workerPreflighted || this.workerDisabled) return;
+    this.workerPreflighted = true;
+    if (this.isLegacySafari()) {
+      this.enableWorkerWrapper();
+    }
+
+    const baseOk = await this.checkWorkerUrl(this.workerBaseSrc);
+    if (baseOk) {
+      this.setWorkerSrc(this.workerBaseSrc);
+      this.configurePdfJsWorker();
+      return;
+    }
+
+    const fallbackOk = await this.checkWorkerUrl(this.workerFallbackSrc);
+    if (fallbackOk) {
+      this.workerFallbackUsed = true;
+      this.setWorkerSrc(this.workerFallbackSrc);
+      this.configurePdfJsWorker();
+      return;
+    }
+
+    this.workerDisabled = true;
+    this.configurePdfJsWorker();
+  }
+
+  async checkWorkerUrl(url) {
+    if (!url) return false;
+    if (url.startsWith('blob:')) return true;
+    if (typeof fetch !== 'function') return true;
+
+    let controller = null;
+    let timeoutId = null;
+    if (typeof AbortController !== 'undefined') {
+      controller = new AbortController();
+      timeoutId = setTimeout(() => controller.abort(), 1500);
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller ? controller.signal : undefined
+      });
+
+      if (timeoutId) clearTimeout(timeoutId);
+      if (!response.ok) return false;
+
+      const contentType = (response.headers.get('content-type') || '').toLowerCase();
+      if (contentType.includes('text/html')) return false;
+      if (contentType.includes('javascript')) return true;
+      if (contentType && !contentType.startsWith('text/')) return true;
+
+      const text = await response.text();
+      const trimmed = text.trimStart();
+      if (trimmed.startsWith('<!doctype') || trimmed.startsWith('<html') || trimmed.startsWith('<')) return false;
+      return true;
+    } catch (err) {
+      return false;
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
+    }
+  }
+
   shouldDisableWorker(err) {
     const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
     return text.includes('importscripts') ||
@@ -240,7 +306,7 @@ class AdvancedPDFMerger {
   }
 
   buildWorkerWrapperUrl(workerSrc) {
-    const target = workerSrc || '/pdf.worker.min.js?v=3';
+    const target = workerSrc || '/pdf.worker.min.js?v=4';
     if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
       return target;
     }
