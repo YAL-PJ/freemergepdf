@@ -13,6 +13,18 @@ const safeReportError = (err, context = {}) => {
   }
 };
 
+const formatWorkerStateNote = (state = {}) => {
+  const note = [
+    state.workerDisabled ? 'worker=disabled' : 'worker=enabled',
+    state.workerFallbackUsed ? 'workerFallback=cdn' : 'workerFallback=local',
+    state.workerWrapperEnabled ? 'workerWrapper=on' : 'workerWrapper=off',
+    state.workerPreflighted ? 'workerPreflight=yes' : 'workerPreflight=no',
+    state.workerSrc ? `workerSrc=${state.workerSrc}` : null,
+    state.workerBaseSrc ? `workerBase=${state.workerBaseSrc}` : null
+  ].filter(Boolean).join(';');
+  return note ? `;${note}` : '';
+};
+
 class AdvancedPDFMerger {
   constructor(options = {}) {
     // Configuration
@@ -405,9 +417,10 @@ class AdvancedPDFMerger {
           this.config.onFileError({ fileIndex, error, reason });
         }
         if (!this.config.suppressFileErrors) {
+          const workerNote = formatWorkerStateNote(this);
           safeReportError(error, {
             feature: 'AdvancedPDFMerger.extractAllPages',
-            userNote: `fileIndex=${fileIndex}`
+            userNote: `fileIndex=${fileIndex}${workerNote}`
           });
         }
         console.error(`Error extracting pages from file index ${fileIndex}:`, error);
@@ -489,9 +502,10 @@ class AdvancedPDFMerger {
       return imageUrl;
     } catch (error) {
       console.error(`Error rendering thumbnail for ${pageData.id}:`, error);
+      const workerNote = formatWorkerStateNote(this);
       safeReportError(error, {
         feature: 'AdvancedPDFMerger.renderThumbnail',
-        userNote: `page=${pageData?.id || 'unknown'}`
+        userNote: `page=${pageData?.id || 'unknown'}${workerNote}`
       });
       return this.createPlaceholderThumbnail();
     }
