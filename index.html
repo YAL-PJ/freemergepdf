@@ -1344,7 +1344,7 @@
 
     <!-- Scripts -->
     <script src="error-reporting.js?v=2"></script>
-    <script src="advanced-pdf-merger.js?v=5"></script>
+    <script src="advanced-pdf-merger.js?v=6"></script>
 
     <script>
         const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
@@ -1836,6 +1836,61 @@
         }
 
         // ===== ADVANCED MERGE PREWARM HELPERS =====
+        const __scriptLoadPromises = new Map();
+
+        function loadScriptOnce(src, id) {
+            if (!src) return Promise.reject(new Error('Missing script src'));
+            const key = id || src;
+            if (__scriptLoadPromises.has(key)) return __scriptLoadPromises.get(key);
+
+            const existing = id ? document.getElementById(id) : document.querySelector(`script[src="${src}"]`);
+            if (existing) {
+                const resolved = Promise.resolve(true);
+                __scriptLoadPromises.set(key, resolved);
+                return resolved;
+            }
+
+            const promise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                if (id) script.id = id;
+                script.src = src;
+                script.async = true;
+                script.onload = () => resolve(true);
+                script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+                document.head.appendChild(script);
+            });
+            __scriptLoadPromises.set(key, promise);
+            return promise;
+        }
+
+        async function ensurePdfJsReady() {
+            if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) return true;
+            try {
+                await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'pdfjs-cdn-fallback');
+            } catch (err) {
+                return false;
+            }
+            return typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument;
+        }
+
+        async function ensureAdvancedMergerReady() {
+            if (typeof AdvancedPDFMerger !== 'undefined') return true;
+            try {
+                await loadScriptOnce('advanced-pdf-merger.js?v=6', 'advanced-merger-fallback');
+            } catch (err) {
+                return false;
+            }
+            return typeof AdvancedPDFMerger !== 'undefined';
+        }
+
+        async function ensureAdvancedDependencies() {
+            if (window.__advancedDepsReady) return true;
+            const pdfOk = await ensurePdfJsReady();
+            const mergerOk = await ensureAdvancedMergerReady();
+            window.__advancedDepsReady = pdfOk && mergerOk;
+            return window.__advancedDepsReady;
+        }
+
         function buildFilesKey(files) {
             return files.map(f => `${f.name}-${f.size}-${f.lastModified || 0}`).join('|');
         }
@@ -1854,7 +1909,9 @@
             advancedPageCountListenerAttached = true;
         }
 
-        function getAdvancedMergerInstance() {
+        async function getAdvancedMergerInstance() {
+            const depsOk = await ensureAdvancedDependencies();
+            if (!depsOk) return null;
             if (!advancedMerger) {
                 advancedMerger = new AdvancedPDFMerger({
                     maxPagesInMemory: 100,
@@ -1888,7 +1945,11 @@
                 advancedMerger = null;
             }
 
-            const merger = getAdvancedMergerInstance();
+            const merger = await getAdvancedMergerInstance();
+            if (!merger) {
+                showError('Advanced merge failed to load. Please refresh the page.', 'expandedError');
+                return null;
+            }
             advancedMergerPrewarmKey = key;
 
             const container = document.getElementById('advancedMergeContent');
