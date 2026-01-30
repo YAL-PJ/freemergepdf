@@ -146,6 +146,14 @@ class AdvancedPDFMerger {
   formatUserError(err) {
     const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
     const isEncrypted = text.includes('encrypted') || text.includes('password');
+    const isMemory = text.includes('array buffer allocation failed') ||
+      text.includes('out of memory') ||
+      text.includes('rangeerror');
+    const isCorrupt = text.includes('invalid pdf structure') ||
+      text.includes('no pdf header') ||
+      text.includes('failed to parse') ||
+      text.includes('xref') ||
+      text.includes('corrupt');
     const isFileAccess =
       text.includes('notreadable') ||
       text.includes('could not be read') ||
@@ -158,7 +166,15 @@ class AdvancedPDFMerger {
       text.includes('aborted');
 
     if (isEncrypted) {
-      return 'Password-protected PDF. Please remove the password and try again.';
+      return 'Password-protected PDF. Remove the password and try again.';
+    }
+
+    if (isCorrupt) {
+      return 'This file looks corrupted or is not a valid PDF. Try re-downloading or exporting it again.';
+    }
+
+    if (isMemory) {
+      return 'This file is too large to preview here. Try fewer pages/files or use Simple Merge.';
     }
 
     if (isFileAccess) {
