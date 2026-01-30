@@ -166,19 +166,19 @@ class AdvancedPDFMerger {
       text.includes('aborted');
 
     if (isEncrypted) {
-      return 'Password-protected PDF. Unlock it and try again.';
+      return 'Locked PDF. Unlock it and try again.';
     }
 
     if (isCorrupt) {
-      return 'This file isn’t a valid PDF. Try a different file.';
+      return 'Not a valid PDF. Try another file.';
     }
 
     if (isMemory) {
-      return 'This file is too large to preview here. Try fewer files/pages.';
+      return 'Too large to preview. Try fewer files/pages.';
     }
 
     if (isFileAccess) {
-      return 'Could not read this file. Please re‑select it.';
+      return 'Can’t read this file. Re‑select it.';
     }
 
     return `Error: ${err?.message || 'Something went wrong'}`;

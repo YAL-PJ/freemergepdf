@@ -1723,7 +1723,7 @@
 
         function describeFileIssue(info) {
             const err = info?.error;
-            if (isEncryptedPdfError(err)) return 'Password-protected PDF';
+            if (isEncryptedPdfError(err)) return 'Locked PDF';
             if (isCorruptPdfError(err)) return 'Corrupted or invalid PDF';
             if (isMemoryError(err)) return 'Too large to preview here';
             if (isFileReadError(err)) return 'File unavailable (moved or permission)';
@@ -1757,15 +1757,15 @@
             checkMemoryWarning(getMergeableFiles(expandedFiles), 'advancedMergeWarning');
             if (!advancedFileErrorShown) {
                 advancedFileErrorShown = true;
-                let msg = 'One or more files could not be processed and will be skipped.';
+                let msg = 'Some files were skipped.';
                 if (isEncryptedPdfError(err)) {
-                    msg = 'Password‑protected PDF. Unlock it to include it.';
+                    msg = 'Locked PDF. Unlock to include it.';
                 } else if (isCorruptPdfError(err)) {
-                    msg = 'One or more files aren’t valid PDFs. Try different files.';
+                    msg = 'Not a valid PDF. Try another file.';
                 } else if (isMemoryError(err)) {
-                    msg = 'Some files are too large to preview here. Try fewer files/pages.';
+                    msg = 'Too large to preview. Use fewer files/pages.';
                 } else if (isFileReadError(err)) {
-                    msg = 'We lost access to one or more files. Please re‑select them.';
+                    msg = "Can't read a file. Re-select it.";
                 }
                 showError(msg, 'expandedError');
             }
@@ -2395,7 +2395,7 @@
                 const pdfDoc = await PDFLib.PDFDocument.create();
                 if (hasKnownEncryptedFile(mergeFiles)) {
                     statusElement.className = 'status-area status-error';
-                    statusElement.innerHTML = '<span>🔒 Password-protected PDF detected. Remove the password to merge.</span>';
+                    statusElement.innerHTML = '<span>🔒 Locked PDF. Unlock to merge.</span>';
                     return;
                 }
                 if (moreCompressEnabled) {
@@ -2678,7 +2678,7 @@
                 const isFileRead = isFileReadError(error);
                 let friendlyMsg = `Error: ${error.message}`;
                 if (isEncrypted) {
-                    friendlyMsg = 'Password-protected PDF detected. Remove the password to merge.';
+                    friendlyMsg = 'Locked PDF. Unlock to merge.';
                 } else if (isMemory) {
                     friendlyMsg = 'The merge ran out of memory. Try fewer or smaller PDFs.';
                 } else if (isFileRead) {
@@ -2786,11 +2786,11 @@
                 }
                 const pdfDoc = await PDFLib.PDFDocument.create();
                 if (hasKnownEncryptedFile(files)) {
-                    const msg = 'Password-protected PDF detected. Remove the password to merge.';
+                    const msg = 'Locked PDF. Unlock to merge.';
                     showError(msg, isExpanded ? 'expandedError' : 'simpleError');
                     if (statusElement) {
                         statusElement.className = 'status-area status-error';
-                        statusElement.innerHTML = '<span>🔒 Password-protected PDF detected. Remove the password to merge.</span>';
+                        statusElement.innerHTML = '<span>🔒 Locked PDF. Unlock to merge.</span>';
                     }
                     return;
                 }
@@ -3062,19 +3062,19 @@
             const sizeHint = totalBytes ? ` (${formatFileSize(totalBytes)})` : '';
 
             if (isEncrypted) {
-                return 'Password‑protected PDF. Please unlock it and try again.';
+                return 'Locked PDF. Unlock and try again.';
             }
             if (isCorrupt) {
-                return 'One file isn’t a valid PDF. Try a different file.';
+                return 'Not a valid PDF. Try another file.';
             }
             if (isMemory) {
-                return `This merge is too large${sizeHint}. Try fewer files/pages.`;
+                return `Too large to merge${sizeHint}. Try fewer files/pages.`;
             }
             if (isFileRead) {
-                return 'We lost access to a file. Please re‑select the files.';
+                return "Can't read a file. Re-select files.";
             }
             const countNote = fileCount ? ` (${fileCount} files)` : '';
-            return `Merge failed${countNote}. Please try again.`;
+            return `Merge failed${countNote}. Try again.`;
         }
 
         function reportMergeError(err, meta = {}) {
@@ -3165,7 +3165,7 @@
                     if (current !== file) return;
                 }
 
-                markFileIssue(file, 'Password-protected PDF');
+                markFileIssue(file, 'Locked PDF');
                 if (mode === 'expanded') {
                     renderPdfList();
                     updateDocCount();
@@ -3174,7 +3174,7 @@
                 }
                 if (encryptedWarningShown[mode]) return;
                 encryptedWarningShown[mode] = true;
-                showError('Password-protected PDF detected. Remove the password to merge.', targetId);
+                showError('Locked PDF. Unlock to merge.', targetId);
             }, 0);
         }
 
