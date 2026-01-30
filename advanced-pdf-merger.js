@@ -166,19 +166,19 @@ class AdvancedPDFMerger {
       text.includes('aborted');
 
     if (isEncrypted) {
-      return 'Password-protected PDF. Remove the password and try again.';
+      return 'Password-protected PDF. Unlock it and try again.';
     }
 
     if (isCorrupt) {
-      return 'This file looks corrupted or is not a valid PDF. Try re-downloading or exporting it again.';
+      return 'This file isn’t a valid PDF. Try a different file.';
     }
 
     if (isMemory) {
-      return 'This file is too large to preview here. Try fewer pages/files or use Simple Merge.';
+      return 'This file is too large to preview here. Try fewer files/pages.';
     }
 
     if (isFileAccess) {
-      return 'Could not read this file. It may have been moved, renamed, or is in a sync/network folder. Please copy it to your local drive (e.g., Desktop), close other apps using it (sync/preview/AV), and select it again.';
+      return 'Could not read this file. Please re‑select it.';
     }
 
     return `Error: ${err?.message || 'Something went wrong'}`;

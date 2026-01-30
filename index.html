@@ -1759,13 +1759,13 @@
                 advancedFileErrorShown = true;
                 let msg = 'One or more files could not be processed and will be skipped.';
                 if (isEncryptedPdfError(err)) {
-                    msg = 'Password‑protected PDF detected. Remove the password and re‑upload to include it.';
+                    msg = 'Password‑protected PDF. Unlock it to include it.';
                 } else if (isCorruptPdfError(err)) {
-                    msg = 'One or more files look corrupted or aren’t valid PDFs. Re‑download or re‑export and try again.';
+                    msg = 'One or more files aren’t valid PDFs. Try different files.';
                 } else if (isMemoryError(err)) {
-                    msg = 'Some files are too large to preview here. Try fewer files/pages or use Simple Merge.';
+                    msg = 'Some files are too large to preview here. Try fewer files/pages.';
                 } else if (isFileReadError(err)) {
-                    msg = 'We lost access to one or more files. Move them to a local folder, close other apps, re‑select, and retry.';
+                    msg = 'We lost access to one or more files. Please re‑select them.';
                 }
                 showError(msg, 'expandedError');
             }
@@ -3062,19 +3062,19 @@
             const sizeHint = totalBytes ? ` (${formatFileSize(totalBytes)})` : '';
 
             if (isEncrypted) {
-                return 'Password‑protected PDF detected. Remove the password and re‑upload the file.';
+                return 'Password‑protected PDF. Please unlock it and try again.';
             }
             if (isCorrupt) {
-                return 'One file looks corrupted or isn’t a real PDF. Re‑download or re‑export it and try again.';
+                return 'One file isn’t a valid PDF. Try a different file.';
             }
             if (isMemory) {
-                return `This merge is too large for your browser memory${sizeHint}. To succeed: try fewer files/pages at a time, close other tabs/apps, use a desktop browser, or split into batches.`;
+                return `This merge is too large${sizeHint}. Try fewer files/pages.`;
             }
             if (isFileRead) {
-                return 'We lost access to one of the files. To succeed: move files to a local folder (e.g., Desktop), close other apps using them (sync/preview/AV), re‑select all files, and retry.';
+                return 'We lost access to a file. Please re‑select the files.';
             }
             const countNote = fileCount ? ` (${fileCount} files)` : '';
-            return `Merge failed${countNote}. Please refresh the page and try again. If it keeps happening, re‑select the files and try a smaller batch.`;
+            return `Merge failed${countNote}. Please try again.`;
         }
 
         function reportMergeError(err, meta = {}) {
