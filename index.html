@@ -1896,6 +1896,13 @@
             return typeof PDFLib !== 'undefined' && PDFLib.PDFDocument;
         }
 
+        async function ensurePdfLibReadyWithRetry() {
+            const ok = await ensurePdfLibReady();
+            if (ok) return true;
+            await new Promise(resolve => setTimeout(resolve, 300));
+            return ensurePdfLibReady();
+        }
+
         async function ensureAdvancedMergerReady() {
             if (typeof AdvancedPDFMerger !== 'undefined') return true;
             try {
@@ -2729,7 +2736,7 @@
           mergeInProgress = true;
           try {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
-            const pdfLibOk = await ensurePdfLibReady();
+            const pdfLibOk = await ensurePdfLibReadyWithRetry();
             if (!pdfLibOk) {
                 showError('PDF engine failed to load. Refresh the page.', isExpanded ? 'expandedError' : 'simpleError');
                 mergeInProgress = false;
