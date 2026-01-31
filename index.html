@@ -1886,6 +1886,16 @@
             return typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument;
         }
 
+        async function ensurePdfLibReady() {
+            if (typeof PDFLib !== 'undefined' && PDFLib.PDFDocument) return true;
+            try {
+                await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js', 'pdflib-cdn-fallback');
+            } catch (err) {
+                return false;
+            }
+            return typeof PDFLib !== 'undefined' && PDFLib.PDFDocument;
+        }
+
         async function ensureAdvancedMergerReady() {
             if (typeof AdvancedPDFMerger !== 'undefined') return true;
             try {
@@ -2719,6 +2729,12 @@
           mergeInProgress = true;
           try {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
+            const pdfLibOk = await ensurePdfLibReady();
+            if (!pdfLibOk) {
+                showError('PDF engine failed to load. Refresh the page.', isExpanded ? 'expandedError' : 'simpleError');
+                mergeInProgress = false;
+                return;
+            }
             const allFiles = isExpanded 
                 ? expandedFiles 
                 : [document.getElementById('file1').files[0], document.getElementById('file2').files[0]].filter(Boolean);
