@@ -1431,6 +1431,7 @@
         async function handleSimpleFileSelect(file, displayId, inputId) {
             if (!file) return;
             clearError('simpleError');
+            schedulePdfLibPrewarm();
 
             if (file.type !== 'application/pdf') {
                 showError('Please select a PDF file.', 'simpleError');
@@ -1550,6 +1551,7 @@
             if (files && files.length) {
                 clearError('expandedError');
                 advancedFileErrorShown = false;
+                schedulePdfLibPrewarm();
             }
 
             for (let file of files) {
@@ -1938,6 +1940,18 @@
             const mergerOk = await ensureAdvancedMergerReady();
             window.__advancedDepsReady = pdfOk && mergerOk;
             return window.__advancedDepsReady;
+        }
+
+
+        function schedulePdfLibPrewarm() {
+            if (window.__pdfLibPrewarmQueued) return;
+            window.__pdfLibPrewarmQueued = true;
+            const run = () => { ensurePdfLibReadyWithRetry(); };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(run, { timeout: 1500 });
+            } else {
+                setTimeout(run, 300);
+            }
         }
 
         function buildFilesKey(files) {
