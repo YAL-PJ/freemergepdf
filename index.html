@@ -1432,6 +1432,7 @@
             if (!file) return;
             clearError('simpleError');
             schedulePdfLibPrewarm();
+            schedulePdfJsPrewarm();
 
             if (file.type !== 'application/pdf') {
                 showError('Please select a PDF file.', 'simpleError');
@@ -1552,6 +1553,7 @@
                 clearError('expandedError');
                 advancedFileErrorShown = false;
                 schedulePdfLibPrewarm();
+            schedulePdfJsPrewarm();
             }
 
             for (let file of files) {
@@ -1950,6 +1952,20 @@
             if ('requestIdleCallback' in window) {
                 requestIdleCallback(run, { timeout: 1500 });
             } else {
+                setTimeout(run, 300);
+            }
+        }
+
+        function schedulePdfJsPrewarm() {
+            if (window.__pdfJsPrewarmQueued) return;
+            window.__pdfJsPrewarmQueued = true;
+            const run = () => { ensurePdfJsReady(); };
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(run, { timeout: 1500 });
+            } else {
+                setTimeout(run, 300);
+            }
+        } else {
                 setTimeout(run, 300);
             }
         }
