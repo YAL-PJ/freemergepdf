@@ -1965,6 +1965,8 @@
             } else {
                 setTimeout(run, 300);
             }
+        }
+
         function buildFilesKey(files) {
             return files.map(f => `${f.name}-${f.size}-${f.lastModified || 0}`).join('|');
         }
