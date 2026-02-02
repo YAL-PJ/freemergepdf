@@ -1876,6 +1876,20 @@
             return promise;
         }
 
+        function loadScriptWithCacheBust(src) {
+            if (!src) return Promise.reject(new Error('Missing script src'));
+            const cacheBust = src.includes('?') ? `&cb=${Date.now()}` : `?cb=${Date.now()}`;
+            const bustedSrc = `${src}${cacheBust}`;
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = bustedSrc;
+                script.async = true;
+                script.onload = () => resolve(true);
+                script.onerror = () => reject(new Error(`Failed to load script: ${bustedSrc}`));
+                document.head.appendChild(script);
+            });
+        }
+
         async function ensurePdfJsReady() {
             if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) return true;
             try {
@@ -1900,7 +1914,12 @@
             const ok = await ensurePdfLibReady();
             if (ok) return true;
             await new Promise(resolve => setTimeout(resolve, 300));
-            return ensurePdfLibReady();
+            try {
+                await loadScriptWithCacheBust('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js');
+            } catch (err) {
+                return false;
+            }
+            return typeof PDFLib !== 'undefined' && PDFLib.PDFDocument;
         }
 
         async function ensureAdvancedMergerReady() {
