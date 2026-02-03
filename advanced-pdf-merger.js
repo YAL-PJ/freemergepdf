@@ -25,6 +25,20 @@ const formatWorkerStateNote = (state = {}) => {
   return note ? `;${note}` : '';
 };
 
+const resolveAbsoluteUrl = (value) => {
+  if (!value || typeof value !== 'string') return value;
+  if (/^(blob:|data:|https?:|file:)/i.test(value)) return value;
+  try {
+    const base = (typeof window !== 'undefined' && window.location && window.location.href)
+      ? window.location.href
+      : (typeof self !== 'undefined' && self.location && self.location.href ? self.location.href : undefined);
+    if (!base) return value;
+    return new URL(value, base).toString();
+  } catch (e) {
+    return value;
+  }
+};
+
 class AdvancedPDFMerger {
   constructor(options = {}) {
     // Configuration
@@ -76,9 +90,9 @@ class AdvancedPDFMerger {
     this.filesViewEl = null;
     this.activeView = 'pages';
     this.workerDisabled = false;
-    this.workerBaseSrc = '/pdf.worker.min.js?v=4';
+    this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js?v=4');
     this.workerSrc = this.workerBaseSrc;
-    this.workerFallbackSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    this.workerFallbackSrc = resolveAbsoluteUrl('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js');
     this.workerFallbackUsed = false;
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
@@ -185,18 +199,19 @@ class AdvancedPDFMerger {
   }
 
   setWorkerSrc(baseSrc) {
-    this.workerBaseSrc = baseSrc;
+    const resolvedBaseSrc = resolveAbsoluteUrl(baseSrc);
+    this.workerBaseSrc = resolvedBaseSrc;
     if (this.workerWrapperUrl && this.workerWrapperUrl.startsWith('blob:') &&
         typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
       URL.revokeObjectURL(this.workerWrapperUrl);
       this.workerWrapperUrl = '';
     }
     if (this.workerWrapperEnabled) {
-      this.workerWrapperUrl = this.buildWorkerWrapperUrl(baseSrc);
+      this.workerWrapperUrl = this.buildWorkerWrapperUrl(resolvedBaseSrc);
       this.workerSrc = this.workerWrapperUrl;
       return;
     }
-    this.workerSrc = baseSrc;
+    this.workerSrc = resolvedBaseSrc;
   }
 
   enableWorkerWrapper() {
@@ -240,7 +255,8 @@ class AdvancedPDFMerger {
   }
 
   async probeWorkerSource(url) {
-    const reachable = await this.checkWorkerUrl(url);
+    const resolvedUrl = resolveAbsoluteUrl(url);
+    const reachable = await this.checkWorkerUrl(resolvedUrl);
     if (!reachable) return false;
 
     // If Worker API is unavailable, rely on fetch probe only.
@@ -253,7 +269,7 @@ class AdvancedPDFMerger {
     let wrapperUrl = '';
     let worker = null;
     try {
-      const escaped = JSON.stringify(url);
+      const escaped = JSON.stringify(resolvedUrl);
       const code = `self.onmessage=function(){};importScripts(${escaped});self.postMessage('ok');`;
       wrapperUrl = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
       const ok = await new Promise((resolve) => {
@@ -381,7 +397,7 @@ class AdvancedPDFMerger {
   }
 
   buildWorkerWrapperUrl(workerSrc) {
-    const target = workerSrc || '/pdf.worker.min.js?v=4';
+    const target = resolveAbsoluteUrl(workerSrc || '/pdf.worker.min.js?v=4');
     if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
       return target;
     }
@@ -416,7 +432,7 @@ class AdvancedPDFMerger {
         if (typeof Uint32Array !== 'undefined') defineAt(Uint32Array.prototype);
         if (typeof Float32Array !== 'undefined') defineAt(Float32Array.prototype);
         if (typeof Float64Array !== 'undefined') defineAt(Float64Array.prototype);
-        var src = '${target}';
+        var src = ${JSON.stringify(target)};
         if (typeof importScripts === 'function') {
           importScripts(src);
           return;

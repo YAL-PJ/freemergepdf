@@ -1344,7 +1344,7 @@
 
     <!-- Scripts -->
     <script src="error-reporting.js?v=2"></script>
-    <script src="advanced-pdf-merger.js?v=6"></script>
+    <script src="advanced-pdf-merger.js?v=7"></script>
 
     <script>
         const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
@@ -1929,7 +1929,7 @@
         async function ensureAdvancedMergerReady() {
             if (typeof AdvancedPDFMerger !== 'undefined') return true;
             try {
-                await loadScriptOnce('advanced-pdf-merger.js?v=6', 'advanced-merger-fallback');
+                await loadScriptOnce('advanced-pdf-merger.js?v=7', 'advanced-merger-fallback');
             } catch (err) {
                 return false;
             }
@@ -2392,8 +2392,22 @@
 
         function ensurePdfJsWorker() {
             if (typeof pdfjsLib === 'undefined' || !pdfjsLib.GlobalWorkerOptions) return;
-            if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+            const toAbsoluteUrl = (value) => {
+                try {
+                    return new URL(value, window.location.href).toString();
+                } catch (error) {
+                    return value;
+                }
+            };
+            const defaultWorkerSrc = toAbsoluteUrl('/pdf.worker.min.js?v=4');
+            const configuredWorkerSrc = pdfjsLib.GlobalWorkerOptions.workerSrc;
+            if (!configuredWorkerSrc) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = defaultWorkerSrc;
+                return;
+            }
+            const normalizedWorkerSrc = toAbsoluteUrl(configuredWorkerSrc);
+            if (normalizedWorkerSrc !== configuredWorkerSrc) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = normalizedWorkerSrc;
             }
         }
 
