@@ -218,14 +218,14 @@ class AdvancedPDFMerger {
       this.enableWorkerWrapper();
     }
 
-    const baseOk = await this.checkWorkerUrl(this.workerBaseSrc);
+    const baseOk = await this.probeWorkerSource(this.workerBaseSrc);
     if (baseOk) {
       this.setWorkerSrc(this.workerBaseSrc);
       this.configurePdfJsWorker();
       return;
     }
 
-    const fallbackOk = await this.checkWorkerUrl(this.workerFallbackSrc);
+    const fallbackOk = await this.probeWorkerSource(this.workerFallbackSrc);
     if (fallbackOk) {
       this.workerFallbackUsed = true;
       this.setWorkerSrc(this.workerFallbackSrc);
@@ -234,7 +234,53 @@ class AdvancedPDFMerger {
     }
 
     this.workerDisabled = true;
+    // Keep a known-good URL here so fake-worker mode won't keep retrying local path.
+    this.setWorkerSrc(this.workerFallbackSrc);
     this.configurePdfJsWorker();
+  }
+
+  async probeWorkerSource(url) {
+    const reachable = await this.checkWorkerUrl(url);
+    if (!reachable) return false;
+
+    // If Worker API is unavailable, rely on fetch probe only.
+    if (typeof Worker === 'undefined' || typeof Blob === 'undefined' ||
+        typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
+      return true;
+    }
+
+    // Detect importScripts/runtime failures up-front to avoid noisy fake-worker errors.
+    let wrapperUrl = '';
+    let worker = null;
+    try {
+      const escaped = JSON.stringify(url);
+      const code = `self.onmessage=function(){};importScripts(${escaped});self.postMessage('ok');`;
+      wrapperUrl = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
+      const ok = await new Promise((resolve) => {
+        const timeout = setTimeout(() => {
+          try { if (worker) worker.terminate(); } catch (e) {}
+          resolve(false);
+        }, 1800);
+        worker = new Worker(wrapperUrl);
+        worker.onmessage = () => {
+          clearTimeout(timeout);
+          try { worker.terminate(); } catch (e) {}
+          resolve(true);
+        };
+        worker.onerror = () => {
+          clearTimeout(timeout);
+          try { worker.terminate(); } catch (e) {}
+          resolve(false);
+        };
+      });
+      return ok;
+    } catch (err) {
+      return false;
+    } finally {
+      if (wrapperUrl) {
+        try { URL.revokeObjectURL(wrapperUrl); } catch (e) {}
+      }
+    }
   }
 
   async checkWorkerUrl(url) {
@@ -306,6 +352,7 @@ class AdvancedPDFMerger {
         }
 
         this.workerDisabled = true;
+        this.setWorkerSrc(this.workerFallbackSrc);
         this.configurePdfJsWorker();
         return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       }
