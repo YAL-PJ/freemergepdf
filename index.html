@@ -1343,8 +1343,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="error-reporting.js?v=2"></script>
-    <script src="advanced-pdf-merger.js?v=8"></script>
+    <script src="error-reporting.js?v=3"></script>
+    <script src="advanced-pdf-merger.js?v=9"></script>
 
     <script>
         const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
@@ -1823,6 +1823,41 @@
             );
         }
 
+        function isPdfLibParseFailure(error) {
+            const text = `${error?.name || ''} ${error?.message || ''}`.toLowerCase();
+            return text.includes('failed to parse number') ||
+                text.includes('parse raw int') ||
+                text.includes('crossref') ||
+                text.includes('cross reference') ||
+                text.includes('xref');
+        }
+
+        async function loadPdfLibDocument(arrayBuffer) {
+            const parseSpeed = (typeof PDFLib !== 'undefined' && PDFLib.ParseSpeeds)
+                ? PDFLib.ParseSpeeds.Fastest
+                : undefined;
+            const attempts = [
+                { throwOnInvalidObject: false },
+                parseSpeed ? { throwOnInvalidObject: false, parseSpeed } : null
+            ].filter(Boolean);
+
+            let lastError = null;
+            for (const options of [undefined, ...attempts]) {
+                try {
+                    if (!options) {
+                        return await PDFLib.PDFDocument.load(arrayBuffer);
+                    }
+                    return await PDFLib.PDFDocument.load(arrayBuffer, options);
+                } catch (error) {
+                    lastError = error;
+                    if (!isPdfLibParseFailure(error)) {
+                        throw error;
+                    }
+                }
+            }
+            throw lastError || new Error('Failed to load PDF document');
+        }
+
         function flashUploadGlow(elementId) {
             let targets = [];
             if (elementId === 'simpleError') {
@@ -1929,7 +1964,7 @@
         async function ensureAdvancedMergerReady() {
             if (typeof AdvancedPDFMerger !== 'undefined') return true;
             try {
-                await loadScriptOnce('advanced-pdf-merger.js?v=8', 'advanced-merger-fallback');
+                await loadScriptOnce('advanced-pdf-merger.js?v=9', 'advanced-merger-fallback');
             } catch (err) {
                 return false;
             }
@@ -2563,7 +2598,7 @@
                             if (!loadedPdfs.has(fileIndex)) {
                                 try {
                                     const arrayBuffer = await file.arrayBuffer();
-                                    const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                                    const pdf = await loadPdfLibDocument(arrayBuffer);
                                     loadedPdfs.set(fileIndex, pdf);
                                 } catch (error) {
                                     const shouldSkip = promptSkipFile(file, error);
@@ -2651,7 +2686,7 @@
                         if (!loadedPdfs.has(fileIndex)) {
                             try {
                                 const arrayBuffer = await file.arrayBuffer();
-                                const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                                const pdf = await loadPdfLibDocument(arrayBuffer);
                                 loadedPdfs.set(fileIndex, pdf);
                             } catch (error) {
                                 const shouldSkip = promptSkipFile(file, error);
@@ -2890,7 +2925,7 @@
                         try {
                             const arrayBuffer = await file.arrayBuffer();
                             pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                            pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                            pdfLibDoc = await loadPdfLibDocument(arrayBuffer);
                             totalPages += pdfJsDoc.numPages;
                         } catch (error) {
                             const shouldSkip = promptSkipFile(file, error);
@@ -2991,12 +3026,42 @@
                     for (const file of files) {
                         try {
                             const arrayBuffer = await file.arrayBuffer();
-                            const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                            const pdf = await loadPdfLibDocument(arrayBuffer);
                             const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
                             copiedPages.forEach((page) => {
                                 pdfDoc.addPage(page);
                             });
                         } catch (error) {
+                            if (isPdfLibParseFailure(error)) {
+                                try {
+                                    ensurePdfJsWorker();
+                                    const arrayBuffer = await file.arrayBuffer();
+                                    const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                    for (let pageIndex = 0; pageIndex < pdfJsDoc.numPages; pageIndex++) {
+                                        const page = await pdfJsDoc.getPage(pageIndex + 1);
+                                        const raster = await renderPdfJsPageToJpegBytes(page, rasterSettings);
+                                        const image = await pdfDoc.embedJpg(raster.bytes);
+                                        const newPage = pdfDoc.addPage([raster.width, raster.height]);
+                                        newPage.drawImage(image, {
+                                            x: 0,
+                                            y: 0,
+                                            width: raster.width,
+                                            height: raster.height
+                                        });
+                                    }
+                                    if (typeof pdfJsDoc?.cleanup === 'function') {
+                                        pdfJsDoc.cleanup();
+                                    }
+                                    if (typeof pdfJsDoc?.destroy === 'function') {
+                                        pdfJsDoc.destroy();
+                                    }
+                                    compressionNote = 'Note: Some damaged PDFs were rasterized to complete merge.';
+                                    continue;
+                                } catch (rasterFallbackError) {
+                                    error = rasterFallbackError;
+                                }
+                            }
+
                             const shouldSkip = promptSkipFile(file, error);
                             if (shouldSkip) {
                                 skippedCount += 1;

@@ -4,9 +4,15 @@
  * Clean, efficient, and robust
  */
 
+const __reportedErrorKeys = new Set();
+
 const safeReportError = (err, context = {}) => {
   if (typeof window === 'undefined' || typeof window.reportError !== 'function') return;
   try {
+    const key = `${context?.feature || 'unknown'}|${err?.name || 'Error'}|${err?.message || ''}`;
+    if (__reportedErrorKeys.has(key)) return;
+    if (__reportedErrorKeys.size > 200) __reportedErrorKeys.clear();
+    __reportedErrorKeys.add(key);
     window.reportError(err, context);
   } catch (reportErr) {
     console.warn('reportError failed', reportErr);
@@ -579,7 +585,11 @@ class AdvancedPDFMerger {
       }
 
       // Create viewport with scale
-      const scale = this.config.thumbnailScale;
+      let scale = this.config.thumbnailScale;
+      const isIOS = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+      if (isIOS) {
+        scale = Math.min(scale, 0.85);
+      }
       const viewport = page.getViewport({ scale: scale });
 
       // Create canvas
@@ -610,6 +620,32 @@ class AdvancedPDFMerger {
 
       return imageUrl;
     } catch (error) {
+      // iOS Safari can intermittently throw drawImage TypeError for inline images.
+      // Retry once at a lower scale before falling back to placeholder.
+      try {
+        const text = `${error?.name || ''} ${error?.message || ''} ${error?.stack || ''}`.toLowerCase();
+        const looksLikeImagePaintFailure = text.includes('drawimage') ||
+          text.includes('_scaleimage') ||
+          text.includes('paintinlineimagexobject') ||
+          text.includes('paintimagexobject');
+        if (looksLikeImagePaintFailure && pageData?.pdfDoc) {
+          const page = await pageData.pdfDoc.getPage(pageData.pageIndex + 1);
+          const retryScale = 0.55;
+          const viewport = page.getViewport({ scale: retryScale });
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.floor(viewport.width));
+          canvas.height = Math.max(1, Math.floor(viewport.height));
+          const context = canvas.getContext('2d');
+          if (context) {
+            await page.render({ canvasContext: context, viewport }).promise;
+            const imageUrl = canvas.toDataURL('image/jpeg', 0.6);
+            this.thumbnailCache.set(cacheKey, imageUrl);
+            return imageUrl;
+          }
+        }
+      } catch (retryError) {
+        // Ignore retry failure and report original error below.
+      }
       console.error(`Error rendering thumbnail for ${pageData.id}:`, error);
       const workerNote = formatWorkerStateNote(this);
       safeReportError(error, {

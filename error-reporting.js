@@ -84,6 +84,11 @@ function sendErrorReport(err, context = {}) {
 window.reportError = sendErrorReport;
 
 window.addEventListener('error', (event) => {
+    // Cross-origin script failures are reported by browsers as "Script error."
+    // with no actionable stack. Skip to reduce noise.
+    if ((event?.message || '').trim().toLowerCase() === 'script error.') {
+        return;
+    }
     const err = event.error || new Error(event.message || 'Unknown window error');
     sendErrorReport(err, {
         feature: 'window.error',
