@@ -39,6 +39,8 @@ const resolveAbsoluteUrl = (value) => {
   }
 };
 
+const WORKER_CIRCUIT_BREAKER_KEY = 'pdf-worker-disabled';
+
 class AdvancedPDFMerger {
   constructor(options = {}) {
     // Configuration
@@ -89,7 +91,7 @@ class AdvancedPDFMerger {
     this.pagesViewEl = null;
     this.filesViewEl = null;
     this.activeView = 'pages';
-    this.workerDisabled = false;
+    this.workerDisabled = this.isWorkerCircuitBroken();
     this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js?v=4');
     this.workerSrc = this.workerBaseSrc;
     this.workerFallbackSrc = resolveAbsoluteUrl('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js');
@@ -97,6 +99,26 @@ class AdvancedPDFMerger {
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
     this.workerPreflighted = false;
+  }
+
+  isWorkerCircuitBroken() {
+    try {
+      if (typeof sessionStorage === 'undefined') return false;
+      return sessionStorage.getItem(WORKER_CIRCUIT_BREAKER_KEY) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  tripWorkerCircuitBreaker() {
+    this.workerDisabled = true;
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(WORKER_CIRCUIT_BREAKER_KEY, '1');
+      }
+    } catch (e) {
+      // Ignore storage failures.
+    }
   }
 
   /**
@@ -249,6 +271,7 @@ class AdvancedPDFMerger {
     }
 
     this.workerDisabled = true;
+    this.tripWorkerCircuitBreaker();
     // Keep a known-good URL here so fake-worker mode won't keep retrying local path.
     this.setWorkerSrc(this.workerFallbackSrc);
     this.configurePdfJsWorker();
@@ -283,7 +306,8 @@ class AdvancedPDFMerger {
           try { worker.terminate(); } catch (e) {}
           resolve(true);
         };
-        worker.onerror = () => {
+        worker.onerror = (event) => {
+          try { event?.preventDefault?.(); } catch (e) {}
           clearTimeout(timeout);
           try { worker.terminate(); } catch (e) {}
           resolve(false);
@@ -364,10 +388,16 @@ class AdvancedPDFMerger {
           this.workerFallbackUsed = true;
           this.setWorkerSrc(this.workerFallbackSrc);
           this.configurePdfJsWorker();
-          return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          try {
+            return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          } catch (fallbackError) {
+            if (!this.shouldDisableWorker(fallbackError)) {
+              throw fallbackError;
+            }
+          }
         }
 
-        this.workerDisabled = true;
+        this.tripWorkerCircuitBreaker();
         this.setWorkerSrc(this.workerFallbackSrc);
         this.configurePdfJsWorker();
         return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
