@@ -1832,6 +1832,17 @@
                 text.includes('xref');
         }
 
+        function isPdfLibPageTreeFailure(error) {
+            const text = `${error?.name || ''} ${error?.message || ''}`.toLowerCase();
+            return text.includes('traverse is not a function') ||
+                text.includes('pages(...).traverse') ||
+                text.includes('catalog.pages');
+        }
+
+        function isPdfLibRecoverableFailure(error) {
+            return isPdfLibParseFailure(error) || isPdfLibPageTreeFailure(error);
+        }
+
         async function loadPdfLibDocument(arrayBuffer) {
             const parseSpeed = (typeof PDFLib !== 'undefined' && PDFLib.ParseSpeeds)
                 ? PDFLib.ParseSpeeds.Fastest
@@ -1850,7 +1861,7 @@
                     return await PDFLib.PDFDocument.load(arrayBuffer, options);
                 } catch (error) {
                     lastError = error;
-                    if (!isPdfLibParseFailure(error)) {
+                    if (!isPdfLibRecoverableFailure(error)) {
                         throw error;
                     }
                 }
@@ -3032,7 +3043,7 @@
                                 pdfDoc.addPage(page);
                             });
                         } catch (error) {
-                            if (isPdfLibParseFailure(error)) {
+                            if (isPdfLibRecoverableFailure(error)) {
                                 try {
                                     ensurePdfJsWorker();
                                     const arrayBuffer = await file.arrayBuffer();
@@ -3196,6 +3207,7 @@
             return text.includes('invalid pdf structure') ||
                 text.includes('no pdf header') ||
                 text.includes('failed to parse') ||
+                text.includes('traverse is not a function') ||
                 text.includes('xref') ||
                 text.includes('corrupt');
         }
