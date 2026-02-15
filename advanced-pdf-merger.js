@@ -105,6 +105,10 @@ class AdvancedPDFMerger {
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
     this.workerPreflighted = false;
+    if (this.workerDisabled) {
+      this.workerFallbackUsed = true;
+      this.workerSrc = this.workerFallbackSrc;
+    }
   }
 
   isWorkerCircuitBroken() {
@@ -255,7 +259,15 @@ class AdvancedPDFMerger {
   }
 
   async preflightWorker() {
-    if (this.workerPreflighted || this.workerDisabled) return;
+    if (this.workerPreflighted) return;
+    if (this.workerDisabled) {
+      if (!this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
+        this.workerFallbackUsed = true;
+        this.setWorkerSrc(this.workerFallbackSrc);
+      }
+      this.configurePdfJsWorker();
+      return;
+    }
     this.workerPreflighted = true;
     if (this.isLegacySafari()) {
       this.enableWorkerWrapper();
