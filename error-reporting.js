@@ -24,8 +24,8 @@ function scrub(text = '') {
     return String(text || '').replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted email]');
 }
 
-function fingerprint(message, feature) {
-    return `${message}|${feature || ''}`;
+function fingerprint(message, feature, note = '') {
+    return `${message}|${feature || ''}|${note || ''}`;
 }
 
 function normalizeError(err) {
@@ -52,9 +52,10 @@ function sendErrorReport(err, context = {}) {
         const safeStack = scrub(stack).slice(0, ERROR_REPORT_LIMITS.stackLength);
         const feature = scrub(context.feature || '');
         const endpoint = `https://docs.google.com/forms/d/e/${ERROR_FORM.formId}/formResponse`;
+        const safeUserNote = scrub(context.userNote || '').slice(0, 500);
 
         const now = Date.now();
-        const fp = fingerprint(safeMessage, feature);
+        const fp = fingerprint(safeMessage, feature, safeUserNote.slice(0, 120));
         if (fp === lastErrorFingerprint && now - lastErrorAt < ERROR_REPORT_LIMITS.throttleMs) {
             return;
         }
@@ -69,7 +70,7 @@ function sendErrorReport(err, context = {}) {
         if (navigator?.userAgent) formData.append(ERROR_FORM.fields.userAgent, navigator.userAgent);
         const appVersion = scrub(context.appVersion || window.APP_VERSION || '');
         if (appVersion) formData.append(ERROR_FORM.fields.appVersion, appVersion);
-        if (context.userNote) formData.append(ERROR_FORM.fields.userNote, scrub(context.userNote));
+        if (safeUserNote) formData.append(ERROR_FORM.fields.userNote, safeUserNote);
 
         fetch(endpoint, {
             method: 'POST',

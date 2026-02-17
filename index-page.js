@@ -520,6 +520,48 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             throw lastError || new Error('Failed to load PDF document');
         }
 
+        async function readFileAsArrayBuffer(file) {
+            let lastError = null;
+            for (let attempt = 0; attempt < 2; attempt++) {
+                try {
+                    return await file.arrayBuffer();
+                } catch (error) {
+                    lastError = error;
+                    if (!isFileReadError(error) || attempt === 1) {
+                        break;
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 120));
+                }
+            }
+
+            if (isFileReadError(lastError) && typeof FileReader !== 'undefined') {
+                try {
+                    return await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+                        reader.onabort = () => {
+                            const abortErr = typeof DOMException !== 'undefined'
+                                ? new DOMException('The operation was aborted.', 'AbortError')
+                                : new Error('The operation was aborted.');
+                            reject(reader.error || abortErr);
+                        };
+                        reader.onload = () => {
+                            if (reader.result instanceof ArrayBuffer) {
+                                resolve(reader.result);
+                                return;
+                            }
+                            reject(new Error('Unexpected file reader result'));
+                        };
+                        reader.readAsArrayBuffer(file);
+                    });
+                } catch (fallbackError) {
+                    lastError = fallbackError;
+                }
+            }
+
+            throw lastError || new Error('Failed to read file');
+        }
+
         function flashUploadGlow(elementId) {
             let targets = [];
             if (elementId === 'simpleError') {
@@ -1259,7 +1301,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                         } else {
                             if (!loadedPdfs.has(fileIndex)) {
                                 try {
-                                    const arrayBuffer = await file.arrayBuffer();
+                                    const arrayBuffer = await readFileAsArrayBuffer(file);
                                     const pdf = await loadPdfLibDocument(arrayBuffer);
                                     loadedPdfs.set(fileIndex, pdf);
                                 } catch (error) {
@@ -1347,7 +1389,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
                         if (!loadedPdfs.has(fileIndex)) {
                             try {
-                                const arrayBuffer = await file.arrayBuffer();
+                                const arrayBuffer = await readFileAsArrayBuffer(file);
                                 const pdf = await loadPdfLibDocument(arrayBuffer);
                                 loadedPdfs.set(fileIndex, pdf);
                             } catch (error) {
@@ -1585,7 +1627,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                         let pdfJsDoc = null;
                         let pdfLibDoc = null;
                         try {
-                            const arrayBuffer = await file.arrayBuffer();
+                            const arrayBuffer = await readFileAsArrayBuffer(file);
                             pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                             pdfLibDoc = await loadPdfLibDocument(arrayBuffer);
                             totalPages += pdfJsDoc.numPages;
@@ -1687,7 +1729,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 } else {
                     for (const file of files) {
                         try {
-                            const arrayBuffer = await file.arrayBuffer();
+                            const arrayBuffer = await readFileAsArrayBuffer(file);
                             const pdf = await loadPdfLibDocument(arrayBuffer);
                             const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
                             copiedPages.forEach((page) => {
@@ -1697,7 +1739,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                             if (isPdfLibRecoverableFailure(error)) {
                                 try {
                                     ensurePdfJsWorker();
-                                    const arrayBuffer = await file.arrayBuffer();
+                                    const arrayBuffer = await readFileAsArrayBuffer(file);
                                     const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
                                     for (let pageIndex = 0; pageIndex < pdfJsDoc.numPages; pageIndex++) {
                                         const page = await pdfJsDoc.getPage(pageIndex + 1);
@@ -1843,7 +1885,10 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 text.includes('securityerror') ||
                 text.includes('notfounderror') ||
                 text.includes('could not be found') ||
-                text.includes('not found');
+                text.includes('not found') ||
+                text.includes('aborterror') ||
+                text.includes('the operation was aborted') ||
+                text.includes('aborted');
         }
 
         function isMemoryError(err) {
@@ -1888,6 +1933,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             return `Merge failed${countNote}. Try again.`;
         }
 
+        function classifyMergeErrorKind(err) {
+            if (isEncryptedPdfError(err)) return 'encrypted';
+            if (isCorruptPdfError(err)) return 'corrupt';
+            if (isFileReadError(err)) return 'file_read';
+            if (isMemoryError(err)) return 'memory';
+            return 'unexpected';
+        }
+
         function reportMergeError(err, meta = {}) {
             if (typeof window.reportError !== 'function') return;
             try {
@@ -1904,11 +1957,13 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     `files=${Number.isFinite(meta.fileCount) ? meta.fileCount : 'n/a'}`,
                     typeof meta.pageCount === 'number' ? `pages=${meta.pageCount}` : null,
                     `error=${err?.name || 'Error'}`,
+                    `kind=${classifyMergeErrorKind(err)}`,
                     `source=${meta.source || detectErrorSource(err)}`,
                     Number.isFinite(meta.totalBytes) ? `totalBytes=${meta.totalBytes}` : null,
                     Number.isFinite(meta.maxBytes) ? `maxBytes=${meta.maxBytes}` : null,
                     Number.isFinite(meta.durationMs) ? `durationMs=${Math.round(meta.durationMs)}` : null,
-                    meta.libraryVersion ? `libVer=${meta.libraryVersion}` : null
+                    meta.libraryVersion ? `libVer=${meta.libraryVersion}` : null,
+                    meta.userNote ? `note=${meta.userNote}` : null
                 ].filter(Boolean).join(';');
 
                 window.reportError(err, {

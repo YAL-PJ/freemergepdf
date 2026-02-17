@@ -9,7 +9,8 @@ const __reportedErrorKeys = new Set();
 const safeReportError = (err, context = {}) => {
   if (typeof window === 'undefined' || typeof window.reportError !== 'function') return;
   try {
-    const key = `${context?.feature || 'unknown'}|${err?.name || 'Error'}|${err?.message || ''}`;
+    const noteKey = String(context?.userNote || '').slice(0, 120);
+    const key = `${context?.feature || 'unknown'}|${err?.name || 'Error'}|${err?.message || ''}|${noteKey}`;
     if (__reportedErrorKeys.has(key)) return;
     if (__reportedErrorKeys.size > 200) __reportedErrorKeys.clear();
     __reportedErrorKeys.add(key);
@@ -44,6 +45,45 @@ const resolveAbsoluteUrl = (value) => {
     return value;
   }
 };
+
+const getErrorText = (err) => `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+
+const isEncryptedPdfError = (err) => {
+  const text = getErrorText(err);
+  return text.includes('encrypted') || text.includes('password');
+};
+
+const isMemoryError = (err) => {
+  const text = getErrorText(err);
+  return text.includes('array buffer allocation failed') ||
+    text.includes('out of memory') ||
+    text.includes('rangeerror');
+};
+
+const isCorruptPdfError = (err) => {
+  const text = getErrorText(err);
+  return text.includes('invalid pdf structure') ||
+    text.includes('no pdf header') ||
+    text.includes('failed to parse') ||
+    text.includes('xref') ||
+    text.includes('corrupt');
+};
+
+const isFileAccessError = (err) => {
+  const text = getErrorText(err);
+  return text.includes('notreadable') ||
+    text.includes('could not be read') ||
+    text.includes('permission') ||
+    text.includes('securityerror') ||
+    text.includes('notfounderror') ||
+    text.includes('could not be found') ||
+    text.includes('not found') ||
+    text.includes('aborterror') ||
+    text.includes('abort') ||
+    text.includes('aborted');
+};
+
+const delayMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const WORKER_CIRCUIT_BREAKER_KEY = 'pdf-worker-disabled';
 
@@ -228,6 +268,56 @@ class AdvancedPDFMerger {
     }
 
     return `Error: ${err?.message || 'Something went wrong'}`;
+  }
+
+  classifyFileErrorKind(err) {
+    if (isEncryptedPdfError(err)) return 'encrypted';
+    if (isCorruptPdfError(err)) return 'corrupt';
+    if (isFileAccessError(err)) return 'file_access';
+    if (isMemoryError(err)) return 'memory';
+    return 'unexpected';
+  }
+
+  async readFileArrayBuffer(file) {
+    let lastError = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await file.arrayBuffer();
+      } catch (error) {
+        lastError = error;
+        if (!isFileAccessError(error) || attempt === 1) {
+          break;
+        }
+        await delayMs(120);
+      }
+    }
+
+    if (isFileAccessError(lastError) && typeof FileReader !== 'undefined') {
+      try {
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+          reader.onabort = () => {
+            const abortErr = typeof DOMException !== 'undefined'
+              ? new DOMException('The operation was aborted.', 'AbortError')
+              : new Error('The operation was aborted.');
+            reject(reader.error || abortErr);
+          };
+          reader.onload = () => {
+            if (reader.result instanceof ArrayBuffer) {
+              resolve(reader.result);
+              return;
+            }
+            reject(new Error('Unexpected file reader result'));
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      } catch (fallbackError) {
+        lastError = fallbackError;
+      }
+    }
+
+    throw lastError || new Error('Failed to read file');
   }
 
   setWorkerSrc(baseSrc) {
@@ -515,7 +605,7 @@ class AdvancedPDFMerger {
       const file = this.files[fileIndex];
       
       try {
-        const arrayBuffer = await file.arrayBuffer();
+        const arrayBuffer = await this.readFileArrayBuffer(file);
         
         // Load PDF using PDF.js
         const pdf = await this.loadPdfDocument(arrayBuffer);
@@ -545,9 +635,10 @@ class AdvancedPDFMerger {
         }
         if (!this.config.suppressFileErrors) {
           const workerNote = formatWorkerStateNote(this);
+          const errorKind = this.classifyFileErrorKind(error);
           safeReportError(error, {
             feature: 'AdvancedPDFMerger.extractAllPages',
-            userNote: `fileIndex=${fileIndex}${workerNote}`
+            userNote: `fileIndex=${fileIndex};kind=${errorKind}${workerNote}`
           });
         }
         console.error(`Error extracting pages from file index ${fileIndex}:`, error);
