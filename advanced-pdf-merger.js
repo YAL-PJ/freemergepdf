@@ -346,6 +346,12 @@ class AdvancedPDFMerger {
     if (typeof pdfjsLib === 'undefined') return;
     pdfjsLib.GlobalWorkerOptions.workerSrc = this.workerSrc;
     pdfjsLib.disableWorker = !!this.workerDisabled;
+    if (typeof pdfjsLib.setVerbosityLevel === 'function') {
+      const level = pdfjsLib.VerbosityLevel?.ERRORS;
+      if (typeof level === 'number') {
+        pdfjsLib.setVerbosityLevel(level);
+      }
+    }
   }
 
   async preflightWorker() {

@@ -633,13 +633,29 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             });
         }
 
+        function configurePdfJsVerbosity() {
+            try {
+                if (typeof pdfjsLib === 'undefined') return;
+                if (typeof pdfjsLib.setVerbosityLevel !== 'function') return;
+                const level = pdfjsLib.VerbosityLevel?.ERRORS;
+                if (typeof level !== 'number') return;
+                pdfjsLib.setVerbosityLevel(level);
+            } catch (e) {
+                // Ignore verbosity setup failures and continue with defaults.
+            }
+        }
+
         async function ensurePdfJsReady() {
-            if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) return true;
+            if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) {
+                configurePdfJsVerbosity();
+                return true;
+            }
             try {
                 await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js', 'pdfjs-cdn-fallback');
             } catch (err) {
                 return false;
             }
+            configurePdfJsVerbosity();
             return typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument;
         }
 
