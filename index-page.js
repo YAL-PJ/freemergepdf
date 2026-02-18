@@ -379,9 +379,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         function describeFileIssue(info) {
             const err = info?.error;
             if (isEncryptedPdfErrorSafe(err)) return 'Locked PDF';
-            if (isCorruptPdfError(err)) return 'Corrupted or invalid PDF';
-            if (isMemoryError(err)) return 'Too large to preview here';
-            if (isFileReadError(err)) return 'File unavailable (moved or permission)';
+            if (isCorruptPdfErrorSafe(err)) return 'Corrupted or invalid PDF';
+            if (isMemoryErrorSafe(err)) return 'Too large to preview here';
+            if (isFileReadErrorSafe(err)) return 'File unavailable (moved or permission)';
             const msg = `${err?.message || info?.reason || ''}`.trim();
             if (!msg) return 'Could not be processed';
             if (msg.toLowerCase().includes('file index')) return 'Could not be processed';
@@ -415,11 +415,11 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 let msg = 'Some files were skipped.';
                 if (isEncryptedPdfErrorSafe(err)) {
                     msg = 'Locked PDF. Unlock to include it.';
-                } else if (isCorruptPdfError(err)) {
+                } else if (isCorruptPdfErrorSafe(err)) {
                     msg = 'Not a valid PDF. Try another file.';
-                } else if (isMemoryError(err)) {
+                } else if (isMemoryErrorSafe(err)) {
                     msg = 'Too large to preview. Use fewer files/pages.';
-                } else if (isFileReadError(err)) {
+                } else if (isFileReadErrorSafe(err)) {
                     msg = "Can't read a file. Re-select it.";
                 }
                 showError(msg, 'expandedError');
@@ -527,14 +527,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     return await file.arrayBuffer();
                 } catch (error) {
                     lastError = error;
-                    if (!isFileReadError(error) || attempt === 1) {
+                    if (!isFileReadErrorSafe(error) || attempt === 1) {
                         break;
                     }
                     await new Promise((resolve) => setTimeout(resolve, 120));
                 }
             }
 
-            if (isFileReadError(lastError) && typeof FileReader !== 'undefined') {
+            if (isFileReadErrorSafe(lastError) && typeof FileReader !== 'undefined') {
                 try {
                     return await new Promise((resolve, reject) => {
                         const reader = new FileReader();
@@ -1490,8 +1490,8 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 }
             } catch (error) {
                 const isEncrypted = isEncryptedPdfErrorSafe(error);
-                const isMemory = isMemoryError(error);
-                const isFileRead = isFileReadError(error);
+                const isMemory = isMemoryErrorSafe(error);
+                const isFileRead = isFileReadErrorSafe(error);
                 let friendlyMsg = `Error: ${error.message}`;
                 if (isEncrypted) {
                     friendlyMsg = 'Locked PDF. Unlock to merge.';
@@ -1877,7 +1877,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 msg.includes('password');
         }
 
-        function isFileReadError(err) {
+        function isFileReadErrorSafe(err) {
             const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
             return text.includes('notreadableerror') ||
                 text.includes('could not be read') ||
@@ -1891,14 +1891,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 text.includes('aborted');
         }
 
-        function isMemoryError(err) {
+        function isMemoryErrorSafe(err) {
             const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
             return text.includes('array buffer allocation failed') ||
                 text.includes('out of memory') ||
                 text.includes('rangeerror');
         }
 
-        function isCorruptPdfError(err) {
+        function isCorruptPdfErrorSafe(err) {
             const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
             return text.includes('invalid pdf structure') ||
                 text.includes('no pdf header') ||
@@ -1910,9 +1910,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function buildMergeFailureMessage(error, stats = {}, mode = 'simple') {
             const isEncrypted = isEncryptedPdfErrorSafe(error);
-            const isMemory = isMemoryError(error);
-            const isFileRead = isFileReadError(error);
-            const isCorrupt = isCorruptPdfError(error);
+            const isMemory = isMemoryErrorSafe(error);
+            const isFileRead = isFileReadErrorSafe(error);
+            const isCorrupt = isCorruptPdfErrorSafe(error);
             const fileCount = Number.isFinite(stats?.fileCount) ? stats.fileCount : null;
             const totalBytes = Number.isFinite(stats?.totalBytes) ? stats.totalBytes : null;
             const sizeHint = totalBytes ? ` (${formatFileSize(totalBytes)})` : '';
@@ -1935,9 +1935,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function classifyMergeErrorKind(err) {
             if (isEncryptedPdfErrorSafe(err)) return 'encrypted';
-            if (isCorruptPdfError(err)) return 'corrupt';
-            if (isFileReadError(err)) return 'file_read';
-            if (isMemoryError(err)) return 'memory';
+            if (isCorruptPdfErrorSafe(err)) return 'corrupt';
+            if (isFileReadErrorSafe(err)) return 'file_read';
+            if (isMemoryErrorSafe(err)) return 'memory';
             return 'unexpected';
         }
 
