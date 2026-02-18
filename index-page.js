@@ -378,7 +378,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function describeFileIssue(info) {
             const err = info?.error;
-            if (isEncryptedPdfError(err)) return 'Locked PDF';
+            if (isEncryptedPdfErrorSafe(err)) return 'Locked PDF';
             if (isCorruptPdfError(err)) return 'Corrupted or invalid PDF';
             if (isMemoryError(err)) return 'Too large to preview here';
             if (isFileReadError(err)) return 'File unavailable (moved or permission)';
@@ -413,7 +413,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             if (!advancedFileErrorShown) {
                 advancedFileErrorShown = true;
                 let msg = 'Some files were skipped.';
-                if (isEncryptedPdfError(err)) {
+                if (isEncryptedPdfErrorSafe(err)) {
                     msg = 'Locked PDF. Unlock to include it.';
                 } else if (isCorruptPdfError(err)) {
                     msg = 'Not a valid PDF. Try another file.';
@@ -1489,7 +1489,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     });
                 }
             } catch (error) {
-                const isEncrypted = isEncryptedPdfError(error);
+                const isEncrypted = isEncryptedPdfErrorSafe(error);
                 const isMemory = isMemoryError(error);
                 const isFileRead = isFileReadError(error);
                 let friendlyMsg = `Error: ${error.message}`;
@@ -1867,7 +1867,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
           }
         }
 
-        function isEncryptedPdfError(err) {
+        function isEncryptedPdfErrorSafe(err) {
             const msg = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
             return msg.includes('encrypted') ||
                 msg.includes('password-protected') ||
@@ -1909,7 +1909,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         function buildMergeFailureMessage(error, stats = {}, mode = 'simple') {
-            const isEncrypted = isEncryptedPdfError(error);
+            const isEncrypted = isEncryptedPdfErrorSafe(error);
             const isMemory = isMemoryError(error);
             const isFileRead = isFileReadError(error);
             const isCorrupt = isCorruptPdfError(error);
@@ -1934,7 +1934,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         function classifyMergeErrorKind(err) {
-            if (isEncryptedPdfError(err)) return 'encrypted';
+            if (isEncryptedPdfErrorSafe(err)) return 'encrypted';
             if (isCorruptPdfError(err)) return 'corrupt';
             if (isFileReadError(err)) return 'file_read';
             if (isMemoryError(err)) return 'memory';
