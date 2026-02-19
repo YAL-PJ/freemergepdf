@@ -49,10 +49,27 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             [file1Input, file2Input].forEach((input, index) => {
                 const display = index === 0 ? display1 : display2;
                 const displayId = index === 0 ? 'display1' : 'display2';
+                const group = input.closest('.file-input-group');
 
                 input.addEventListener('change', async (e) => {
-                    await handleSimpleFileSelect(e.target.files[0], displayId, input.id);
+                    const selectedFile = e.target.files[0];
+                    if (!selectedFile) {
+                        updateSimpleMergeButton();
+                        return;
+                    }
+                    await handleSimpleFileSelect(selectedFile, displayId, input.id);
                 });
+
+                if (group) {
+                    group.addEventListener('click', (e) => {
+                        const clickedClear = !!e.target.closest('.file-clear-btn');
+                        const hasSelectedFile = display.classList.contains('has-file');
+                        if (clickedClear || hasSelectedFile) {
+                            e.stopImmediatePropagation();
+                            if (!clickedClear) e.preventDefault();
+                        }
+                    }, true);
+                }
 
                 display.addEventListener('dragover', (e) => {
                     e.preventDefault();
