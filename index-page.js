@@ -519,16 +519,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 ? PDFLib.ParseSpeeds.Fastest
                 : undefined;
             const attempts = [
+                parseSpeed ? { throwOnInvalidObject: false, parseSpeed } : null,
                 { throwOnInvalidObject: false },
-                parseSpeed ? { throwOnInvalidObject: false, parseSpeed } : null
+                parseSpeed ? { parseSpeed } : null
             ].filter(Boolean);
 
             let lastError = null;
-            for (const options of [undefined, ...attempts]) {
+            for (const options of attempts) {
                 try {
-                    if (!options) {
-                        return await PDFLib.PDFDocument.load(arrayBuffer);
-                    }
                     return await PDFLib.PDFDocument.load(arrayBuffer, options);
                 } catch (error) {
                     lastError = error;
@@ -537,7 +535,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     }
                 }
             }
-            throw lastError || new Error('Failed to load PDF document');
+            try {
+                return await PDFLib.PDFDocument.load(arrayBuffer);
+            } catch (error) {
+                if (!isPdfLibRecoverableFailure(error)) {
+                    throw error;
+                }
+                throw lastError || error || new Error('Failed to load PDF document');
+            }
         }
 
         async function readFileAsArrayBuffer(file) {
@@ -1774,10 +1779,38 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                         compressionNote = 'Note: No image-heavy pages found; compression is minimal.';
                     }
                 } else {
-                    for (const file of files) {
+                    // Pipeline file loading: while current file is being copied,
+                    // the next file is already reading/parsing in the background.
+                    const loadPdfForMerge = async (file) => {
+                        const arrayBuffer = await readFileAsArrayBuffer(file);
+                        const pdf = await loadPdfLibDocument(arrayBuffer);
+                        return pdf;
+                    };
+                    const loadPdfForMergeWrapped = (file) => (
+                        loadPdfForMerge(file).then(
+                            (pdf) => ({ pdf, error: null }),
+                            (error) => ({ pdf: null, error })
+                        )
+                    );
+
+                    let currentLoadPromise = files.length > 0 ? loadPdfForMergeWrapped(files[0]) : null;
+
+                    for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+                        const file = files[fileIndex];
+                        const nextLoadPromise = (fileIndex + 1) < files.length
+                            ? loadPdfForMergeWrapped(files[fileIndex + 1])
+                            : null;
                         try {
-                            const arrayBuffer = await readFileAsArrayBuffer(file);
-                            const pdf = await loadPdfLibDocument(arrayBuffer);
+                            const loaded = currentLoadPromise
+                                ? await currentLoadPromise
+                                : { pdf: null, error: new Error('Failed to load file') };
+                            if (loaded.error) {
+                                throw loaded.error;
+                            }
+                            const pdf = loaded.pdf;
+                            if (!pdf) {
+                                throw new Error('Failed to parse PDF');
+                            }
                             const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
                             copiedPages.forEach((page) => {
                                 pdfDoc.addPage(page);
@@ -1835,6 +1868,8 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                                 continue;
                             }
                             throw error;
+                        } finally {
+                            currentLoadPromise = nextLoadPromise;
                         }
                     }
                 }
