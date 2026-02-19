@@ -65,6 +65,8 @@ const isCorruptPdfError = (err) => {
   return text.includes('invalid pdf structure') ||
     text.includes('no pdf header') ||
     text.includes('failed to parse') ||
+    text.includes('traverse is not a function') ||
+    text.includes('pages(...).traverse') ||
     text.includes('xref') ||
     text.includes('corrupt');
 };
@@ -238,6 +240,8 @@ class AdvancedPDFMerger {
     const isCorrupt = text.includes('invalid pdf structure') ||
       text.includes('no pdf header') ||
       text.includes('failed to parse') ||
+      text.includes('traverse is not a function') ||
+      text.includes('pages(...).traverse') ||
       text.includes('xref') ||
       text.includes('corrupt');
     const isFileAccess =
@@ -354,8 +358,32 @@ class AdvancedPDFMerger {
     }
   }
 
+  resetPdfJsWorkerState() {
+    if (typeof pdfjsLib === 'undefined') return;
+    try {
+      if (pdfjsLib.GlobalWorkerOptions && 'workerPort' in pdfjsLib.GlobalWorkerOptions) {
+        pdfjsLib.GlobalWorkerOptions.workerPort = null;
+      }
+    } catch (e) {
+      // Ignore reset failures.
+    }
+    try {
+      const PDFWorker = pdfjsLib.PDFWorker;
+      if (PDFWorker && typeof PDFWorker._resetGlobalState === 'function') {
+        PDFWorker._resetGlobalState();
+        return;
+      }
+      if (PDFWorker && Object.prototype.hasOwnProperty.call(PDFWorker, '_setupFakeWorkerGlobal')) {
+        PDFWorker._setupFakeWorkerGlobal = null;
+      }
+    } catch (e) {
+      // Ignore reset failures.
+    }
+  }
+
   async preflightWorker() {
     if (this.workerPreflighted) return;
+    this.workerPreflighted = true;
     if (this.workerDisabled) {
       if (!this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
         this.workerFallbackUsed = true;
@@ -364,7 +392,6 @@ class AdvancedPDFMerger {
       this.configurePdfJsWorker();
       return;
     }
-    this.workerPreflighted = true;
     if (this.isLegacySafari()) {
       this.enableWorkerWrapper();
     }
@@ -388,6 +415,7 @@ class AdvancedPDFMerger {
     this.tripWorkerCircuitBreaker();
     // Keep a known-good URL here so fake-worker mode won't keep retrying local path.
     this.setWorkerSrc(this.workerFallbackSrc);
+    this.resetPdfJsWorkerState();
     this.configurePdfJsWorker();
   }
 
@@ -501,6 +529,7 @@ class AdvancedPDFMerger {
         if (this.isWorkerFetchFailure(error) && !this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
           this.workerFallbackUsed = true;
           this.setWorkerSrc(this.workerFallbackSrc);
+          this.resetPdfJsWorkerState();
           this.configurePdfJsWorker();
           try {
             return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -513,6 +542,7 @@ class AdvancedPDFMerger {
 
         this.tripWorkerCircuitBreaker();
         this.setWorkerSrc(this.workerFallbackSrc);
+        this.resetPdfJsWorkerState();
         this.configurePdfJsWorker();
         return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       }
@@ -525,6 +555,7 @@ class AdvancedPDFMerger {
     return text.includes('unexpected token') ||
       text.includes('text/html') ||
       text.includes('workermessagehandler') ||
+      text.includes('setting up fake worker failed') ||
       text.includes('cannot load script');
   }
 

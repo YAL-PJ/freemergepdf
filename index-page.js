@@ -683,8 +683,19 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         async function ensureAdvancedMergerReady() {
             if (typeof AdvancedPDFMerger !== 'undefined') return true;
+            const existingAdvancedScript = Array.from(document.scripts || []).find((script) => {
+                const src = script?.getAttribute('src') || '';
+                return /(?:^|\/)advanced-pdf-merger\.js(?:\?|$)/i.test(src);
+            });
+            if (existingAdvancedScript) {
+                const waitUntil = Date.now() + 3000;
+                while (typeof AdvancedPDFMerger === 'undefined' && Date.now() < waitUntil) {
+                    await new Promise((resolve) => setTimeout(resolve, 50));
+                }
+                if (typeof AdvancedPDFMerger !== 'undefined') return true;
+            }
             try {
-                await loadScriptOnce('advanced-pdf-merger.js?v=9', 'advanced-merger-fallback');
+                await loadScriptOnce('advanced-pdf-merger.js?v=10', 'advanced-merger-fallback');
             } catch (err) {
                 return false;
             }
