@@ -11,6 +11,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         const fileIssues = new WeakMap();
         let advancedMergerFiles = [];
         let advancedFileErrorShown = false;
+        const simpleSelectedFiles = { file1: null, file2: null };
         const ENCRYPTION_SCAN_BYTES = 65536;
 
         // ===== MODE TOGGLE =====
@@ -49,27 +50,24 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             [file1Input, file2Input].forEach((input, index) => {
                 const display = index === 0 ? display1 : display2;
                 const displayId = index === 0 ? 'display1' : 'display2';
-                const group = input.closest('.file-input-group');
 
                 input.addEventListener('change', async (e) => {
                     const selectedFile = e.target.files[0];
                     if (!selectedFile) {
+                        const cachedFile = simpleSelectedFiles[input.id];
+                        if (cachedFile) {
+                            const dt = new DataTransfer();
+                            dt.items.add(cachedFile);
+                            input.files = dt.files;
+                        }
                         updateSimpleMergeButton();
                         return;
                     }
-                    await handleSimpleFileSelect(selectedFile, displayId, input.id);
+                    const accepted = await handleSimpleFileSelect(selectedFile, displayId, input.id);
+                    if (accepted) {
+                        simpleSelectedFiles[input.id] = selectedFile;
+                    }
                 });
-
-                if (group) {
-                    group.addEventListener('click', (e) => {
-                        const clickedClear = !!e.target.closest('.file-clear-btn');
-                        const hasSelectedFile = display.classList.contains('has-file');
-                        if (clickedClear || hasSelectedFile) {
-                            e.stopImmediatePropagation();
-                            if (!clickedClear) e.preventDefault();
-                        }
-                    }, true);
-                }
 
                 display.addEventListener('dragover', (e) => {
                     e.preventDefault();
@@ -97,7 +95,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         async function handleSimpleFileSelect(file, displayId, inputId) {
-            if (!file) return;
+            if (!file) return false;
             clearError('simpleError');
             schedulePdfLibPrewarm();
             schedulePdfJsPrewarm();
@@ -105,19 +103,22 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             if (file.type !== 'application/pdf') {
                 showError('Please select a PDF file.', 'simpleError');
                 document.getElementById(inputId).value = '';
-                return;
+                simpleSelectedFiles[inputId] = null;
+                return false;
             }
 
             if (file.size === 0) {
                 showError('Please select a non-empty PDF file.', 'simpleError');
                 document.getElementById(inputId).value = '';
-                return;
+                simpleSelectedFiles[inputId] = null;
+                return false;
             }
 
             if (!(await hasPdfHeader(file))) {
                 showError('Please select a valid PDF file (missing header).', 'simpleError');
                 document.getElementById(inputId).value = '';
-                return;
+                simpleSelectedFiles[inputId] = null;
+                return false;
             }
 
             queueEncryptionScan(file, 'simpleError', 'simple', inputId);
@@ -131,10 +132,12 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             display.classList.add('has-file');
 
             updateSimpleMergeButton();
+            return true;
         }
 
         function clearSimpleFile(inputId, displayId) {
             document.getElementById(inputId).value = '';
+            simpleSelectedFiles[inputId] = null;
             const display = document.getElementById(displayId);
             display.innerHTML = `
                 <div class="file-input-icon">📁</div>
