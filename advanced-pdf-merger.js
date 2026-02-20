@@ -48,7 +48,7 @@ const resolveAbsoluteUrl = (value) => {
 
 const getErrorText = (err) => `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
 
-const isEncryptedPdfError = (err) => {
+const isEncryptedPdfErrorInMerger = (err) => {
   const text = getErrorText(err);
   return text.includes('encrypted') || text.includes('password');
 };
@@ -275,7 +275,7 @@ class AdvancedPDFMerger {
   }
 
   classifyFileErrorKind(err) {
-    if (isEncryptedPdfError(err)) return 'encrypted';
+    if (isEncryptedPdfErrorInMerger(err)) return 'encrypted';
     if (isCorruptPdfError(err)) return 'corrupt';
     if (isFileAccessError(err)) return 'file_access';
     if (isMemoryError(err)) return 'memory';
