@@ -670,6 +670,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             }
         }
 
+        function getPdfJsDocOptions(arrayBuffer) {
+            const level = pdfjsLib?.VerbosityLevel?.ERRORS;
+            if (typeof level === 'number') {
+                return { data: arrayBuffer, verbosity: level };
+            }
+            return { data: arrayBuffer };
+        }
+
         async function ensurePdfJsReady() {
             if (typeof pdfjsLib !== 'undefined' && pdfjsLib.getDocument) {
                 configurePdfJsVerbosity();
@@ -1680,7 +1688,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                         let pdfLibDoc = null;
                         try {
                             const arrayBuffer = await readFileAsArrayBuffer(file);
-                            pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                            pdfJsDoc = await pdfjsLib.getDocument(getPdfJsDocOptions(arrayBuffer)).promise;
                             pdfLibDoc = await loadPdfLibDocument(arrayBuffer);
                             totalPages += pdfJsDoc.numPages;
                         } catch (error) {
@@ -1820,7 +1828,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                                 try {
                                     ensurePdfJsWorker();
                                     const arrayBuffer = await readFileAsArrayBuffer(file);
-                                    const pdfJsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                                    const pdfJsDoc = await pdfjsLib.getDocument(getPdfJsDocOptions(arrayBuffer)).promise;
                                     for (let pageIndex = 0; pageIndex < pdfJsDoc.numPages; pageIndex++) {
                                         const page = await pdfJsDoc.getPage(pageIndex + 1);
                                         const raster = await renderPdfJsPageToJpegBytes(page, rasterSettings);

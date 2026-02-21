@@ -518,12 +518,16 @@ class AdvancedPDFMerger {
     if (typeof pdfjsLib === 'undefined') {
       throw new Error('pdf.js is not available');
     }
+    const verbosityLevel = pdfjsLib?.VerbosityLevel?.ERRORS;
+    const docOptions = (typeof verbosityLevel === 'number')
+      ? { data: arrayBuffer, verbosity: verbosityLevel }
+      : { data: arrayBuffer };
     if (this.isLegacySafari()) {
       this.enableWorkerWrapper();
     }
     this.configurePdfJsWorker();
     try {
-      return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      return await pdfjsLib.getDocument(docOptions).promise;
     } catch (error) {
       if (!this.workerDisabled && this.shouldDisableWorker(error)) {
         if (this.isWorkerFetchFailure(error) && !this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
@@ -532,7 +536,7 @@ class AdvancedPDFMerger {
           this.resetPdfJsWorkerState();
           this.configurePdfJsWorker();
           try {
-            return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            return await pdfjsLib.getDocument(docOptions).promise;
           } catch (fallbackError) {
             if (!this.shouldDisableWorker(fallbackError)) {
               throw fallbackError;
@@ -544,7 +548,7 @@ class AdvancedPDFMerger {
         this.setWorkerSrc(this.workerFallbackSrc);
         this.resetPdfJsWorkerState();
         this.configurePdfJsWorker();
-        return await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        return await pdfjsLib.getDocument(docOptions).promise;
       }
       throw error;
     }
