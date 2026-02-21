@@ -673,10 +673,15 @@ class AdvancedPDFMerger {
         if (!this.config.suppressFileErrors) {
           const workerNote = formatWorkerStateNote(this);
           const errorKind = this.classifyFileErrorKind(error);
-          safeReportError(error, {
-            feature: 'AdvancedPDFMerger.extractAllPages',
-            userNote: `fileIndex=${fileIndex};kind=${errorKind}${workerNote}`
-          });
+          // Known per-file failures are handled in-product by skipping that file.
+          // Avoid flooding telemetry with expected user-file issues.
+          const shouldReport = !['file_access', 'corrupt', 'encrypted'].includes(errorKind);
+          if (shouldReport) {
+            safeReportError(error, {
+              feature: 'AdvancedPDFMerger.extractAllPages',
+              userNote: `fileIndex=${fileIndex};kind=${errorKind}${workerNote}`
+            });
+          }
         }
         console.error(`Error extracting pages from file index ${fileIndex}:`, error);
         continue;

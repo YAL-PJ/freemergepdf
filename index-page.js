@@ -2026,6 +2026,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         function reportMergeError(err, meta = {}) {
             if (typeof window.reportError !== 'function') return;
             try {
+                const userNote = String(meta.userNote || '');
+                // Skip telemetry for deliberate user skip actions; these are handled flows.
+                if (userNote.includes('user_action=skip')) return;
                 const throttles = window.__MERGE_ERROR_THROTTLE || (window.__MERGE_ERROR_THROTTLE = {});
                 const key = `${meta.mode || 'n/a'}|${meta.step || 'n/a'}|${err?.message || ''}`;
                 const now = Date.now();
@@ -2045,7 +2048,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     Number.isFinite(meta.maxBytes) ? `maxBytes=${meta.maxBytes}` : null,
                     Number.isFinite(meta.durationMs) ? `durationMs=${Math.round(meta.durationMs)}` : null,
                     meta.libraryVersion ? `libVer=${meta.libraryVersion}` : null,
-                    meta.userNote ? `note=${meta.userNote}` : null
+                    userNote ? `note=${userNote}` : null
                 ].filter(Boolean).join(';');
 
                 window.reportError(err, {
