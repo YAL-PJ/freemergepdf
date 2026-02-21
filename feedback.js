@@ -540,11 +540,9 @@ function renderThreadEntry(entry, repliesByParent, keyForEntry, forceShowAllRepl
 function createReplyForm(parentEntry) {
     const form = document.createElement('form');
     form.className = 'feedback-reply-form';
-    const replyKey = String(parentEntry?.id || parentEntry?.createdAt || Date.now()).replace(/[^a-zA-Z0-9_-]/g, '_');
 
     const emailInput = document.createElement('input');
     emailInput.type = 'email';
-    emailInput.id = `replyEmail_${replyKey}`;
     emailInput.name = 'replyEmail';
     emailInput.placeholder = 'your@email.com';
     emailInput.className = 'feedback-input';
@@ -552,14 +550,12 @@ function createReplyForm(parentEntry) {
 
     const userNameInput = document.createElement('input');
     userNameInput.type = 'text';
-    userNameInput.id = `replyUserName_${replyKey}`;
     userNameInput.name = 'replyUserName';
     userNameInput.placeholder = 'Your name (optional)';
     userNameInput.className = 'feedback-input';
     userNameInput.setAttribute('aria-label', 'Reply user name');
 
     const messageInput = document.createElement('textarea');
-    messageInput.id = `replyMessage_${replyKey}`;
     messageInput.name = 'replyMessage';
     messageInput.className = 'feedback-input feedback-textarea';
     messageInput.placeholder = 'Reply...';
@@ -569,7 +565,6 @@ function createReplyForm(parentEntry) {
     privateLabel.className = 'feedback-toggle';
     const privateInput = document.createElement('input');
     privateInput.type = 'checkbox';
-    privateInput.id = `replyPrivate_${replyKey}`;
     privateInput.name = 'replyPrivate';
     privateInput.setAttribute('aria-label', 'Make this reply private');
     const privateSpan = document.createElement('span');
