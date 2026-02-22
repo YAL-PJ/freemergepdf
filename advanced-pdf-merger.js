@@ -1153,11 +1153,11 @@ class AdvancedPDFMerger {
       touchStartY = e.touches[0].clientY;
       this.draggedIndex = this.getCardIndex(card);
       card.style.opacity = '0.6';
-    });
+    }, { passive: true });
 
     card.addEventListener('touchend', () => {
       card.style.opacity = '1';
-    });
+    }, { passive: true });
   }
 
   /**
