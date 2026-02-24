@@ -20,6 +20,31 @@ const ERROR_REPORT_LIMITS = {
 let lastErrorFingerprint = '';
 let lastErrorAt = 0;
 
+function isSameOriginUrl(url) {
+    try {
+        if (!url) return true;
+        const parsed = new URL(url, window.location.href);
+        return parsed.origin === window.location.origin;
+    } catch (_) {
+        return true;
+    }
+}
+
+function shouldIgnoreKnownNoise(err, context = {}) {
+    const message = String(err?.message || '').toLowerCase();
+    const stack = String(err?.stack || '').toLowerCase();
+    const url = String(context?.url || '').toLowerCase();
+    const joined = `${message} ${stack} ${url}`;
+
+    // Third-party widget/ad-tech failures are noisy and not actionable for core PDF flows.
+    if (joined.includes('uid2 sdk failed to load')) return true;
+    if (joined.includes('cdn.prod.uidapi.com')) return true;
+    if (joined.includes('faves.grow.me')) return true;
+    if (joined.includes('importing a module script failed') && joined.includes('grow.me')) return true;
+
+    return false;
+}
+
 function scrub(text = '') {
     return String(text || '').replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[redacted email]');
 }
@@ -47,6 +72,7 @@ function normalizeError(err) {
 
 function sendErrorReport(err, context = {}) {
     try {
+        if (shouldIgnoreKnownNoise(err, context)) return;
         const { message, stack } = normalizeError(err);
         const safeMessage = scrub(message).slice(0, 500);
         const safeStack = scrub(stack).slice(0, ERROR_REPORT_LIMITS.stackLength);
@@ -88,6 +114,9 @@ window.addEventListener('error', (event) => {
     // Cross-origin script failures are reported by browsers as "Script error."
     // with no actionable stack. Skip to reduce noise.
     if ((event?.message || '').trim().toLowerCase() === 'script error.') {
+        return;
+    }
+    if (event?.filename && !isSameOriginUrl(event.filename)) {
         return;
     }
     const err = event.error || new Error(event.message || 'Unknown window error');

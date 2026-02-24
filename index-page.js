@@ -1,5 +1,16 @@
 const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
-        const MERGE_HARD_LIMIT_BYTES = 1500 * 1024 * 1024; // 1.5GB hard cap to avoid memory errors
+        const DEVICE_MEMORY_GB = (typeof navigator !== 'undefined' && Number.isFinite(Number(navigator.deviceMemory)))
+            ? Number(navigator.deviceMemory)
+            : 0;
+        const MERGE_HARD_LIMIT_BYTES = DEVICE_MEMORY_GB <= 2
+            ? 250 * 1024 * 1024
+            : DEVICE_MEMORY_GB <= 4
+                ? 400 * 1024 * 1024
+                : DEVICE_MEMORY_GB <= 8
+                    ? 700 * 1024 * 1024
+                    : DEVICE_MEMORY_GB > 8
+                        ? 1000 * 1024 * 1024
+                        : 700 * 1024 * 1024;
         let expandedFiles = []; // Store file objects for expanded mode
         let advancedMerger = null; // Advanced merger instance
         let advancedMergerPrewarmKey = '';
@@ -2180,6 +2191,19 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             URL.revokeObjectURL(url);
             document.body.removeChild(a);
         }
+
+        // Inline HTML onclick handlers need these on window even if script scope changes.
+        Object.assign(window, {
+            toggleMode,
+            clearSimpleFile,
+            removeExpandedFile,
+            openAdvancedSortFromSimple,
+            openAdvancedSort,
+            closeAdvancedSort,
+            resetPageOrder,
+            finalizeAdvancedMerge,
+            mergePDFs
+        });
 
         // ===== MODAL BACKDROP CLOSE =====
         document.addEventListener('DOMContentLoaded', () => {

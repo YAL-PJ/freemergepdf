@@ -23,7 +23,7 @@ const safeReportError = (err, context = {}) => {
 const formatWorkerStateNote = (state = {}) => {
   const note = [
     state.workerDisabled ? 'worker=disabled' : 'worker=enabled',
-    state.workerFallbackUsed ? 'workerFallback=cdn' : 'workerFallback=local',
+    state.workerFallbackUsed ? 'workerFallback=alt' : 'workerFallback=base',
     state.workerWrapperEnabled ? 'workerWrapper=on' : 'workerWrapper=off',
     state.workerPreflighted ? 'workerPreflight=yes' : 'workerPreflight=no',
     state.workerSrc ? `workerSrc=${state.workerSrc}` : null,
@@ -142,14 +142,14 @@ class AdvancedPDFMerger {
     this.workerDisabled = this.isWorkerCircuitBroken();
     this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js?v=4');
     this.workerSrc = this.workerBaseSrc;
-    this.workerFallbackSrc = resolveAbsoluteUrl('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js');
+    this.workerFallbackSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
     this.workerFallbackUsed = false;
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
     this.workerPreflighted = false;
     if (this.workerDisabled) {
-      this.workerFallbackUsed = true;
-      this.workerSrc = this.workerFallbackSrc;
+      // Stay on same-origin worker path when circuit breaker is active.
+      this.workerSrc = this.workerBaseSrc;
     }
   }
 
@@ -385,10 +385,7 @@ class AdvancedPDFMerger {
     if (this.workerPreflighted) return;
     this.workerPreflighted = true;
     if (this.workerDisabled) {
-      if (!this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
-        this.workerFallbackUsed = true;
-        this.setWorkerSrc(this.workerFallbackSrc);
-      }
+      this.setWorkerSrc(this.workerBaseSrc);
       this.configurePdfJsWorker();
       return;
     }
@@ -413,8 +410,7 @@ class AdvancedPDFMerger {
 
     this.workerDisabled = true;
     this.tripWorkerCircuitBreaker();
-    // Keep a known-good URL here so fake-worker mode won't keep retrying local path.
-    this.setWorkerSrc(this.workerFallbackSrc);
+    this.setWorkerSrc(this.workerBaseSrc);
     this.resetPdfJsWorkerState();
     this.configurePdfJsWorker();
   }
@@ -545,7 +541,7 @@ class AdvancedPDFMerger {
         }
 
         this.tripWorkerCircuitBreaker();
-        this.setWorkerSrc(this.workerFallbackSrc);
+        this.setWorkerSrc(this.workerBaseSrc);
         this.resetPdfJsWorkerState();
         this.configurePdfJsWorker();
         return await pdfjsLib.getDocument(docOptions).promise;
