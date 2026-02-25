@@ -34,6 +34,7 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     const message = String(err?.message || '').toLowerCase();
     const stack = String(err?.stack || '').toLowerCase();
     const url = String(context?.url || '').toLowerCase();
+    const feature = String(context?.feature || '').toLowerCase();
     const joined = `${message} ${stack} ${url}`;
 
     // Third-party widget/ad-tech failures are noisy and not actionable for core PDF flows.
@@ -41,6 +42,9 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (joined.includes('cdn.prod.uidapi.com')) return true;
     if (joined.includes('faves.grow.me')) return true;
     if (joined.includes('importing a module script failed') && joined.includes('grow.me')) return true;
+    if (message.includes('importing a module script failed')) return true;
+    if (message.includes('unknown rejection') && stack.includes('webkit-masked-url://hidden/')) return true;
+    if (feature === 'unhandledrejection' && stack.includes('webkit-masked-url://hidden/')) return true;
 
     return false;
 }

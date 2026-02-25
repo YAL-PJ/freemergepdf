@@ -1209,7 +1209,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     return value;
                 }
             };
-            const defaultWorkerSrc = toAbsoluteUrl('/pdf.worker.min.js?v=4');
+            const defaultWorkerSrc = toAbsoluteUrl('/pdf.worker.min.js');
             const configuredWorkerSrc = pdfjsLib.GlobalWorkerOptions.workerSrc;
             if (!configuredWorkerSrc) {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = defaultWorkerSrc;

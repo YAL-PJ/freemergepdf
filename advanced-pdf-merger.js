@@ -140,13 +140,14 @@ class AdvancedPDFMerger {
     this.filesViewEl = null;
     this.activeView = 'pages';
     this.workerDisabled = this.isWorkerCircuitBroken();
-    this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js?v=4');
+    this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
     this.workerSrc = this.workerBaseSrc;
     this.workerFallbackSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
     this.workerFallbackUsed = false;
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
     this.workerPreflighted = false;
+    this.workerFatalError = null;
     if (this.workerDisabled) {
       // Stay on same-origin worker path when circuit breaker is active.
       this.workerSrc = this.workerBaseSrc;
@@ -510,6 +511,14 @@ class AdvancedPDFMerger {
       text.includes('unexpected token');
   }
 
+  isWorkerScriptLoadFailure(err) {
+    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    return text.includes('setting up fake worker failed') ||
+      text.includes('cannot load script') ||
+      text.includes('workermessagehandler') ||
+      text.includes('unexpected token');
+  }
+
   async loadPdfDocument(arrayBuffer) {
     if (typeof pdfjsLib === 'undefined') {
       throw new Error('pdf.js is not available');
@@ -572,7 +581,7 @@ class AdvancedPDFMerger {
   }
 
   buildWorkerWrapperUrl(workerSrc) {
-    const target = resolveAbsoluteUrl(workerSrc || '/pdf.worker.min.js?v=4');
+    const target = resolveAbsoluteUrl(workerSrc || '/pdf.worker.min.js');
     if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
       return target;
     }
@@ -633,6 +642,7 @@ class AdvancedPDFMerger {
     this.originalPages = [];
     this.thumbnailCache.clear();
     this.failedFileIndices.clear();
+    this.workerFatalError = null;
     let readFailures = 0;
 
     // Set up PDF.js worker (self-hosted)
@@ -664,6 +674,19 @@ class AdvancedPDFMerger {
           this.pageMap.set(pageId, pageData);
         }
       } catch (error) {
+        if (this.isWorkerScriptLoadFailure(error)) {
+          this.workerFatalError = error;
+          for (let i = fileIndex; i < this.files.length; i++) {
+            this.failedFileIndices.add(i);
+          }
+          readFailures += (this.files.length - fileIndex);
+          safeReportError(error, {
+            feature: 'AdvancedPDFMerger.extractAllPages',
+            userNote: `fatal=worker_script_load;fileIndex=${fileIndex}${formatWorkerStateNote(this)}`
+          });
+          break;
+        }
+
         this.failedFileIndices.add(fileIndex);
         readFailures += 1;
         const reason = this.formatUserError(error);
@@ -689,6 +712,12 @@ class AdvancedPDFMerger {
     }
 
     if (this.pages.length === 0) {
+      if (this.workerFatalError) {
+        const err = new Error('PDF preview could not start because a required script was blocked or unavailable. Please reload and try again.');
+        err.name = 'WorkerScriptLoadError';
+        this.onAllFilesFailed();
+        throw err;
+      }
       if (readFailures > 0) {
         const err = new Error('No pages could be extracted from the selected files.');
         err.name = 'NoPagesExtractedError';
