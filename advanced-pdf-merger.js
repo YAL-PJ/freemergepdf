@@ -148,6 +148,7 @@ class AdvancedPDFMerger {
     this.workerWrapperUrl = '';
     this.workerPreflighted = false;
     this.workerFatalError = null;
+    this.lastInitErrorName = '';
     if (this.workerDisabled) {
       // Stay on same-origin worker path when circuit breaker is active.
       this.workerSrc = this.workerBaseSrc;
@@ -212,13 +213,16 @@ class AdvancedPDFMerger {
       
       return true;
     } catch (error) {
+      this.lastInitErrorName = error?.name || 'Error';
       const friendly = this.formatUserError(error);
       this.showStatus(friendly, 'error');
       console.error('AdvancedPDFMerger init error:', error);
-      safeReportError(error, {
-        feature: 'AdvancedPDFMerger.initialize',
-        userNote: `files=${uploadedFiles?.length || 0};totalBytes=${getFilesTotalBytes(uploadedFiles)}`
-      });
+      if (error?.name !== 'WorkerScriptLoadError') {
+        safeReportError(error, {
+          feature: 'AdvancedPDFMerger.initialize',
+          userNote: `files=${uploadedFiles?.length || 0};totalBytes=${getFilesTotalBytes(uploadedFiles)}`
+        });
+      }
       return false;
     }
   }

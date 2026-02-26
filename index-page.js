@@ -20,10 +20,15 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         const encryptedWarningShown = { simple: false, expanded: false };
         const encryptionScanResults = new WeakMap();
         const fileIssues = new WeakMap();
+        let fileArrayBufferCache = new Map();
+        const FILE_CACHE_TOTAL_LIMIT_BYTES = 64 * 1024 * 1024;
+        const FILE_CACHE_PER_FILE_LIMIT_BYTES = 8 * 1024 * 1024;
+        let fileArrayBufferCacheTotal = 0;
         let advancedMergerFiles = [];
         let advancedFileErrorShown = false;
         const simpleSelectedFiles = { file1: null, file2: null };
         const ENCRYPTION_SCAN_BYTES = 65536;
+        const ADVANCED_PREVIEW_BLOCK_KEY = 'advanced-preview-blocked';
 
         // ===== MODE TOGGLE =====
         function toggleMode() {
@@ -132,6 +137,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 return false;
             }
 
+            maybeCacheFileArrayBuffer(file);
             queueEncryptionScan(file, 'simpleError', 'simple', inputId);
 
             const display = document.getElementById(displayId);
@@ -149,6 +155,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         function clearSimpleFile(inputId, displayId) {
             document.getElementById(inputId).value = '';
             simpleSelectedFiles[inputId] = null;
+            pruneInactiveFileCache();
             const display = document.getElementById(displayId);
             display.innerHTML = `
                 <div class="file-input-icon">📁</div>
@@ -252,6 +259,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     showError(`File added but will be skipped: ${issueReason}.`, 'expandedError');
                 } else {
                     clearFileIssue(file);
+                    maybeCacheFileArrayBuffer(file);
                 }
 
                 expandedFiles.push(file);
@@ -318,6 +326,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         function removeExpandedFile(index) {
             const removed = expandedFiles.splice(index, 1)[0];
             clearFileIssue(removed);
+            pruneInactiveFileCache();
             if (expandedFiles.length === 0) {
                 advancedFileErrorShown = false;
             }
@@ -556,11 +565,89 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             }
         }
 
+        function pruneInactiveFileCache() {
+            try {
+                const active = new Set(expandedFiles.filter(Boolean));
+                Object.values(simpleSelectedFiles).forEach((file) => {
+                    if (file) active.add(file);
+                });
+
+                for (const [file, entry] of fileArrayBufferCache.entries()) {
+                    if (!active.has(file)) {
+                        fileArrayBufferCache.delete(file);
+                        fileArrayBufferCacheTotal -= entry?.size || 0;
+                    }
+                }
+                if (fileArrayBufferCacheTotal < 0) fileArrayBufferCacheTotal = 0;
+            } catch (e) {
+                fileArrayBufferCache = new Map();
+                fileArrayBufferCacheTotal = 0;
+            }
+        }
+
+        function evictCacheToFit(extraBytes = 0) {
+            if (!Number.isFinite(extraBytes) || extraBytes < 0) extraBytes = 0;
+            pruneInactiveFileCache();
+            if (fileArrayBufferCacheTotal + extraBytes <= FILE_CACHE_TOTAL_LIMIT_BYTES) return true;
+
+            const entries = Array.from(fileArrayBufferCache.entries())
+                .sort((a, b) => (a[1]?.at || 0) - (b[1]?.at || 0));
+            for (const [file, entry] of entries) {
+                fileArrayBufferCache.delete(file);
+                fileArrayBufferCacheTotal -= entry?.size || 0;
+                if (fileArrayBufferCacheTotal + extraBytes <= FILE_CACHE_TOTAL_LIMIT_BYTES) {
+                    break;
+                }
+            }
+            if (fileArrayBufferCacheTotal < 0) fileArrayBufferCacheTotal = 0;
+            return fileArrayBufferCacheTotal + extraBytes <= FILE_CACHE_TOTAL_LIMIT_BYTES;
+        }
+
+        function storeFileArrayBufferCache(file, bytes) {
+            if (!file || !(bytes instanceof ArrayBuffer)) return;
+            const size = typeof file.size === 'number' ? file.size : bytes.byteLength;
+            if (!canCacheFileBytes(file)) return;
+            const existing = fileArrayBufferCache.get(file);
+            if (existing?.size) {
+                fileArrayBufferCacheTotal -= existing.size;
+            }
+            if (!evictCacheToFit(size)) return;
+            fileArrayBufferCache.set(file, { bytes, size, at: Date.now() });
+            fileArrayBufferCacheTotal += size;
+        }
+
+        function canCacheFileBytes(file) {
+            if (!file || typeof file.size !== 'number') return false;
+            if (file.size <= 0 || file.size > FILE_CACHE_PER_FILE_LIMIT_BYTES) return false;
+            return true;
+        }
+
+        async function maybeCacheFileArrayBuffer(file) {
+            if (!canCacheFileBytes(file) || fileArrayBufferCache.has(file)) return;
+            try {
+                const bytes = await file.arrayBuffer();
+                if (!fileArrayBufferCache.has(file)) {
+                    storeFileArrayBufferCache(file, bytes);
+                }
+            } catch (e) {
+                // Ignore cache warm failures; normal read path still handles retries.
+            }
+        }
+
         async function readFileAsArrayBuffer(file) {
+            const cachedEntry = fileArrayBufferCache.get(file);
+            if (cachedEntry?.bytes instanceof ArrayBuffer) {
+                cachedEntry.at = Date.now();
+                return cachedEntry.bytes.slice(0);
+            }
             let lastError = null;
             for (let attempt = 0; attempt < 2; attempt++) {
                 try {
-                    return await file.arrayBuffer();
+                    const bytes = await file.arrayBuffer();
+                    if (canCacheFileBytes(file) && !fileArrayBufferCache.has(file)) {
+                        storeFileArrayBufferCache(file, bytes.slice(0));
+                    }
+                    return bytes;
                 } catch (error) {
                     lastError = error;
                     if (!isFileReadErrorSafe(error) || attempt === 1) {
@@ -583,6 +670,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                         };
                         reader.onload = () => {
                             if (reader.result instanceof ArrayBuffer) {
+                                if (canCacheFileBytes(file) && !fileArrayBufferCache.has(file)) {
+                                    storeFileArrayBufferCache(file, reader.result.slice(0));
+                                }
                                 resolve(reader.result);
                                 return;
                             }
@@ -811,9 +901,32 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             return advancedMerger;
         }
 
+        function isAdvancedPreviewBlocked() {
+            try {
+                if (typeof sessionStorage === 'undefined') return false;
+                return sessionStorage.getItem(ADVANCED_PREVIEW_BLOCK_KEY) === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function blockAdvancedPreview() {
+            try {
+                if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem(ADVANCED_PREVIEW_BLOCK_KEY, '1');
+                }
+            } catch (e) {
+                // Ignore storage failures.
+            }
+        }
+
         async function ensureAdvancedPrepared(files) {
             const mergeableFiles = getMergeableFiles(files);
             if (!mergeableFiles || mergeableFiles.length < 2) return null;
+            if (isAdvancedPreviewBlocked()) {
+                showError('Advanced page preview is unavailable in this browser session. You can still merge without preview.', 'expandedError');
+                return null;
+            }
 
             const key = buildFilesKey(mergeableFiles);
             if (advancedMergerPrewarmPromise) {
@@ -843,18 +956,33 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
             container.innerHTML = '';
             advancedMergerFiles = mergeableFiles.slice();
-            advancedMergerPrewarmPromise = merger.initialize(mergeableFiles, '#advancedMergeContent')
-                .catch((err) => {
-                    console.error('Advanced merge prewarm failed:', err);
+            advancedMergerPrewarmPromise = (async () => {
+                const ok = await merger.initialize(mergeableFiles, '#advancedMergeContent');
+                if (!ok) {
+                    const workerBlocked = merger?.lastInitErrorName === 'WorkerScriptLoadError' || !!merger?.workerFatalError;
+                    if (workerBlocked) {
+                        blockAdvancedPreview();
+                    }
                     advancedMergerPrewarmKey = '';
                     advancedMergerFiles = [];
+                    return null;
+                }
+                return merger;
+            })()
+                .catch((err) => {
+                    console.error('Advanced merge prewarm failed:', err);
+                    if (err?.name === 'WorkerScriptLoadError') {
+                        blockAdvancedPreview();
+                    }
+                    advancedMergerPrewarmKey = '';
+                    advancedMergerFiles = [];
+                    return null;
                 })
                 .finally(() => {
                     advancedMergerPrewarmPromise = null;
                 });
 
-            await advancedMergerPrewarmPromise;
-            return merger;
+            return await advancedMergerPrewarmPromise;
         }
 
         function primeAdvancedMergeIfReady(files) {
@@ -971,7 +1099,8 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const defaultName = generateDefaultFilename(mergeableFiles);
             document.getElementById('customFilename').value = defaultName;
 
-            await ensureAdvancedPrepared(mergeableFiles);
+            const prepared = await ensureAdvancedPrepared(mergeableFiles);
+            if (!prepared) return;
             checkMemoryWarning(mergeableFiles, 'advancedMergeWarning');
 
             // Open modal once prewarmed (or immediately if already ready)
@@ -1002,7 +1131,8 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const defaultName = generateDefaultFilename(mergeableFiles);
             document.getElementById('customFilename').value = defaultName;
 
-            await ensureAdvancedPrepared(mergeableFiles);
+            const prepared = await ensureAdvancedPrepared(mergeableFiles);
+            if (!prepared) return;
             checkMemoryWarning(mergeableFiles, 'advancedMergeWarning');
 
             document.getElementById('advancedMergeModal').classList.add('active');
