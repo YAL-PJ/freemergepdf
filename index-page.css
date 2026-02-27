@@ -320,6 +320,46 @@
             font-style: italic;
         }
 
+        .compression-partner-link {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .compression-partner-text {
+            white-space: nowrap;
+        }
+
+        .compression-partner-link a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #0f766e;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid #99f6e4;
+            background: #f0fdfa;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .compression-partner-link a:hover {
+            background: #ccfbf1;
+            border-color: #5eead4;
+            color: #115e59;
+        }
+
+        .compression-partner-link img {
+            display: block;
+            border-radius: 4px;
+        }
+
         .simple-options-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -364,6 +404,15 @@
         @media (max-width: 768px) {
             .simple-options-section {
                 grid-template-columns: 1fr;
+            }
+
+            .compression-partner-link {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .compression-partner-text {
+                white-space: normal;
             }
         }
 
