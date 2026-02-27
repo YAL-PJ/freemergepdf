@@ -1339,7 +1339,10 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     return value;
                 }
             };
-            const defaultWorkerSrc = toAbsoluteUrl('/pdf.worker.min.js');
+            const version = (typeof pdfjsLib.version === 'string' && pdfjsLib.version.trim())
+                ? pdfjsLib.version.trim()
+                : '3.11.174';
+            const defaultWorkerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${encodeURIComponent(version)}/pdf.worker.min.js`;
             const configuredWorkerSrc = pdfjsLib.GlobalWorkerOptions.workerSrc;
             if (!configuredWorkerSrc) {
                 pdfjsLib.GlobalWorkerOptions.workerSrc = defaultWorkerSrc;

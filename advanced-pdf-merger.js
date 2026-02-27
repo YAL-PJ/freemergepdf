@@ -21,12 +21,25 @@ const safeReportError = (err, context = {}) => {
 };
 
 const formatWorkerStateNote = (state = {}) => {
+  const workerSrc = String(state.workerSrc || '');
+  const currentOrigin = (typeof window !== 'undefined' && window.location && window.location.origin)
+    ? window.location.origin
+    : '';
+  const workerSourceMode = workerSrc.startsWith('blob:')
+    ? 'blob'
+    : (/^https?:\/\/cdnjs\.cloudflare\.com\//i.test(workerSrc) ? 'cdn' : (
+      currentOrigin && workerSrc.startsWith(currentOrigin) ? 'same_origin' : (
+        workerSrc ? 'other' : 'unknown'
+      )
+    ));
   const note = [
     state.workerDisabled ? 'worker=disabled' : 'worker=enabled',
     state.workerFallbackUsed ? 'workerFallback=alt' : 'workerFallback=base',
     state.workerWrapperEnabled ? 'workerWrapper=on' : 'workerWrapper=off',
     state.workerPreflighted ? 'workerPreflight=yes' : 'workerPreflight=no',
+    `workerSourceMode=${workerSourceMode}`,
     state.workerSrc ? `workerSrc=${state.workerSrc}` : null,
+    state.workerFallbackSrc ? `workerFallbackSrc=${state.workerFallbackSrc}` : null,
     state.workerBaseSrc ? `workerBase=${state.workerBaseSrc}` : null
   ].filter(Boolean).join(';');
   return note ? `;${note}` : '';
@@ -88,6 +101,12 @@ const isFileAccessError = (err) => {
 const delayMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const WORKER_CIRCUIT_BREAKER_KEY = 'pdf-worker-disabled';
+const PDFJS_DEFAULT_VERSION = '3.11.174';
+
+const buildPdfJsCdnWorkerUrl = (version) => {
+  const safeVersion = String(version || PDFJS_DEFAULT_VERSION).trim() || PDFJS_DEFAULT_VERSION;
+  return `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${encodeURIComponent(safeVersion)}/pdf.worker.min.js`;
+};
 
 class AdvancedPDFMerger {
   constructor(options = {}) {
@@ -142,7 +161,7 @@ class AdvancedPDFMerger {
     this.workerDisabled = this.isWorkerCircuitBroken();
     this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
     this.workerSrc = this.workerBaseSrc;
-    this.workerFallbackSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
+    this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
     this.workerFallbackUsed = false;
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
@@ -153,6 +172,13 @@ class AdvancedPDFMerger {
       // Stay on same-origin worker path when circuit breaker is active.
       this.workerSrc = this.workerBaseSrc;
     }
+  }
+
+  resolveWorkerFallbackSrc() {
+    const version = (typeof pdfjsLib !== 'undefined' && typeof pdfjsLib.version === 'string')
+      ? pdfjsLib.version
+      : PDFJS_DEFAULT_VERSION;
+    return buildPdfJsCdnWorkerUrl(version);
   }
 
   isWorkerCircuitBroken() {
@@ -389,6 +415,7 @@ class AdvancedPDFMerger {
   async preflightWorker() {
     if (this.workerPreflighted) return;
     this.workerPreflighted = true;
+    this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
     if (this.workerDisabled) {
       this.setWorkerSrc(this.workerBaseSrc);
       this.configurePdfJsWorker();
