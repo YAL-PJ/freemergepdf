@@ -169,7 +169,7 @@ async function submitFeedback(source) {
         if (typeof gtag !== 'undefined') {
             gtag('event', 'feedback_submitted', {
                 'source': source,
-                'email': email.split('@')[0], // Only track domain for privacy
+                'email_provided': true,
                 'message_length': message.length
             });
         }
@@ -656,7 +656,7 @@ async function submitReply({ parentEntry, emailInput, userNameInput, messageInpu
         if (typeof gtag !== 'undefined') {
             gtag('event', 'feedback_reply_submitted', {
                 parent_id: parentId,
-                email: email.split('@')[0],
+                email_provided: true,
                 message_length: message.length
             });
         }

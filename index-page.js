@@ -148,6 +148,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             `;
             display.classList.add('has-file');
 
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pdf_file_selected', {
+                    mode: 'simple',
+                    input_id: inputId,
+                    file_size_bytes: file.size
+                });
+            }
+
             updateSimpleMergeButton();
             return true;
         }
@@ -245,6 +253,8 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             schedulePdfJsPrewarm();
             }
 
+            let mergeableAdded = 0;
+            let invalidAdded = 0;
             for (let file of files) {
                 let issueReason = '';
                 if (file.type !== 'application/pdf') {
@@ -257,9 +267,11 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 if (issueReason) {
                     markFileIssue(file, issueReason);
                     showError(`File added but will be skipped: ${issueReason}.`, 'expandedError');
+                    invalidAdded += 1;
                 } else {
                     clearFileIssue(file);
                     maybeCacheFileArrayBuffer(file);
+                    mergeableAdded += 1;
                 }
 
                 expandedFiles.push(file);
@@ -273,6 +285,15 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             updateExpandedMergeButton();
             primeAdvancedMergeIfReady(expandedFiles);
             attachPageCountListener();
+
+            if (typeof gtag !== 'undefined' && files && files.length) {
+                gtag('event', 'pdf_files_added', {
+                    mode: 'expanded',
+                    files_added: files.length,
+                    mergeable_added: mergeableAdded,
+                    invalid_added: invalidAdded
+                });
+            }
         }
 
         function renderPdfList() {
@@ -1376,6 +1397,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             let rasterizedPages = 0;
             let compressionNote = '';
             mergeInProgress = true;
+
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pdf_merge_started', {
+                    mode: 'advanced_sorted',
+                    file_count: mergeFiles.length,
+                    requested_page_count: Array.isArray(orderedPages) ? orderedPages.length : 0
+                });
+            }
             
             const btn = document.getElementById('expandedMergeBtn');
             btn.classList.add('loading');
@@ -1754,6 +1783,13 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 showError('Select at least 2 mergeable PDFs.', isExpanded ? 'expandedError' : 'simpleError');
                 mergeInProgress = false;
                 return;
+            }
+
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pdf_merge_started', {
+                    mode: isExpanded ? 'expanded' : 'simple',
+                    file_count: files.length
+                });
             }
 
             // Stop any background thumbnail rendering to prioritize merge
