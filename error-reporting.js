@@ -46,6 +46,14 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (message.includes('unknown rejection') && stack.includes('webkit-masked-url://hidden/')) return true;
     if (feature === 'unhandledrejection' && stack.includes('webkit-masked-url://hidden/')) return true;
 
+    // Browser wallet/extension script failures are outside app control.
+    if (joined.includes('failed to connect to metamask')) return true;
+    if (joined.includes('chrome-extension://')) return true;
+    if (joined.includes('moz-extension://')) return true;
+    if (joined.includes('safari-web-extension://')) return true;
+    if (joined.includes('chrome.runtime.lasterror')) return true;
+    if (stack.includes('/scripts/inpage.js') && stack.includes('extension://')) return true;
+
     return false;
 }
 
