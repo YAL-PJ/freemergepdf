@@ -1,3 +1,11 @@
+(function bootstrapIndexPage() {
+    if (typeof window !== 'undefined' && window.__FREE_MERGE_INDEX_PAGE_BOOTSTRAPPED__) {
+        return;
+    }
+    if (typeof window !== 'undefined') {
+        window.__FREE_MERGE_INDEX_PAGE_BOOTSTRAPPED__ = true;
+    }
+
 const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         const DEVICE_MEMORY_GB = (typeof navigator !== 'undefined' && Number.isFinite(Number(navigator.deviceMemory)))
             ? Number(navigator.deviceMemory)
@@ -843,14 +851,28 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 return /(?:^|\/)advanced-pdf-merger\.js(?:\?|$)/i.test(src);
             });
             if (existingAdvancedScript) {
-                const waitUntil = Date.now() + 3000;
-                while (typeof AdvancedPDFMerger === 'undefined' && Date.now() < waitUntil) {
-                    await new Promise((resolve) => setTimeout(resolve, 50));
+                if (existingAdvancedScript.dataset.advancedMergerReady !== '1') {
+                    await new Promise((resolve) => {
+                        let settled = false;
+                        const finish = () => {
+                            if (settled) return;
+                            settled = true;
+                            existingAdvancedScript.removeEventListener('load', onDone);
+                            existingAdvancedScript.removeEventListener('error', onDone);
+                            resolve();
+                        };
+                        const onDone = () => finish();
+                        existingAdvancedScript.addEventListener('load', onDone, { once: true });
+                        existingAdvancedScript.addEventListener('error', onDone, { once: true });
+                        setTimeout(finish, 12000);
+                    });
                 }
+                existingAdvancedScript.dataset.advancedMergerReady = '1';
                 if (typeof AdvancedPDFMerger !== 'undefined') return true;
+                return false;
             }
             try {
-                await loadScriptOnce('advanced-pdf-merger.js?v=10', 'advanced-merger-fallback');
+                await loadScriptOnce('advanced-pdf-merger.js?v=14', 'advanced-merger-fallback');
             } catch (err) {
                 return false;
             }
@@ -2397,3 +2419,4 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 });
             }
         });
+})();

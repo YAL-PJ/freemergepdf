@@ -169,9 +169,15 @@ class AdvancedPDFMerger {
     this.workerFatalError = null;
     this.lastInitErrorName = '';
     if (this.workerDisabled) {
-      // Stay on same-origin worker path when circuit breaker is active.
-      this.workerSrc = this.workerBaseSrc;
+      // Prefer CDN worker when circuit breaker is active to avoid same-origin outages.
+      this.workerSrc = this.resolveDisabledWorkerSrc();
     }
+  }
+
+  resolveDisabledWorkerSrc() {
+    const fallback = resolveAbsoluteUrl(this.workerFallbackSrc);
+    if (fallback) return fallback;
+    return resolveAbsoluteUrl(this.workerBaseSrc);
   }
 
   resolveWorkerFallbackSrc() {
@@ -417,7 +423,8 @@ class AdvancedPDFMerger {
     this.workerPreflighted = true;
     this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
     if (this.workerDisabled) {
-      this.setWorkerSrc(this.workerBaseSrc);
+      this.workerFallbackUsed = this.resolveDisabledWorkerSrc() !== this.workerBaseSrc;
+      this.setWorkerSrc(this.resolveDisabledWorkerSrc());
       this.configurePdfJsWorker();
       return;
     }
@@ -442,7 +449,8 @@ class AdvancedPDFMerger {
 
     this.workerDisabled = true;
     this.tripWorkerCircuitBreaker();
-    this.setWorkerSrc(this.workerBaseSrc);
+    this.workerFallbackUsed = this.resolveDisabledWorkerSrc() !== this.workerBaseSrc;
+    this.setWorkerSrc(this.resolveDisabledWorkerSrc());
     this.resetPdfJsWorkerState();
     this.configurePdfJsWorker();
   }
@@ -581,7 +589,8 @@ class AdvancedPDFMerger {
         }
 
         this.tripWorkerCircuitBreaker();
-        this.setWorkerSrc(this.workerBaseSrc);
+        this.workerFallbackUsed = this.resolveDisabledWorkerSrc() !== this.workerBaseSrc;
+        this.setWorkerSrc(this.resolveDisabledWorkerSrc());
         this.resetPdfJsWorkerState();
         this.configurePdfJsWorker();
         return await pdfjsLib.getDocument(docOptions).promise;
