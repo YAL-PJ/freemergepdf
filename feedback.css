@@ -30,6 +30,39 @@
     transform: scale(0.95);
 }
 
+.social-x-button {
+    position: fixed;
+    left: 74px;
+    top: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    z-index: 998;
+}
+
+.social-x-button svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+.social-x-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.social-x-button:active {
+    transform: scale(0.95);
+}
+
 /* WIDE SCREENS: Sidebar on left */
 @media (min-width: 768px) {
     .feedback-sidebar {
@@ -92,6 +125,10 @@
     }
 
     .feedback-widget-button {
+        display: none;
+    }
+
+    .social-x-button {
         display: none;
     }
 
