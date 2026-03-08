@@ -910,6 +910,27 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             }
         }
 
+        function waitForNextPaint() {
+            return new Promise((resolve) => {
+                if (typeof requestAnimationFrame === 'function') {
+                    requestAnimationFrame(() => resolve());
+                    return;
+                }
+                setTimeout(resolve, 0);
+            });
+        }
+
+        async function waitForUiPaint() {
+            await waitForNextPaint();
+            await waitForNextPaint();
+        }
+
+        function pauseBackgroundWorkForMerge() {
+            if (advancedMerger && typeof advancedMerger.cancelThumbnailRendering === 'function') {
+                advancedMerger.cancelThumbnailRendering();
+            }
+        }
+
         function buildFilesKey(files) {
             return files.map(f => `${f.name}-${f.size}-${f.lastModified || 0}`).join('|');
         }
@@ -1285,6 +1306,24 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             if (scaleInput) {
                 scaleInput.addEventListener('input', () => updateRasterValue('advanced'));
             }
+        }
+
+        function setupMergeIntentHandlers() {
+            const bindIntent = (id) => {
+                const button = document.getElementById(id);
+                if (!button) return;
+                const handleIntent = () => pauseBackgroundWorkForMerge();
+                button.addEventListener('pointerdown', handleIntent, { passive: true });
+                button.addEventListener('touchstart', handleIntent, { passive: true });
+                button.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        handleIntent();
+                    }
+                });
+            };
+
+            bindIntent('simpleMergeBtn');
+            bindIntent('expandedMergeBtn');
         }
 
         function isAdvancedCompressEnabled() {
@@ -1777,8 +1816,10 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     source: 'pdf-lib'
                 });
             } finally {
-                btn.classList.remove('loading');
-                btn.disabled = false;
+                if (btn) {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
                 mergeInProgress = false;
             }
         }
@@ -1787,15 +1828,31 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         async function mergePDFs() {
           const mergeStart = performance.now();
           let stats = { totalBytes: 0, maxBytes: 0, fileCount: 0 };
+          if (mergeInProgress) return;
           mergeInProgress = true;
+          let btn = null;
+          let statusElement = null;
           try {
             const isExpanded = document.getElementById('expandedMode').classList.contains('active');
-            const pdfLibOk = await ensurePdfLibReadyWithRetry();
-            if (!pdfLibOk) {
-                showError('PDF engine failed to load. Refresh the page.', isExpanded ? 'expandedError' : 'simpleError');
-                mergeInProgress = false;
-                return;
+            btn = isExpanded ? document.getElementById('expandedMergeBtn') : document.getElementById('simpleMergeBtn');
+            if (btn) {
+                btn.classList.add('loading');
+                btn.disabled = true;
             }
+
+            statusElement = isExpanded
+                ? document.getElementById('expandedStatus') || document.createElement('div')
+                : document.getElementById('simpleStatus');
+            if (isExpanded && statusElement && !statusElement.id) {
+                statusElement.id = 'expandedStatus';
+                statusElement.className = 'status-area status-processing';
+                document.querySelector('.mode-expanded').appendChild(statusElement);
+            }
+            if (statusElement) {
+                statusElement.className = 'status-area status-processing';
+                statusElement.innerHTML = '<span>Processing...</span>';
+            }
+
             const allFiles = isExpanded 
                 ? expandedFiles 
                 : [document.getElementById('file1').files[0], document.getElementById('file2').files[0]].filter(Boolean);
@@ -1807,33 +1864,24 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 return;
             }
 
+            // Pause background thumbnail rendering before heavy merge work to keep input response snappy.
+            pauseBackgroundWorkForMerge();
+
+            // Let loading UI paint before starting merge work to reduce INP presentation delay.
+            await waitForUiPaint();
+
+            const pdfLibOk = await ensurePdfLibReadyWithRetry();
+            if (!pdfLibOk) {
+                showError('PDF engine failed to load. Refresh the page.', isExpanded ? 'expandedError' : 'simpleError');
+                mergeInProgress = false;
+                return;
+            }
+
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'pdf_merge_started', {
                     mode: isExpanded ? 'expanded' : 'simple',
                     file_count: files.length
                 });
-            }
-
-            // Stop any background thumbnail rendering to prioritize merge
-            if (advancedMerger && typeof advancedMerger.cancelThumbnailRendering === 'function') {
-                advancedMerger.cancelThumbnailRendering();
-            }
-
-            const btn = isExpanded ? document.getElementById('expandedMergeBtn') : document.getElementById('simpleMergeBtn');
-            btn.classList.add('loading');
-            btn.disabled = true;
-
-            const statusElement = isExpanded
-                ? document.getElementById('expandedStatus') || document.createElement('div')
-                : document.getElementById('simpleStatus');
-            if (isExpanded && statusElement && !statusElement.id) {
-                statusElement.id = 'expandedStatus';
-                statusElement.className = 'status-area status-processing';
-                document.querySelector('.mode-expanded').appendChild(statusElement);
-            }
-            if (statusElement) {
-                statusElement.className = 'status-area status-processing';
-                statusElement.innerHTML = '<span>⏳ Processing...</span>';
             }
 
             try {
@@ -2402,6 +2450,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             setupExpandedFileInputs();
             setupFilenameInputs();
             setupAdvancedCompressionControls();
+            setupMergeIntentHandlers();
 
             const modal = document.getElementById('advancedMergeModal');
             
