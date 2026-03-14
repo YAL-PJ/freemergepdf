@@ -65,6 +65,30 @@
       gtag('js', new Date());
       gtag('config', 'G-FKQQKSRNPJ');
     </script>
+    <script>
+      (function bootstrapInlineHandlers() {
+        if (typeof window === 'undefined') return;
+        const inlineHandlers = [
+          'toggleMode',
+          'mergePDFs',
+          'openAdvancedSortFromSimple',
+          'openAdvancedSort',
+          'closeAdvancedSort',
+          'finalizeAdvancedMerge',
+          'resetPageOrder',
+          'clearSimpleFile',
+          'removeExpandedFile'
+        ];
+        const queue = window.__inlineActionQueue || (window.__inlineActionQueue = Object.create(null));
+        inlineHandlers.forEach((name) => {
+          if (typeof window[name] === 'function') return;
+          window[name] = function queuedInlineHandler() {
+            (queue[name] || (queue[name] = [])).push(Array.from(arguments));
+            return false;
+          };
+        });
+      })();
+    </script>
     
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>

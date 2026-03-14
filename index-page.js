@@ -6,6 +6,10 @@
         window.__FREE_MERGE_INDEX_PAGE_BOOTSTRAPPED__ = true;
     }
 
+        function getExtendedErrorText(err) {
+            return `${err?.name || ''} ${err?.message || ''} ${err?.stack || ''}`.toLowerCase();
+        }
+
 const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         const DEVICE_MEMORY_GB = (typeof navigator !== 'undefined' && Number.isFinite(Number(navigator.deviceMemory)))
             ? Number(navigator.deviceMemory)
@@ -2208,7 +2212,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         function isEncryptedPdfErrorSafe(err) {
-            const msg = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            const msg = getExtendedErrorText(err);
             return msg.includes('encrypted') ||
                 msg.includes('password-protected') ||
                 msg.includes('password protected') ||
@@ -2218,7 +2222,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         function isFileReadErrorSafe(err) {
-            const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            const text = getExtendedErrorText(err);
             return text.includes('notreadableerror') ||
                 text.includes('could not be read') ||
                 text.includes('permission') ||
@@ -2232,20 +2236,37 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         function isMemoryErrorSafe(err) {
-            const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            const text = getExtendedErrorText(err);
             return text.includes('array buffer allocation failed') ||
                 text.includes('out of memory') ||
                 text.includes('rangeerror');
         }
 
         function isCorruptPdfErrorSafe(err) {
-            const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+            const text = getExtendedErrorText(err);
             return text.includes('invalid pdf structure') ||
                 text.includes('no pdf header') ||
                 text.includes('failed to parse') ||
                 text.includes('traverse is not a function') ||
+                text.includes('bad (uncompressed) xref entry') ||
                 text.includes('xref') ||
                 text.includes('corrupt');
+        }
+
+        function flushQueuedInlineCalls(bindings) {
+            const queue = window.__inlineActionQueue;
+            if (!queue) return;
+            Object.entries(bindings).forEach(([name, fn]) => {
+                const calls = Array.isArray(queue[name]) ? queue[name].splice(0) : [];
+                window[name] = fn;
+                calls.forEach((args) => {
+                    try {
+                        fn.apply(window, Array.isArray(args) ? args : []);
+                    } catch (error) {
+                        console.error(`Queued inline handler failed: ${name}`, error);
+                    }
+                });
+            });
         }
 
         function buildMergeFailureMessage(error, stats = {}, mode = 'simple') {
@@ -2432,7 +2453,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         // Inline HTML onclick handlers need these on window even if script scope changes.
-        Object.assign(window, {
+        const inlineBindings = {
             toggleMode,
             clearSimpleFile,
             removeExpandedFile,
@@ -2442,7 +2463,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             resetPageOrder,
             finalizeAdvancedMerge,
             mergePDFs
-        });
+        };
+        Object.assign(window, inlineBindings);
+        flushQueuedInlineCalls(inlineBindings);
 
         // ===== MODAL BACKDROP CLOSE =====
         document.addEventListener('DOMContentLoaded', () => {

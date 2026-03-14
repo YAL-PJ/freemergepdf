@@ -61,6 +61,8 @@ const resolveAbsoluteUrl = (value) => {
 
 const getErrorText = (err) => `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
 
+const getExtendedErrorText = (err) => `${err?.name || ''} ${err?.message || ''} ${err?.stack || ''}`.toLowerCase();
+
 const isEncryptedPdfErrorInMerger = (err) => {
   const text = getErrorText(err);
   return text.includes('encrypted') || text.includes('password');
@@ -175,9 +177,9 @@ class AdvancedPDFMerger {
   }
 
   resolveDisabledWorkerSrc() {
-    const fallback = resolveAbsoluteUrl(this.workerFallbackSrc);
-    if (fallback) return fallback;
-    return resolveAbsoluteUrl(this.workerBaseSrc);
+    const base = resolveAbsoluteUrl(this.workerBaseSrc);
+    if (base) return base;
+    return resolveAbsoluteUrl(this.workerFallbackSrc);
   }
 
   resolveWorkerFallbackSrc() {
@@ -269,7 +271,7 @@ class AdvancedPDFMerger {
    * Convert internal errors to user-facing messages (no PII/file names)
    */
   formatUserError(err) {
-    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    const text = getExtendedErrorText(err);
     const isEncrypted = text.includes('encrypted') || text.includes('password');
     const isMemory = text.includes('array buffer allocation failed') ||
       text.includes('out of memory') ||
@@ -540,7 +542,7 @@ class AdvancedPDFMerger {
   }
 
   shouldDisableWorker(err) {
-    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    const text = getExtendedErrorText(err);
     return text.includes('importscripts') ||
       text.includes('failed to load') ||
       text.includes('worker') && text.includes('failed') ||
@@ -551,7 +553,7 @@ class AdvancedPDFMerger {
   }
 
   isWorkerScriptLoadFailure(err) {
-    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    const text = getExtendedErrorText(err);
     return text.includes('setting up fake worker failed') ||
       text.includes('cannot load script') ||
       text.includes('workermessagehandler') ||
@@ -600,7 +602,7 @@ class AdvancedPDFMerger {
   }
 
   isWorkerFetchFailure(err) {
-    const text = `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
+    const text = getExtendedErrorText(err);
     return text.includes('unexpected token') ||
       text.includes('text/html') ||
       text.includes('workermessagehandler') ||
