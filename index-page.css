@@ -923,3 +923,9 @@
         .footer-separator {
             color: white;
         }
+
+        .footer-update-note {
+            margin-top: 10px;
+            font-size: 14px;
+            letter-spacing: 0.02em;
+        }
