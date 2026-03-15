@@ -46,6 +46,10 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (message.includes('unknown rejection') && stack.includes('webkit-masked-url://hidden/')) return true;
     if (feature === 'unhandledrejection' && stack.includes('webkit-masked-url://hidden/')) return true;
 
+    // Browser-injected snippets can throw "n0_ is not defined" from anonymous injFunc wrappers.
+    // This does not originate from our application bundle and is not actionable.
+    if (message.includes('n0_ is not defined') && stack.includes('at injfunc (<anonymous>')) return true;
+
     // Browser wallet/extension script failures are outside app control.
     if (joined.includes('failed to connect to metamask')) return true;
     if (joined.includes('chrome-extension://')) return true;
