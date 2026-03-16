@@ -58,6 +58,10 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (joined.includes('chrome.runtime.lasterror')) return true;
     if (stack.includes('/scripts/inpage.js') && stack.includes('extension://')) return true;
 
+    // Best-effort analytics/beacon calls can fail under blockers/offline/CORS and are not actionable.
+    if (message.includes('failed to fetch') && stack.includes('postuserdata')) return true;
+    if (feature === 'unhandledrejection' && message.includes('failed to fetch') && stack.includes('<anonymous>')) return true;
+
     return false;
 }
 

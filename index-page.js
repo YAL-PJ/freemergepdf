@@ -493,7 +493,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 } else if (isMemoryErrorSafe(err)) {
                     msg = 'Too large to preview. Use fewer files/pages.';
                 } else if (isFileReadErrorSafe(err)) {
-                    msg = "Can't read a file. Re-select it.";
+                    msg = "Can't read a file. Re-select it (copy local first if from cloud/external drive).";
                 }
                 showError(msg, 'expandedError');
             }
@@ -503,7 +503,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             renderPdfList();
             updateDocCount();
             updateExpandedMergeButton();
-            showError('All selected files became unavailable. Please reselect them (copy locally if needed).', 'expandedError');
+            showError('All selected files became unavailable. Please reselect them (copy local first if needed).', 'expandedError');
         }
 
         function clearError(elementId) {
@@ -2288,7 +2288,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 return `Too large to merge${sizeHint}. Try fewer files/pages.`;
             }
             if (isFileRead) {
-                return "Can't read a file. Re-select files.";
+                return "Can't read a file. Re-select files (copy local first if from cloud/external drive).";
             }
             const countNote = fileCount ? ` (${fileCount} files)` : '';
             return `Merge failed${countNote}. Try again.`;
