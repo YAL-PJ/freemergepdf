@@ -59,6 +59,14 @@ const resolveAbsoluteUrl = (value) => {
   }
 };
 
+const isFileProtocolRuntime = () => {
+  try {
+    return typeof window !== 'undefined' && window.location && window.location.protocol === 'file:';
+  } catch (e) {
+    return false;
+  }
+};
+
 const getErrorText = (err) => `${err?.name || ''} ${err?.message || ''}`.toLowerCase();
 
 const getExtendedErrorText = (err) => `${err?.name || ''} ${err?.message || ''} ${err?.stack || ''}`.toLowerCase();
@@ -162,8 +170,13 @@ class AdvancedPDFMerger {
     this.activeView = 'pages';
     this.workerDisabled = this.isWorkerCircuitBroken();
     this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
-    this.workerSrc = this.workerBaseSrc;
     this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
+    if (isFileProtocolRuntime()) {
+      // Local HTML snapshots cannot reliably resolve site-root worker assets.
+      // Prefer an HTTPS worker URL when running from file://.
+      this.workerBaseSrc = resolveAbsoluteUrl(this.workerFallbackSrc);
+    }
+    this.workerSrc = this.workerBaseSrc;
     this.workerFallbackUsed = false;
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
@@ -272,6 +285,7 @@ class AdvancedPDFMerger {
    */
   formatUserError(err) {
     const text = getExtendedErrorText(err);
+    const inOfflineSnapshot = isFileProtocolRuntime();
     const isEncrypted = text.includes('encrypted') || text.includes('password');
     const isMemory = text.includes('array buffer allocation failed') ||
       text.includes('out of memory') ||
@@ -307,7 +321,11 @@ class AdvancedPDFMerger {
     }
 
     if (isFileAccess) {
-      return 'Can’t read this file. Re‑select it.';
+      return 'Can’t read this file. Re-select it (copy local first if from cloud/external drive).';
+    }
+
+    if (inOfflineSnapshot && this.isWorkerScriptLoadFailure(err)) {
+      return 'This downloaded/offline page cannot load PDF preview worker files. Open freemergepdf.com online to use Advanced preview.';
     }
 
     return `Error: ${err?.message || 'Something went wrong'}`;
