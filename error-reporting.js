@@ -41,7 +41,7 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (joined.includes('uid2 sdk failed to load')) return true;
     if (joined.includes('cdn.prod.uidapi.com')) return true;
     if (joined.includes('faves.grow.me')) return true;
-    if (joined.includes('importing a module script failed') && joined.includes('grow.me')) return true;
+    if (joined.includes('scripts.scriptwrapper.com')) return true;
     if (message.includes('importing a module script failed')) return true;
     if (message.includes('unknown rejection') && stack.includes('webkit-masked-url://hidden/')) return true;
     if (feature === 'unhandledrejection' && stack.includes('webkit-masked-url://hidden/')) return true;
