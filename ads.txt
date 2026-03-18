@@ -28,7 +28,7 @@ gumgum.com, 15958, RESELLER, ffdef49475d318a9
 rubiconproject.com, 26278, DIRECT, 0bfd66d529a55807
 indexexchange.com, 207882, DIRECT, 50b1c356f2c5c8fc
 indexexchange.com, 208002, DIRECT, 50b1c356f2c5c8fc
-indexexchange.com, 214230, DIRECT, 50b1c356f2c5c8fc
+indexexchange.com, 214230, DIRECT, 50b1c356f2c5c8fc 
 kargo.com, 8851, DIRECT
 rubiconproject.com, 11864, RESELLER, 0bfd66d529a55807
 appnexus.com, 8173, RESELLER, f5ab79cb980f11d1
@@ -173,3 +173,6 @@ smartadserver.com, 3262, DIRECT, 060d053dcf45cbf3
 video.unrulymedia.com, 136898039, DIRECT
 pubmatic.com, 95054, DIRECT, 5d62403b186f2ace
 adform.com, 2996, DIRECT
+
+
+
