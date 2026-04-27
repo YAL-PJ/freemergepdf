@@ -76,7 +76,7 @@ const isEncryptedPdfErrorInMerger = (err) => {
   return text.includes('encrypted') || text.includes('password');
 };
 
-const isMemoryError = (err) => {
+const isAdvancedMemoryError = (err) => {
   const text = getErrorText(err);
   return text.includes('array buffer allocation failed') ||
     text.includes('out of memory') ||
@@ -181,6 +181,8 @@ class AdvancedPDFMerger {
     this.workerWrapperEnabled = false;
     this.workerWrapperUrl = '';
     this.workerPreflighted = false;
+    this.workerBaseAvailable = true;
+    this.workerFallbackAvailable = true;
     this.workerFatalError = null;
     this.lastInitErrorName = '';
     if (this.workerDisabled) {
@@ -190,9 +192,11 @@ class AdvancedPDFMerger {
   }
 
   resolveDisabledWorkerSrc() {
+    const fallback = resolveAbsoluteUrl(this.workerFallbackSrc);
     const base = resolveAbsoluteUrl(this.workerBaseSrc);
-    if (base) return base;
-    return resolveAbsoluteUrl(this.workerFallbackSrc);
+    if (this.workerFallbackAvailable && fallback) return fallback;
+    if (this.workerBaseAvailable && base) return base;
+    return fallback || base;
   }
 
   resolveWorkerFallbackSrc() {
@@ -335,7 +339,7 @@ class AdvancedPDFMerger {
     if (isEncryptedPdfErrorInMerger(err)) return 'encrypted';
     if (isCorruptPdfError(err)) return 'corrupt';
     if (isFileAccessError(err)) return 'file_access';
-    if (isMemoryError(err)) return 'memory';
+    if (isAdvancedMemoryError(err)) return 'memory';
     return 'unexpected';
   }
 
@@ -453,6 +457,7 @@ class AdvancedPDFMerger {
     }
 
     const baseOk = await this.probeWorkerSource(this.workerBaseSrc);
+    this.workerBaseAvailable = baseOk;
     if (baseOk) {
       this.setWorkerSrc(this.workerBaseSrc);
       this.configurePdfJsWorker();
@@ -460,6 +465,7 @@ class AdvancedPDFMerger {
     }
 
     const fallbackOk = await this.probeWorkerSource(this.workerFallbackSrc);
+    this.workerFallbackAvailable = fallbackOk;
     if (fallbackOk) {
       this.workerFallbackUsed = true;
       this.setWorkerSrc(this.workerFallbackSrc);
@@ -583,15 +589,18 @@ class AdvancedPDFMerger {
       throw new Error('pdf.js is not available');
     }
     const verbosityLevel = pdfjsLib?.VerbosityLevel?.ERRORS;
-    const docOptions = (typeof verbosityLevel === 'number')
-      ? { data: arrayBuffer, verbosity: verbosityLevel }
-      : { data: arrayBuffer };
+    const makeDocOptions = () => {
+      const data = arrayBuffer instanceof ArrayBuffer ? arrayBuffer.slice(0) : arrayBuffer;
+      return (typeof verbosityLevel === 'number')
+        ? { data, verbosity: verbosityLevel }
+        : { data };
+    };
     if (this.isLegacySafari()) {
       this.enableWorkerWrapper();
     }
     this.configurePdfJsWorker();
     try {
-      return await pdfjsLib.getDocument(docOptions).promise;
+      return await pdfjsLib.getDocument(makeDocOptions()).promise;
     } catch (error) {
       if (!this.workerDisabled && this.shouldDisableWorker(error)) {
         if (this.isWorkerFetchFailure(error) && !this.workerFallbackUsed && this.workerBaseSrc !== this.workerFallbackSrc) {
@@ -600,7 +609,7 @@ class AdvancedPDFMerger {
           this.resetPdfJsWorkerState();
           this.configurePdfJsWorker();
           try {
-            return await pdfjsLib.getDocument(docOptions).promise;
+            return await pdfjsLib.getDocument(makeDocOptions()).promise;
           } catch (fallbackError) {
             if (!this.shouldDisableWorker(fallbackError)) {
               throw fallbackError;
@@ -613,7 +622,7 @@ class AdvancedPDFMerger {
         this.setWorkerSrc(this.resolveDisabledWorkerSrc());
         this.resetPdfJsWorkerState();
         this.configurePdfJsWorker();
-        return await pdfjsLib.getDocument(docOptions).promise;
+        return await pdfjsLib.getDocument(makeDocOptions()).promise;
       }
       throw error;
     }
@@ -626,6 +635,13 @@ class AdvancedPDFMerger {
       text.includes('workermessagehandler') ||
       text.includes('setting up fake worker failed') ||
       text.includes('cannot load script');
+  }
+
+  isKnownThumbnailRenderFailure(err) {
+    const text = getExtendedErrorText(err);
+    return text.includes('setlinedash') ||
+      text.includes('callable @@iterator') ||
+      text.includes('pages tree contains circular reference');
   }
 
   isLegacySafari() {
@@ -881,12 +897,16 @@ class AdvancedPDFMerger {
         // Ignore retry failure and report original error below.
       }
       console.error(`Error rendering thumbnail for ${pageData.id}:`, error);
-      const workerNote = formatWorkerStateNote(this);
-      safeReportError(error, {
-        feature: 'AdvancedPDFMerger.renderThumbnail',
-        userNote: `page=${pageData?.id || 'unknown'}${workerNote}`
-      });
-      return this.createPlaceholderThumbnail();
+      const placeholder = this.createPlaceholderThumbnail();
+      this.thumbnailCache.set(cacheKey, placeholder);
+      if (!this.isKnownThumbnailRenderFailure(error)) {
+        const workerNote = formatWorkerStateNote(this);
+        safeReportError(error, {
+          feature: 'AdvancedPDFMerger.renderThumbnail',
+          userNote: `page=${pageData?.id || 'unknown'}${workerNote}`
+        });
+      }
+      return placeholder;
     }
   }
 

@@ -45,6 +45,8 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (message.includes('importing a module script failed')) return true;
     if (message.includes('unknown rejection') && stack.includes('webkit-masked-url://hidden/')) return true;
     if (feature === 'unhandledrejection' && stack.includes('webkit-masked-url://hidden/')) return true;
+    if (feature === 'unhandledrejection' && /^error:\s*[a-z]{1,3}$/i.test(message)) return true;
+    if (feature === 'unhandledrejection' && message.includes('object not found matching id:')) return true;
 
     // Browser-injected snippets can throw "n0_ is not defined" from anonymous injFunc wrappers.
     // This does not originate from our application bundle and is not actionable.

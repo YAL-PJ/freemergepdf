@@ -23,6 +23,11 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     : DEVICE_MEMORY_GB > 8
                         ? 1000 * 1024 * 1024
                         : 700 * 1024 * 1024;
+        const MERGE_PAGE_HARD_LIMIT = DEVICE_MEMORY_GB <= 4 ? 300 : 800;
+        const MERGE_PAGE_BYTE_WORK_LIMIT = DEVICE_MEMORY_GB <= 4
+            ? 28 * 1024 * 1024 * 100
+            : 55 * 1024 * 1024 * 100;
+        const MERGE_FILE_HARD_LIMIT = DEVICE_MEMORY_GB <= 4 ? 25 : 40;
         let expandedFiles = []; // Store file objects for expanded mode
         let advancedMerger = null; // Advanced merger instance
         let advancedMergerPrewarmKey = '';
@@ -538,7 +543,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function promptSkipFile(file, error) {
             const name = file && file.name ? `"${file.name}"` : 'this file';
-            const reason = error && error.message ? error.message : 'Unknown error';
+            const reason = buildMergeFailureMessage(error, { fileCount: 1 }, 'expanded');
             return window.confirm(
                 `${name} could not be processed.\n` +
                 `Reason: ${reason}\n\n` +
@@ -560,7 +565,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const text = `${error?.name || ''} ${error?.message || ''}`.toLowerCase();
             return text.includes('traverse is not a function') ||
                 text.includes('pages(...).traverse') ||
-                text.includes('catalog.pages');
+                text.includes('catalog.pages') ||
+                text.includes('expected instance of') ||
+                text.includes('pages tree contains circular reference');
         }
 
         function isPdfLibRecoverableFailure(error) {
@@ -806,10 +813,11 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function getPdfJsDocOptions(arrayBuffer) {
             const level = pdfjsLib?.VerbosityLevel?.ERRORS;
+            const data = arrayBuffer instanceof ArrayBuffer ? arrayBuffer.slice(0) : arrayBuffer;
             if (typeof level === 'number') {
-                return { data: arrayBuffer, verbosity: level };
+                return { data, verbosity: level };
             }
-            return { data: arrayBuffer };
+            return { data };
         }
 
         async function ensurePdfJsReady() {
@@ -1457,6 +1465,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const useObjectStreams = compressEnabled || moreCompressEnabled;
             const mergeFiles = advancedMergerFiles && advancedMergerFiles.length ? advancedMergerFiles : getMergeableFiles(expandedFiles);
             const stats = getFileStats(mergeFiles);
+            stats.pageCount = Array.isArray(orderedPages) ? orderedPages.length : 0;
             const skippedFileIndices = new Set();
             let skippedCount = 0;
             let rasterizedPages = 0;
@@ -1892,6 +1901,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 let skippedCount = 0;
                 let compressionNote = '';
                 stats = getFileStats(files);
+                if (isExpanded && advancedMerger?.pages?.length) {
+                    stats.pageCount = advancedMerger.pages.length;
+                }
                 const modeKey = isExpanded ? 'expanded' : 'simple';
                 const compressEnabled = isCompressEnabledForMode(modeKey, true);
                 const moreCompressEnabled = isMoreCompressEnabledForMode(modeKey);
@@ -2158,7 +2170,8 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             } catch (error) {
                 const friendlyMsg = buildMergeFailureMessage(error, {
                     fileCount: files?.length || 0,
-                    totalBytes: stats.totalBytes
+                    totalBytes: stats.totalBytes,
+                    pageCount: stats.pageCount
                 }, isExpanded ? 'expanded' : 'simple');
 
                 reportMergeError(error, {
@@ -2276,7 +2289,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const isCorrupt = isCorruptPdfErrorSafe(error);
             const fileCount = Number.isFinite(stats?.fileCount) ? stats.fileCount : null;
             const totalBytes = Number.isFinite(stats?.totalBytes) ? stats.totalBytes : null;
+            const pageCount = Number.isFinite(stats?.pageCount) ? stats.pageCount : null;
             const sizeHint = totalBytes ? ` (${formatFileSize(totalBytes)})` : '';
+            const pageHint = pageCount ? ` and ${pageCount} pages` : '';
 
             if (isEncrypted) {
                 return 'Locked PDF. Unlock and try again.';
@@ -2285,7 +2300,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 return 'Not a valid PDF. Try another file.';
             }
             if (isMemory) {
-                return `Too large to merge${sizeHint}. Try fewer files/pages.`;
+                return `Too large to merge${sizeHint}${pageHint}. Try fewer files/pages.`;
             }
             if (isFileRead) {
                 return "Can't read a file. Re-select files (copy local first if from cloud/external drive).";
@@ -2361,12 +2376,25 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         }
 
         function isMergeTooLarge(stats) {
-            return Number.isFinite(stats?.totalBytes) && stats.totalBytes > MERGE_HARD_LIMIT_BYTES;
+            if (Number.isFinite(stats?.totalBytes) && stats.totalBytes > MERGE_HARD_LIMIT_BYTES) return true;
+            if (Number.isFinite(stats?.fileCount) && stats.fileCount > MERGE_FILE_HARD_LIMIT) return true;
+            if (Number.isFinite(stats?.pageCount) && stats.pageCount > MERGE_PAGE_HARD_LIMIT) return true;
+            if (Number.isFinite(stats?.pageCount) && Number.isFinite(stats?.totalBytes) && stats.pageCount > 0) {
+                const workEstimate = stats.totalBytes * Math.max(1, stats.pageCount);
+                return workEstimate > MERGE_PAGE_BYTE_WORK_LIMIT;
+            }
+            return false;
         }
 
         function buildMergeTooLargeMessage(stats) {
             const total = formatFileSize(stats?.totalBytes || 0);
-            return `Total file size (${total}) is too large to merge in the browser. Try fewer or smaller PDFs.`;
+            const pageCount = Number.isFinite(stats?.pageCount) && stats.pageCount > 0
+                ? ` across ${stats.pageCount} pages`
+                : '';
+            const fileCount = Number.isFinite(stats?.fileCount) && stats.fileCount > 0
+                ? `${stats.fileCount} files, `
+                : '';
+            return `This merge (${fileCount}${total}${pageCount}) is too large to run reliably in the browser. Try fewer files/pages or split it into smaller batches.`;
         }
 
         async function hasPdfHeader(file) {
