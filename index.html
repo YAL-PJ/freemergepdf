@@ -56,6 +56,20 @@
       "featureList": "No signup, No registration, Private processing, Local file handling, Free to use, Secure, Unlimited documents, Drag-and-drop reordering"
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://freemergepdf.com/"
+        }
+      ]
+    }
+    </script>
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FKQQKSRNPJ"></script>
@@ -107,9 +121,9 @@
 <body>
     <!-- SIMPLE MODE -->
     <div class="container mode-simple" id="simpleMode">
-        <h1>📄 Free PDF Merger (No Sign Up) | FreeMergePDF</h1>
+        <h1>Free PDF Merger (No Sign Up) | FreeMergePDF</h1>
         <div class="subtitle hero-inline">
-            <span>Merge PDFs free in-browser—no signup, no uploads, no watermarks, 100% private.</span>
+            <span>Merge PDFs free in your browser - no signup, no uploads, no watermarks, 100% private.</span>
             <span><strong>Updated for 2026.</strong></span>
             <details class="hero-note">
                 <summary>More about this tool</summary>
@@ -125,7 +139,7 @@
                     <div class="file-input-group" onclick="document.getElementById('file1').click()">
                         <input type="file" id="file1" accept=".pdf" />
                         <div class="file-input-display" id="display1">
-                            <div class="file-input-icon">📁</div>
+                            <div class="file-input-icon">PDF</div>
                             <div class="file-input-text">Click or drag PDF here</div>
                             <div class="file-input-subtext">Any file size</div>
                         </div>
@@ -137,7 +151,7 @@
                     <div class="file-input-group" onclick="document.getElementById('file2').click()">
                         <input type="file" id="file2" accept=".pdf" />
                         <div class="file-input-display" id="display2">
-                            <div class="file-input-icon">📁</div>
+                            <div class="file-input-icon">PDF</div>
                             <div class="file-input-text">Click or drag PDF here</div>
                             <div class="file-input-subtext">Any file size</div>
                         </div>
@@ -157,7 +171,7 @@
             <div class="simple-merge-section">
                 
                 <button class="merge-btn merge-btn-large" id="simpleMergeBtn" onclick="mergePDFs()" disabled>
-                    ⚡ Merge PDFs Now
+                    Merge PDFs Now
                 </button>
 
                 
@@ -165,10 +179,10 @@
                 <!-- ADVANCED OPTIONS -->
                 <div class="simple-options-section">
                     <button class="simple-options-btn" id="simpleAdvancedBtn" onclick="openAdvancedSortFromSimple()" disabled>
-                        ✏️ Advanced Merge + Compress (Sort Pages)
+                        Advanced Merge + Compress (Sort Pages)
                     </button>
                     <button class="expand-btn merge-btn" id="expandBtn" onclick="toggleMode()">
-                        ➕ Merge more than 2 files
+                        Merge more than 2 files
                     </button>
                 </div>
 
@@ -193,13 +207,13 @@
     <!-- EXPANDED MODE -->
     <div class="container mode-expanded" id="expandedMode">
         <div class="mode-toggle-header">
-            <button class="back-to-simple" onclick="toggleMode()">← Back to 2 PDFs</button>
+            <button class="back-to-simple" onclick="toggleMode()">Back to 2 PDFs</button>
             <div class="mode-title">Merge Multiple PDFs</div>
             <div class="document-count" id="docCount">0 files</div>
         </div>
 
         <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-text">📁 Drop PDFs here or click to add</div>
+            <div class="drop-zone-text">Drop PDFs here or click to add</div>
             <div class="drop-zone-subtext">You can select multiple files at once</div>
             <input type="file" id="expandedFileInput" accept=".pdf" multiple />
         </div>
@@ -213,7 +227,7 @@
 
         <div class="add-more-section">
             <button class="add-more-btn" onclick="document.getElementById('expandedFileInput').click()">
-                ➕ Add more PDFs
+                Add more PDFs
             </button>
         </div>
         <!-- EXPANDED FILENAME INPUT -->
@@ -224,7 +238,7 @@
 
         <div class="button-group">
             <button class="merge-btn" id="advancedSortBtn" onclick="openAdvancedSort()" disabled>
-                ✏️ Advanced Merge + Compress (Sort Pages)
+                Advanced Merge + Compress (Sort Pages)
             </button>
             <button class="merge-btn" id="expandedMergeBtn" onclick="mergePDFs()" disabled>
                 Merge All PDFs
@@ -254,7 +268,7 @@
             
             <div class="feedback-error" id="feedbackErrorBottom"></div>
             <div class="feedback-success" id="feedbackSuccessBottom">
-                <div class="feedback-success-icon">✓</div>
+                <div class="feedback-success-icon">OK</div>
                 <p class="feedback-success-text">Thank you! I'll read your message and improve the tool based on your feedback.</p>
             </div>
             
@@ -328,26 +342,34 @@
         <summary>About FreeMergePDF: free PDF combiner in your browser</summary>
         <div class="seo-accordion-body">
             <div class="seo-content">
-        <h2>Free PDF Merger No Sign Up - FreeMergePDF: The Best Way to Merge PDF Files Online</h2>
-        <p>FreeMergePDF is the best free PDF merger tool available. This free PDF combiner allows you to merge unlimited PDF files into a single document without any signup or registration. Our free PDF merger tool allows you to combine multiple PDF files in seconds using a completely free, no-signup PDF merger. Simply select your PDF files (start with 2, or expand to merge unlimited PDFs with our free PDF joiner), click merge, and download your combined PDF instantly. This free online PDF merger is perfect whether you call it a PDF merger, PDF combiner, or PDF joiner—it does it all without requiring an account.</p>
+        <h2>Free PDF Merger No Sign Up - Fast, Private, and Simple</h2>
+        <p>FreeMergePDF is a <strong>free PDF merger no sign up</strong> tool for quick everyday PDF combining. Choose two PDFs for a simple merge, or switch to expanded mode when you need to combine a larger batch.</p>
+        <p>Your files are handled in your browser instead of being uploaded to a server. That keeps the tool fast for routine work and safer for documents you do not want to send through a third-party upload queue.</p>
         
-        <h3>Secure PDF Merging With No Signup - FreeMergePDF Free PDF Merger</h3>
-        <p>Unlike other online PDF merger tools that upload your files to a server, FreeMergePDF (the free PDF combiner) processes everything locally in your browser. This means your sensitive documents never leave your computer, ensuring maximum privacy and security. This free PDF merger requires no signup because there's nothing to track. No data is stored, collected, or transmitted to any server. Whether you're using this free PDF joiner for business contracts, personal documents, or anything else, your privacy is guaranteed with FreeMergePDF's free PDF merger.</p>
+        <h3>When a browser-based PDF merger is the right fit</h3>
+        <p>Use this tool when you need to combine reports, receipts, forms, contracts, school files, or scanned paperwork without installing software. It is especially useful when you want a no-account workflow and do not need full PDF editing features like OCR or redaction.</p>
         
-        <h3>Free PDF Combiner With No Hidden Costs - FreeMergePDF</h3>
-        <p>Merge PDF files without any cost using FreeMergePDF. No subscription required, no trial periods, and no watermarks on your merged documents from this free PDF merger and PDF combiner. This free online PDF joiner is completely free to use with unlimited merges and no limits on the number of documents. FreeMergePDF is the best free PDF merger because it costs nothing and requires no signup whatsoever.</p>
+        <h3>What you can do here</h3>
+        <ul>
+            <li>Merge two PDFs immediately from the simple tool.</li>
+            <li>Switch to multi-file mode for larger batches.</li>
+            <li>Reorder files or pages before downloading the merged PDF.</li>
+            <li>Keep the original files on your own device during processing.</li>
+        </ul>
         
-        <h3>How FreeMergePDF Free PDF Merger Works</h3>
-        <p>This free PDF combiner uses client-side JavaScript processing to merge your PDF files directly in your web browser. With FreeMergePDF, you select your PDF files, arrange them in the order you want, and click the merge button on this free PDF merger. The merged PDF will automatically download to your device in seconds. This free PDF joiner requires no technical knowledge and works instantly. Whether you need a free PDF merger, free PDF combiner, or free PDF joiner, FreeMergePDF delivers all functionality without signup.</p>
+        <h3>How FreeMergePDF works</h3>
+        <p>The page loads PDF processing libraries in your browser. After you choose files, the merge happens locally and the finished document downloads back to your device.</p>
+        <p>For very large PDFs, speed depends on your device memory and processor. For most everyday files, the merge is quick because there is no upload-and-wait step.</p>
         
-        <h3>Merge Multiple PDFs With Drag-and-Drop Reordering - Free PDF Merger</h3>
-        <p>Need to merge more than 2 PDFs? FreeMergePDF (the best free PDF combiner and free PDF joiner) offers an advanced mode where you can merge unlimited documents. Simply select "merge more than 2 files" to expand into our free PDF merger's advanced mode. Drag and drop your PDFs to arrange them in any order before merging. This free PDF combiner is perfect for combining presentations, reports, contracts, or any multi-document projects. FreeMergePDF's free PDF joiner gives you complete control over your merged documents—no signup required, completely free.</p>
+        <h3>Learn more before choosing a PDF merger</h3>
+        <p>If you are comparing tools, start with the privacy guide and the online-merging walkthrough below. They explain the difference between upload-based PDF tools and local browser processing.</p>
 
         <h3>More guides on free PDF merging</h3>
         <ul>
-            <li><a href="/blog-post-1.html">Free PDF merger no sign up – full guide</a></li>
-            <li><a href="/blog-post-2.html">Merge PDF files online free – step-by-step</a></li>
+            <li><a href="/blog-post-1.html">Free PDF merger no sign up - full guide</a></li>
+            <li><a href="/blog-post-2.html">Merge PDF files online free - step-by-step</a></li>
             <li><a href="/blog-post-3.html">How to merge PDF without software</a></li>
+            <li><a href="/blog-post-4.html">PDF combiner free no sign up - compare options</a></li>
             <li><a href="/blog.html">Browse all FreeMergePDF tutorials</a></li>
         </ul>
     </div>
@@ -374,19 +396,19 @@
         <p>Absolutely! By default, FreeMergePDF shows a simple 2-PDF merger for quick combining. But this free PDF combiner also offers an expanded advanced mode where you can merge unlimited PDFs in one batch with drag-and-drop reordering. Whether you're using the free PDF joiner for 2 files or 20, it handles it all without signup or restrictions.</p>
         
         <h3>How does FreeMergePDF ensure my privacy with no signup requirement?</h3>
-        <p>Unlike other online PDF tools that upload your files to their servers, our free PDF merger processes everything directly in your web browser using JavaScript. Your PDF files never leave your device, are never uploaded to any server, and are never stored anywhere. No signup means no account to hack, no email to spam, and no data to collect. Once you close the browser tab, all data is immediately cleared. This makes FreeMergePDF one of the most private free PDF mergers available—no signup, no data collection, completely secure.</p>
+        <p>Unlike other online PDF tools that upload your files to their servers, our free PDF merger processes everything directly in your web browser using JavaScript. Your PDF files never leave your device, are never uploaded to any server, and are never stored anywhere. No signup means no account to hack, no email to spam, and no data to collect. Once you close the browser tab, all data is cleared from that page session. This makes FreeMergePDF a private option for PDF merging - no signup, no document upload, and no account data.</p>
         
         <h3>Do I need to create an account or sign up for this free PDF merger?</h3>
-        <p>No—absolutely not! FreeMergePDF requires zero signup. No registration, no account creation, no email address needed. Just visit FreeMergePDF, select your PDFs, and start merging instantly. This free PDF merger works without signup because we don't need to track you. All processing happens on your device, not on our servers.</p>
+        <p>No - FreeMergePDF requires zero signup. No registration, no account creation, no email address needed. Just visit FreeMergePDF, select your PDFs, and start merging instantly. This free PDF merger works without signup because document processing happens on your device, not on our servers.</p>
         
         <h3>What devices and browsers does the free PDF merger FreeMergePDF support?</h3>
-        <p>This free PDF merger works on any device with a modern web browser, including Windows, Mac, Linux, iOS (iPhone/iPad), and Android. FreeMergePDF supports Chrome, Firefox, Safari, Edge, and other modern browsers. No software installation is required—just open your browser and use the free PDF merger instantly.</p>
+        <p>This free PDF merger works on any device with a modern web browser, including Windows, Mac, Linux, iOS (iPhone/iPad), and Android. FreeMergePDF supports Chrome, Firefox, Safari, Edge, and other modern browsers. No software installation is required - just open your browser and use the free PDF merger instantly.</p>
         
-        <h3>Can I use FreeMergePDF offline—the free PDF merger?</h3>
+        <h3>Can I use FreeMergePDF offline?</h3>
         <p>Once the page is loaded, FreeMergePDF (your free PDF merger) can work without an internet connection since all processing happens locally on your device. However, you'll need internet to initially load the page and the PDF processing library for the first time.</p>
         
         <h3>How fast is this free online PDF merger?</h3>
-        <p>FreeMergePDF merges PDFs nearly instantly—usually just a few seconds regardless of file size. Since this free PDF merger doesn't upload to servers or require signup confirmation, the speed depends only on your device's processing power.</p>
+        <p>FreeMergePDF merges many PDFs in just a few seconds. Since this free PDF merger does not upload to servers or require signup confirmation, the speed depends mostly on your device's processing power and the size of the files.</p>
         
         <h3>Is FreeMergePDF safe for confidential or sensitive PDFs?</h3>
         <p>Absolutely. FreeMergePDF is extremely safe because your files are processed entirely within your browser using client-side JavaScript. No data is transmitted over the internet, stored on any server, or accessible to anyone else. Unlike cloud-based PDF mergers that require signup and upload your files, FreeMergePDF keeps everything private. This free PDF merger is ideal for merging confidential documents, contracts, medical records, and sensitive files.</p>
@@ -474,7 +496,7 @@
             <div class="advanced-merge-header">
                 <h2>Sort PDF Pages</h2>
                 <span class="advanced-merge-header-info">Drag to reorder pages from different files</span>
-                <button class="advanced-merge-close-btn" onclick="closeAdvancedSort()">✕</button>
+                    <button class="advanced-merge-close-btn" onclick="closeAdvancedSort()">X</button>
             </div>
             
             <div class="advanced-merge-content">
@@ -528,13 +550,13 @@
                 </div>
                 <div class="advanced-merge-actions">
                     <button class="advanced-merge-btn advanced-merge-btn-reset" onclick="resetPageOrder()">
-                        ↻ Reset Order
+                        Reset Order
                     </button>
                     <button class="advanced-merge-btn advanced-merge-btn-secondary" onclick="closeAdvancedSort()">
                         Cancel
                     </button>
                     <button class="advanced-merge-btn advanced-merge-btn-primary" onclick="finalizeAdvancedMerge()">
-                        ✓ Apply & Merge
+                        Apply & Merge
                     </button>
                 </div>
             </div>
@@ -549,7 +571,7 @@
 
     <!-- Sidebar feedback (for wide screens) - stays at bottom -->
     <!-- Button -->
-    <button class="feedback-widget-button" id="feedbackButton" title="Send feedback">💬</button>
+    <button class="feedback-widget-button" id="feedbackButton" title="Send feedback">?</button>
     <a class="social-x-button" href="https://x.com/compress__pdf" target="_blank" rel="noopener noreferrer" title="Follow on X" aria-label="Follow freecompresspdf on X">
         <svg viewBox="0 0 1200 1227" role="img" aria-hidden="true" focusable="false">
             <path d="M714 518L1160 0H1054L667 450L357 0H0L468 681L0 1227H106L515 750L843 1227H1200L714 518ZM569 687L522 620L149 86H311L612 517L659 584L1054 1149H892L569 687Z"></path>
@@ -562,7 +584,7 @@
     <div class="feedback-sidebar closed" id="feedbackSidebar">
         <div class="feedback-header">
             <h2 class="feedback-title">Help us improve</h2>
-            <button class="feedback-close" id="feedbackCloseBtn">✕</button>
+            <button class="feedback-close" id="feedbackCloseBtn">X</button>
         </div>
         
         <div class="feedback-resize-handle" id="feedbackResizeHandle"></div>
@@ -573,7 +595,7 @@
             
             <div class="feedback-error" id="feedbackError"></div>
             <div class="feedback-success" id="feedbackSuccess">
-                <div class="feedback-success-icon">✓</div>
+                <div class="feedback-success-icon">OK</div>
                 <p class="feedback-success-text">Thank you! I'll read your message and improve the tool based on your feedback.</p>
             </div>
             

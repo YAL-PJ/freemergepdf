@@ -844,7 +844,7 @@
         }
 
         .feature-list li:before {
-            content: "✓";
+            content: "OK";
             position: absolute;
             left: 0;
             color: #667eea;
