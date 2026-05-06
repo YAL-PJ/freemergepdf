@@ -30,6 +30,12 @@
     transform: scale(0.95);
 }
 
+.feedback-widget-button svg {
+    width: 22px;
+    height: 22px;
+    fill: #ffffff;
+}
+
 .social-x-button {
     position: fixed;
     left: 74px;
