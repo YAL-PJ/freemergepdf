@@ -38,9 +38,12 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
         const encryptionScanResults = new WeakMap();
         const fileIssues = new WeakMap();
         let fileArrayBufferCache = new Map();
-        const FILE_CACHE_TOTAL_LIMIT_BYTES = 64 * 1024 * 1024;
-        const FILE_CACHE_PER_FILE_LIMIT_BYTES = 8 * 1024 * 1024;
+        const FILE_CACHE_TOTAL_LIMIT_BYTES = DEVICE_MEMORY_GB > 0 && DEVICE_MEMORY_GB <= 4
+            ? 96 * 1024 * 1024
+            : 160 * 1024 * 1024;
+        const FILE_CACHE_PER_FILE_LIMIT_BYTES = 32 * 1024 * 1024;
         let fileArrayBufferCacheTotal = 0;
+        const fileArrayBufferInflight = new WeakMap();
         let advancedMergerFiles = [];
         let advancedFileErrorShown = false;
         const simpleSelectedFiles = { file1: null, file2: null };
@@ -668,11 +671,21 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         async function maybeCacheFileArrayBuffer(file) {
             if (!canCacheFileBytes(file) || fileArrayBufferCache.has(file)) return;
+            if (fileArrayBufferInflight.has(file)) return;
+            const readPromise = file.arrayBuffer()
+                .then((bytes) => {
+                    if (!fileArrayBufferCache.has(file)) {
+                        storeFileArrayBufferCache(file, bytes);
+                    }
+                    return bytes;
+                })
+                .catch(() => null)
+                .finally(() => {
+                    fileArrayBufferInflight.delete(file);
+                });
+            fileArrayBufferInflight.set(file, readPromise);
             try {
-                const bytes = await file.arrayBuffer();
-                if (!fileArrayBufferCache.has(file)) {
-                    storeFileArrayBufferCache(file, bytes);
-                }
+                await readPromise;
             } catch (e) {
                 // Ignore cache warm failures; normal read path still handles retries.
             }
@@ -683,6 +696,13 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             if (cachedEntry?.bytes instanceof ArrayBuffer) {
                 cachedEntry.at = Date.now();
                 return cachedEntry.bytes.slice(0);
+            }
+            const inflightRead = fileArrayBufferInflight.get(file);
+            if (inflightRead) {
+                const inflightBytes = await inflightRead;
+                if (inflightBytes instanceof ArrayBuffer) {
+                    return inflightBytes.slice(0);
+                }
             }
             let lastError = null;
             for (let attempt = 0; attempt < 2; attempt++) {
