@@ -183,7 +183,11 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             pruneInactiveFileCache();
             const display = document.getElementById(displayId);
             display.innerHTML = `
-                <div class="file-input-icon">📁</div>
+                <div class="file-input-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M6 2h8l5 5v15H6V2Zm7 1.8V8h4.2L13 3.8ZM8 4v16h9V10h-6V4H8Z"></path>
+                    </svg>
+                </div>
                 <div class="file-input-text">Click or drag PDF here</div>
                 <div class="file-input-subtext">Any file size</div>
             `;

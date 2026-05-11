@@ -139,7 +139,11 @@
                     <div class="file-input-group" onclick="document.getElementById('file1').click()">
                         <input type="file" id="file1" accept=".pdf" />
                         <div class="file-input-display" id="display1">
-                            <div class="file-input-icon">PDF</div>
+                            <div class="file-input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M6 2h8l5 5v15H6V2Zm7 1.8V8h4.2L13 3.8ZM8 4v16h9V10h-6V4H8Z"></path>
+                                </svg>
+                            </div>
                             <div class="file-input-text">Click or drag PDF here</div>
                             <div class="file-input-subtext">Any file size</div>
                         </div>
@@ -151,7 +155,11 @@
                     <div class="file-input-group" onclick="document.getElementById('file2').click()">
                         <input type="file" id="file2" accept=".pdf" />
                         <div class="file-input-display" id="display2">
-                            <div class="file-input-icon">PDF</div>
+                            <div class="file-input-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M6 2h8l5 5v15H6V2Zm7 1.8V8h4.2L13 3.8ZM8 4v16h9V10h-6V4H8Z"></path>
+                                </svg>
+                            </div>
                             <div class="file-input-text">Click or drag PDF here</div>
                             <div class="file-input-subtext">Any file size</div>
                         </div>
@@ -213,6 +221,11 @@
         </div>
 
         <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M6 2h8l5 5v15H6V2Zm7 1.8V8h4.2L13 3.8ZM8 4v16h9V10h-6V4H8Z"></path>
+                </svg>
+            </div>
             <div class="drop-zone-text">Drop PDFs here or click to add</div>
             <div class="drop-zone-subtext">You can select multiple files at once</div>
             <input type="file" id="expandedFileInput" accept=".pdf" multiple />
