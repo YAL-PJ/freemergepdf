@@ -96,11 +96,13 @@ async function submitFeedback(source) {
     const userNameInput = isSidebar ? document.getElementById('feedbackUserName') : document.getElementById('feedbackUserNameBottom');
     const messageInput = isSidebar ? document.getElementById('feedbackMessage') : document.getElementById('feedbackMessageBottom');
     const privateInput = isSidebar ? document.getElementById('feedbackPrivate') : document.getElementById('feedbackPrivateBottom');
+    const honeypotInput = isSidebar ? document.getElementById('feedbackWebsite') : document.getElementById('feedbackWebsiteBottom');
     const sendBtn = isSidebar ? document.getElementById('feedbackSendBtn') : document.getElementById('feedbackSendBtnBottom');
     const errorEl = isSidebar ? document.getElementById('feedbackError') : document.getElementById('feedbackErrorBottom');
     const successEl = isSidebar ? document.getElementById('feedbackSuccess') : document.getElementById('feedbackSuccessBottom');
 
     if (sendBtn?.disabled) return;
+    if (isHoneypotFilled(honeypotInput)) return;
 
     const email = emailInput.value.trim();
     const userName = userNameInput.value.trim();
@@ -199,6 +201,10 @@ function showFeedbackError(message, source) {
     errorEl.textContent = message;
     errorEl.classList.add('show');
     setTimeout(() => errorEl.classList.remove('show'), 4000);
+}
+
+function isHoneypotFilled(input) {
+    return Boolean(input && input.value && input.value.trim());
 }
 
 function refreshFeedbackListAfterSubmit() {
@@ -561,6 +567,18 @@ function createReplyForm(parentEntry) {
     messageInput.placeholder = 'Reply...';
     messageInput.setAttribute('aria-label', 'Reply message');
 
+    const honeypotInput = document.createElement('input');
+    honeypotInput.type = 'text';
+    honeypotInput.name = 'website';
+    honeypotInput.tabIndex = -1;
+    honeypotInput.autocomplete = 'off';
+    honeypotInput.setAttribute('aria-hidden', 'true');
+    honeypotInput.style.position = 'absolute';
+    honeypotInput.style.left = '-10000px';
+    honeypotInput.style.width = '1px';
+    honeypotInput.style.height = '1px';
+    honeypotInput.style.overflow = 'hidden';
+
     const privateLabel = document.createElement('label');
     privateLabel.className = 'feedback-toggle';
     const privateInput = document.createElement('input');
@@ -582,6 +600,7 @@ function createReplyForm(parentEntry) {
 
     addCtrlEnterSubmit(messageInput, form);
 
+    form.appendChild(honeypotInput);
     form.appendChild(emailInput);
     form.appendChild(userNameInput);
     form.appendChild(messageInput);
@@ -597,6 +616,7 @@ function createReplyForm(parentEntry) {
             userNameInput,
             messageInput,
             privateInput,
+            honeypotInput,
             statusEl,
             submitBtn
         });
@@ -605,7 +625,7 @@ function createReplyForm(parentEntry) {
     return form;
 }
 
-async function submitReply({ parentEntry, emailInput, userNameInput, messageInput, privateInput, statusEl, submitBtn }) {
+async function submitReply({ parentEntry, emailInput, userNameInput, messageInput, privateInput, honeypotInput, statusEl, submitBtn }) {
     const email = emailInput.value.trim();
     const userName = userNameInput.value.trim();
     const message = messageInput.value.trim();
@@ -613,6 +633,7 @@ async function submitReply({ parentEntry, emailInput, userNameInput, messageInpu
     const parentId = getEntryKey(parentEntry);
 
     if (submitBtn?.disabled) return;
+    if (isHoneypotFilled(honeypotInput)) return;
 
     statusEl.textContent = '';
     statusEl.className = 'feedback-reply-status';
