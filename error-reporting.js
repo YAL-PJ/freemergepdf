@@ -47,6 +47,7 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (feature === 'unhandledrejection' && message.includes('failed validating event')) return true;
     if (feature === 'unhandledrejection' && message.includes('failed parsing identifiers')) return true;
     if (feature === 'unhandledrejection' && message.includes('signal is aborted without reason')) return true;
+    if (feature === 'unhandledrejection' && !stack && (message === 'load failed' || message === 'fetch is aborted')) return true;
     if (message.includes('importing a module script failed')) return true;
     if (message.includes('unknown rejection') && stack.includes('webkit-masked-url://hidden/')) return true;
     if (feature === 'unhandledrejection' && stack.includes('webkit-masked-url://hidden/')) return true;
