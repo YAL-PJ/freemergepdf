@@ -169,12 +169,15 @@ class AdvancedPDFMerger {
     this.filesViewEl = null;
     this.activeView = 'pages';
     this.workerDisabled = this.isWorkerCircuitBroken();
-    this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
-    this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
+    // Prefer the CDN worker that matches the CDN-hosted pdf.js runtime. If browser
+    // worker setup later falls back to pdf.js' fake-worker path, using this URL
+    // avoids a sticky failed fake-worker load from a missing/stale site-root asset.
+    this.workerBaseSrc = this.resolveWorkerFallbackSrc();
+    this.workerFallbackSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
     if (isFileProtocolRuntime()) {
       // Local HTML snapshots cannot reliably resolve site-root worker assets.
-      // Prefer an HTTPS worker URL when running from file://.
-      this.workerBaseSrc = resolveAbsoluteUrl(this.workerFallbackSrc);
+      // Keep the HTTPS worker URL when running from file://.
+      this.workerFallbackSrc = this.workerBaseSrc;
     }
     this.workerSrc = this.workerBaseSrc;
     this.workerFallbackUsed = false;
@@ -192,11 +195,11 @@ class AdvancedPDFMerger {
   }
 
   resolveDisabledWorkerSrc() {
-    const fallback = resolveAbsoluteUrl(this.workerFallbackSrc);
     const base = resolveAbsoluteUrl(this.workerBaseSrc);
-    if (this.workerFallbackAvailable && fallback) return fallback;
+    const fallback = resolveAbsoluteUrl(this.workerFallbackSrc);
     if (this.workerBaseAvailable && base) return base;
-    return fallback || base;
+    if (this.workerFallbackAvailable && fallback) return fallback;
+    return base || fallback;
   }
 
   resolveWorkerFallbackSrc() {
@@ -386,25 +389,27 @@ class AdvancedPDFMerger {
   }
 
   setWorkerSrc(baseSrc) {
-    const resolvedBaseSrc = resolveAbsoluteUrl(baseSrc);
-    this.workerBaseSrc = resolvedBaseSrc;
+    const resolvedSrc = resolveAbsoluteUrl(baseSrc);
     if (this.workerWrapperUrl && this.workerWrapperUrl.startsWith('blob:') &&
         typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
       URL.revokeObjectURL(this.workerWrapperUrl);
       this.workerWrapperUrl = '';
     }
     if (this.workerWrapperEnabled) {
-      this.workerWrapperUrl = this.buildWorkerWrapperUrl(resolvedBaseSrc);
+      this.workerWrapperUrl = this.buildWorkerWrapperUrl(resolvedSrc);
       this.workerSrc = this.workerWrapperUrl;
       return;
     }
-    this.workerSrc = resolvedBaseSrc;
+    this.workerSrc = resolvedSrc;
   }
 
   enableWorkerWrapper() {
     if (this.workerWrapperEnabled) return;
+    const activeWorkerSrc = this.workerSrc && !this.workerSrc.startsWith('blob:')
+      ? this.workerSrc
+      : this.workerBaseSrc;
     this.workerWrapperEnabled = true;
-    this.setWorkerSrc(this.workerBaseSrc);
+    this.setWorkerSrc(activeWorkerSrc);
   }
 
   configurePdfJsWorker() {
