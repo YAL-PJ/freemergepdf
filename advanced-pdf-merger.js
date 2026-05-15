@@ -1031,7 +1031,7 @@ class AdvancedPDFMerger {
    * Handle file drag start
    */
   handleFileDragStart(e) {
-    const card = e.target.closest('.file-card');
+    const card = e.currentTarget;
     this.draggedFileOrderIndex = this.getFileCardOrderIndex(card);
     this.draggedIndex = null;
     this.hideDropIndicator();
@@ -1047,7 +1047,7 @@ class AdvancedPDFMerger {
   handleFileDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    const targetCard = e.target.closest('.file-card');
+    const targetCard = e.currentTarget;
     targetCard?.classList.add('drag-over');
     this.handleFileDropIndicator(e, targetCard);
     this.handleAutoScroll(e);
@@ -1059,7 +1059,7 @@ class AdvancedPDFMerger {
   handleFileDrop(e) {
     e.preventDefault();
     e.stopPropagation();
-    const targetCard = e.target.closest('.file-card');
+    const targetCard = e.currentTarget;
     targetCard?.classList.remove('drag-over');
     this.hideFileDropIndicator();
 
@@ -1115,12 +1115,14 @@ class AdvancedPDFMerger {
    * Handle drag start
    */
   handleDragStart(e) {
-    const card = e.target.closest('.page-card');
+    const card = e.currentTarget;
     this.draggedIndex = this.getCardIndex(card);
     this.draggedFileOrderIndex = null;
     this.hideFileDropIndicator();
     e.dataTransfer.effectAllowed = 'move';
-    e.target.closest('.page-card').style.opacity = '0.6';
+    if (card) {
+      card.style.opacity = '0.6';
+    }
   }
 
   /**
@@ -1129,7 +1131,7 @@ class AdvancedPDFMerger {
   handleDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    const targetCard = e.target.closest('.page-card');
+    const targetCard = e.currentTarget;
     targetCard?.classList.add('drag-over');
     this.handleDropIndicator(e, targetCard);
     this.handleAutoScroll(e);
@@ -1141,7 +1143,7 @@ class AdvancedPDFMerger {
   handleDrop(e) {
     e.preventDefault();
     e.stopPropagation();
-    const targetCard = e.target.closest('.page-card');
+    const targetCard = e.currentTarget;
     targetCard?.classList.remove('drag-over');
     this.hideDropIndicator();
 
