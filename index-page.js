@@ -1460,10 +1460,15 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const version = (typeof pdfjsLib.version === 'string' && pdfjsLib.version.trim())
                 ? pdfjsLib.version.trim()
                 : '3.11.174';
-            const defaultWorkerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${encodeURIComponent(version)}/pdf.worker.min.js`;
+            const cdnWorkerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${encodeURIComponent(version)}/pdf.worker.min.js`;
+            const sameOriginWorkerSrc = toAbsoluteUrl('/pdf.worker.min.js');
             const configuredWorkerSrc = pdfjsLib.GlobalWorkerOptions.workerSrc;
             if (!configuredWorkerSrc) {
-                pdfjsLib.GlobalWorkerOptions.workerSrc = defaultWorkerSrc;
+                // Prefer our same-origin worker to reduce CDN/importScripts/network failures.
+                // Keep CDN path for local file:// snapshots where site-root URLs are unavailable.
+                pdfjsLib.GlobalWorkerOptions.workerSrc = window.location.protocol === 'file:'
+                    ? cdnWorkerSrc
+                    : sameOriginWorkerSrc;
                 return;
             }
             const normalizedWorkerSrc = toAbsoluteUrl(configuredWorkerSrc);
