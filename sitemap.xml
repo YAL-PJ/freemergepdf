@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://freemergepdf.com/</loc>
     <lastmod>2026-05-24</lastmod>
+    <image:image>
+      <image:loc>https://freemergepdf.com/og-image.png</image:loc>
+      <image:title>FreeMergePDF - free PDF merger with no sign up and no uploads</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/about.html</loc>
+    <lastmod>2026-05-24</lastmod>
+    <image:image>
+      <image:loc>https://freemergepdf.com/yanis-avatar.jpg</image:loc>
+      <image:title>Yanis L., founder of FreeMergePDF</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://freemergepdf.com/blog.html</loc>
@@ -26,34 +39,30 @@
   </url>
   <url>
     <loc>https://freemergepdf.com/merge-pdf-files-without-uploading.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://freemergepdf.com/combine-pdfs-privately.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://freemergepdf.com/merge-pdfs-on-iphone-without-app.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://freemergepdf.com/merge-scanned-pdfs.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://freemergepdf.com/merge-pdfs-for-tax-documents.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://freemergepdf.com/is-it-safe-to-upload-pdfs-to-online-tools.html</loc>
-    <lastmod>2026-05-14</lastmod>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://freemergepdf.com/best-no-signup-pdf-merger.html</loc>
-    <lastmod>2026-05-14</lastmod>
-  </url>
-  <url>
-    <loc>https://freemergepdf.com/about.html</loc>
     <lastmod>2026-05-24</lastmod>
   </url>
   <url>
