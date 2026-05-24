@@ -44,6 +44,13 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (joined.includes('scripts.scriptwrapper.com')) return true;
     if (joined.includes('scripts.journeymv.com')) return true;
     if (joined.includes('/tags/optable/')) return true;
+
+    // Third-party prebid connector can fail on some Safari/iPad environments; not actionable for core PDF flows.
+    if (joined.includes('api.receptivity.io') && message.includes("can't find variable: webassembly")) return true;
+    if (joined.includes('rxconnector.js') && message.includes("can't find variable: webassembly")) return true;
+    if (joined.includes('attestation check for topics')) return true;
+    if (joined.includes('getuid?gdpr=') && joined.includes('failed to load resource: the server responded with a status of 400')) return true;
+    if (joined.includes('google-analytics.com/g/collect') && message.includes('failed to fetch')) return true;
     if (feature === 'unhandledrejection' && message.includes('failed validating event')) return true;
     if (feature === 'unhandledrejection' && message.includes('failed parsing identifiers')) return true;
     if (feature === 'unhandledrejection' && message.includes('signal is aborted without reason')) return true;
