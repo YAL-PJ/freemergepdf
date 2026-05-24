@@ -52,6 +52,7 @@ No account, email, or payment is required. There is no fixed file-size limit - t
 ## Author
 
 Yanis L. - founder and developer of FreeMergePDF and FreeCompressPDF.
+- Photo: https://freemergepdf.com/yanis-avatar.jpg
 - Quora: https://www.quora.com/profile/Yanis-L-3
 - X: https://x.com/compress__pdf
 - Email: freemergepdf@gmail.com
