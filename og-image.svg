@@ -1,28 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">FreeMergePDF browser-based PDF merger</title>
-  <desc id="desc">FreeMergePDF browser-based PDF merger with no sign up and no uploads.</desc>
+  <title id="title">FreeMergePDF homepage share image with founder portrait</title>
+  <desc id="desc">A social share card showing FreeMergePDF value proposition and a personal portrait.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#667eea"/>
-      <stop offset="1" stop-color="#764ba2"/>
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="pill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#059669"/>
     </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#1f2937" flood-opacity="0.25"/>
+      <feDropShadow dx="0" dy="20" stdDeviation="22" flood-color="#020617" flood-opacity="0.35"/>
     </filter>
+    <clipPath id="portraitClip">
+      <rect x="0" y="0" width="318" height="318" rx="36"/>
+    </clipPath>
   </defs>
+
   <rect width="1200" height="630" fill="url(#bg)"/>
-  <circle cx="1040" cy="95" r="150" fill="#ffffff" opacity="0.08"/>
-  <circle cx="120" cy="560" r="190" fill="#ffffff" opacity="0.08"/>
-  <rect x="90" y="78" width="1020" height="474" rx="36" fill="#ffffff" filter="url(#shadow)"/>
-  <g transform="translate(128 126)">
-    <rect x="0" y="0" width="126" height="156" rx="14" fill="#eef2ff" stroke="#4f46e5" stroke-width="6"/>
-    <path d="M82 0v48h44" fill="none" stroke="#4f46e5" stroke-width="6" stroke-linejoin="round"/>
-    <text x="24" y="104" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="#4f46e5">PDF</text>
+  <circle cx="1090" cy="95" r="170" fill="#ffffff" opacity="0.08"/>
+  <circle cx="70" cy="560" r="170" fill="#ffffff" opacity="0.05"/>
+
+  <rect x="64" y="64" width="1072" height="502" rx="40" fill="#ffffff" filter="url(#shadow)"/>
+
+  <g transform="translate(110 116)">
+    <rect x="0" y="0" width="318" height="318" rx="36" fill="#e2e8f0"/>
+    <image href="yanis-avatar.jpg" x="0" y="0" width="318" height="318" preserveAspectRatio="xMidYMid slice" clip-path="url(#portraitClip)"/>
+    <rect x="0" y="0" width="318" height="318" rx="36" fill="none" stroke="#bfdbfe" stroke-width="4"/>
   </g>
-  <text x="290" y="170" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800" fill="#111827">FreeMergePDF</text>
-  <text x="290" y="240" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#4f46e5">Free PDF Merger No Sign Up</text>
-  <text x="128" y="360" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#374151">Merge PDFs locally in your browser.</text>
-  <text x="128" y="410" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#374151">No uploads • No watermarks • Works on any device</text>
-  <rect x="128" y="462" width="345" height="56" rx="28" fill="#059669"/>
-  <text x="158" y="499" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#ffffff">Files stay on your device</text>
+
+  <text x="470" y="185" font-family="Inter, Arial, Helvetica, sans-serif" font-size="58" font-weight="800" fill="#0f172a">FreeMergePDF</text>
+  <text x="470" y="250" font-family="Inter, Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#1d4ed8">Merge PDF files privately in seconds</text>
+
+  <text x="470" y="320" font-family="Inter, Arial, Helvetica, sans-serif" font-size="30" fill="#334155">No upload • No sign up • No watermark</text>
+  <text x="470" y="370" font-family="Inter, Arial, Helvetica, sans-serif" font-size="30" fill="#334155">Works right in your browser on any device</text>
+
+  <rect x="470" y="428" width="458" height="74" rx="37" fill="url(#pill)"/>
+  <text x="500" y="475" font-family="Inter, Arial, Helvetica, sans-serif" font-size="31" font-weight="800" fill="#ffffff">Your PDFs never leave your device</text>
 </svg>
