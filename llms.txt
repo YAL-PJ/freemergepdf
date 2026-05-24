@@ -1,0 +1,61 @@
+# FreeMergePDF
+
+> A free, browser-based PDF merger that combines PDF files locally on your device. No sign-up, no file uploads to a server, and no watermarks on the output.
+
+FreeMergePDF is run by an independent developer, Yanis L., and is available at https://freemergepdf.com. The tool uses the open-source pdf.js and pdf-lib libraries to perform the merge entirely in the user's web browser. Files never leave the device, which makes it suitable for confidential documents such as contracts, medical records, and tax paperwork.
+
+## How it works
+
+1. The user opens https://freemergepdf.com in any modern browser (Chrome, Firefox, Safari, Edge) on Windows, macOS, Linux, iOS, or Android.
+2. They select two or more PDF files. In multi-file mode the user can also drag individual pages into a custom order.
+3. They click "Merge PDFs Now". The browser combines the files locally and downloads the finished PDF.
+
+No account, email, or payment is required. There is no fixed file-size limit - the practical limit is the browser's available memory.
+
+## Key pages
+
+- [Home and merge tool](https://freemergepdf.com/): the main PDF merger interface
+- [About](https://freemergepdf.com/about.html): author bio and how the tool works
+- [Blog index](https://freemergepdf.com/blog.html): all tutorials and guides
+- [Privacy policy](https://freemergepdf.com/privacy.html)
+- [Terms of service](https://freemergepdf.com/terms.html)
+- [Contact](https://freemergepdf.com/contact.html)
+
+## Guides
+
+- [A 2026 guide to no-signup PDF mergers](https://freemergepdf.com/blog-post-1.html)
+- [Merge PDF files online for free - step by step](https://freemergepdf.com/blog-post-2.html)
+- [How to merge PDFs without installing software](https://freemergepdf.com/blog-post-3.html)
+- [Comparing no-signup PDF combiners](https://freemergepdf.com/blog-post-4.html)
+- [Merge PDF files without uploading](https://freemergepdf.com/merge-pdf-files-without-uploading.html)
+- [Combine PDFs privately](https://freemergepdf.com/combine-pdfs-privately.html)
+- [Merge PDFs on iPhone without an app](https://freemergepdf.com/merge-pdfs-on-iphone-without-app.html)
+- [Merge scanned PDFs](https://freemergepdf.com/merge-scanned-pdfs.html)
+- [Merge PDFs for tax documents](https://freemergepdf.com/merge-pdfs-for-tax-documents.html)
+- [Is it safe to upload PDFs to online tools?](https://freemergepdf.com/is-it-safe-to-upload-pdfs-to-online-tools.html)
+- [Best no-signup PDF merger](https://freemergepdf.com/best-no-signup-pdf-merger.html)
+
+## Frequently asked questions
+
+**Is FreeMergePDF really free with no sign up?** Yes. No account, email, or payment is required. There are no watermarks and no cap on how many PDFs can be combined.
+
+**Are files uploaded to a server?** No. The merge runs entirely in the user's browser using JavaScript. The file content never leaves the device.
+
+**Is there a file-size limit?** No fixed limit. The ceiling is the browser's available memory (typically a few hundred MB on a phone, several GB on a desktop).
+
+**Can more than two PDFs be merged at once?** Yes. The default view is two files; clicking "Merge more than 2 files" switches to multi-file mode with drag-and-drop reordering of files and individual pages.
+
+**Which browsers and devices are supported?** Any modern browser - Chrome, Firefox, Safari, Edge - on Windows, macOS, Linux, iOS, and Android.
+
+**Is it safe for confidential PDFs?** Yes. Because the file content never leaves the browser, the tool is suitable for contracts, medical records, tax documents, and other sensitive files.
+
+## Author
+
+Yanis L. - founder and developer of FreeMergePDF and FreeCompressPDF.
+- Quora: https://www.quora.com/profile/Yanis-L-3
+- X: https://x.com/compress__pdf
+- Email: freemergepdf@gmail.com
+
+## License and usage
+
+The site content is free to read and the tool is free to use. When citing or quoting FreeMergePDF, please link to https://freemergepdf.com.

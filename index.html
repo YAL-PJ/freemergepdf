@@ -22,17 +22,18 @@
 
     <!-- Google Search Console Verification -->
     <meta name="google-site-verification" content="rxsUTugt_BB2D2dTbHu7H0G0pvs1EYy8EgVLDM7LuVQ" />
+    <meta name="theme-color" content="#667eea">
 
     <!-- Primary SEO Tags -->
-    <title>Free PDF Merger No Sign Up - Merge PDFs Privately | FreeMergePDF</title>
-    <meta name="description" content="Merge PDF files online for free with no sign up, no uploads, and no watermarks. FreeMergePDF combines PDFs locally in your browser.">
+    <title>Free PDF Merger - No Sign Up, No Upload | FreeMergePDF</title>
+    <meta name="description" content="Merge PDF files in your browser. No sign up, no uploads, no watermarks. Free and private — your documents stay on your device.">
 <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Free PDF Merger No Sign Up - Merge PDFs Privately | FreeMergePDF">
-    <meta property="og:description" content="Merge PDF files in your browser for free with no sign up, no uploads, and no watermarks.">
+    <meta property="og:title" content="Free PDF Merger - No Sign Up, No Upload">
+    <meta property="og:description" content="Merge PDF files in your browser. No sign up, no uploads, no watermarks. Your documents stay on your device.">
     <meta property="og:url" content="https://freemergepdf.com/">
-    <meta property="og:image" content="https://freemergepdf.com/og-image.svg">
-<meta property="og:image:type" content="image/svg+xml">
+    <meta property="og:image" content="https://freemergepdf.com/og-image.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="FreeMergePDF browser-based PDF merger with no sign up and no uploads">
@@ -40,15 +41,15 @@
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Free PDF Merger No Sign Up - Merge PDFs Privately | FreeMergePDF">
-    <meta name="twitter:description" content="Merge PDF files in your browser for free with no sign up, no uploads, and no watermarks.">
-    <meta name="twitter:image" content="https://freemergepdf.com/og-image.svg">
+    <meta name="twitter:title" content="Free PDF Merger - No Sign Up, No Upload">
+    <meta name="twitter:description" content="Merge PDF files in your browser. No sign up, no uploads, no watermarks. Your documents stay on your device.">
+    <meta name="twitter:image" content="https://freemergepdf.com/og-image.png">
 <meta name="twitter:image:alt" content="FreeMergePDF browser-based PDF merger with no sign up and no uploads">
 
     <!-- Additional SEO -->
     <meta name="robots" content="index, follow">
     <meta name="language" content="English">
-    <meta name="author" content="FreeMergePDF">
+    <meta name="author" content="Yanis L.">
     <link rel="canonical" href="https://freemergepdf.com/">
 
     <!-- Structured Data (JSON-LD) -->
@@ -56,6 +57,16 @@
 {
   "@context": "https://schema.org",
   "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://freemergepdf.com/#founder",
+      "name": "Yanis L.",
+      "url": "https://freemergepdf.com/about.html",
+      "sameAs": [
+        "https://www.quora.com/profile/Yanis-L-3",
+        "https://x.com/compress__pdf"
+      ]
+    },
     {
       "@type": "Organization",
       "@id": "https://freemergepdf.com/#organization",
@@ -65,8 +76,12 @@
         "@type": "ImageObject",
         "url": "https://freemergepdf.com/android-chrome-512x512.png"
       },
+      "founder": {
+        "@id": "https://freemergepdf.com/#founder"
+      },
       "sameAs": [
-        "https://x.com/compress__pdf"
+        "https://x.com/compress__pdf",
+        "https://www.quora.com/profile/Yanis-L-3"
       ]
     },
     {
@@ -84,14 +99,17 @@
       "@id": "https://freemergepdf.com/#webapp",
       "name": "FreeMergePDF",
       "alternateName": "Free PDF Merger",
-      "description": "Merge PDF files online for free with no sign up, no uploads, and no watermarks. Files are combined locally in the browser.",
+      "description": "Merge PDF files in your browser. No sign up, no uploads, no watermarks. Files are combined locally on your device.",
       "url": "https://freemergepdf.com/",
-      "image": "https://freemergepdf.com/og-image.svg",
+      "image": "https://freemergepdf.com/og-image.png",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Any",
       "inLanguage": "en",
       "browserRequirements": "Requires a modern browser with JavaScript enabled",
       "isAccessibleForFree": true,
+      "author": {
+        "@id": "https://freemergepdf.com/#founder"
+      },
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -102,8 +120,44 @@
         "No sign up or account required",
         "No PDF uploads for merging",
         "No watermarks on merged downloads",
-        "Drag-and-drop file ordering",
+        "Drag-and-drop file and page ordering",
         "Works on modern desktop and mobile browsers"
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://freemergepdf.com/#howto-merge",
+      "name": "How to merge PDF files in your browser",
+      "description": "Combine two or more PDF files into a single document, without uploading them to a server.",
+      "totalTime": "PT1M",
+      "tool": [
+        { "@type": "HowToTool", "name": "A modern web browser (Chrome, Firefox, Safari, or Edge)" }
+      ],
+      "supply": [
+        { "@type": "HowToSupply", "name": "Two or more PDF files on your device" }
+      ],
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Select your PDFs",
+          "text": "Open FreeMergePDF and pick two files in simple mode, or switch to multi-file mode for a larger batch.",
+          "url": "https://freemergepdf.com/#simpleMode"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Check the order",
+          "text": "The first PDF appears first in the merged file. Use advanced mode to drag pages into the order you want.",
+          "url": "https://freemergepdf.com/#expandedMode"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Merge and download",
+          "text": "Click the merge button. Your browser combines the files locally and downloads the finished PDF to your device.",
+          "url": "https://freemergepdf.com/#simpleMergeBtn"
+        }
       ]
     }
   ]
@@ -174,7 +228,7 @@
 <body>
     <!-- SIMPLE MODE -->
     <div class="container mode-simple" id="simpleMode">
-        <h1>Free PDF Merger (No Sign Up) | FreeMergePDF</h1>
+        <h1>Free PDF Merger - No Sign Up, No Upload</h1>
         <div class="subtitle hero-inline">
             <span>Merge PDFs free in your browser - no signup, no uploads, no watermarks, 100% private.</span>
             <span><strong>Updated for 2026.</strong></span>
@@ -449,19 +503,18 @@
     <div class="seo-accordions">
         <!-- FEATURES SECTION -->
         <details class="seo-accordion" id="featuresAccordion">
-            <summary>Features: free PDF merger, no signup, private</summary>
+            <summary>Features</summary>
             <div class="seo-accordion-body">
                 <div class="features">
-                <h2>Why Choose FreeMergePDF - The Best Free PDF Merger No Sign Up Required?</h2>
+                <h2>What FreeMergePDF gives you</h2>
                 <ul class="feature-list">
-                    <li><strong>No Signup or Registration Required</strong> - This free PDF merger, free PDF combiner, and free PDF joiner tool requires zero account creation. Start merging PDFs immediately without any registration hassle</li>
-                    <li><strong>100% Private & Secure PDF Merging</strong> - Your files never leave your device. All PDF merging processing happens locally in your browser. This free online PDF merger keeps your documents completely private</li>
-                    <li><strong>No File Upload to Servers</strong> - Files are processed entirely on your computer, ensuring complete privacy. The safest free PDF combiner available</li>
-                    <li><strong>Completely Free PDF Tool</strong> - No hidden costs, no premium plans, no watermarks. This free PDF merger and PDF combiner is 100% free forever</li>
-                    <li><strong>Unlimited PDF Documents</strong> - Merge as many PDFs as you want in one batch. No limits on the number of documents this free PDF joiner can combine</li>
-                    <li><strong>Drag & Drop PDF Reordering</strong> - This free PDF combiner lets you reorder files before merging. Complete control over your merged PDF document</li>
-                    <li><strong>Works Offline - Free PDF Merger</strong> - Once loaded, this free online PDF merger works without internet connection since all processing happens locally</li>
-                    <li><strong>Cross-Platform PDF Merger</strong> - This free PDF merger works on Windows, Mac, Linux, iOS, and Android. Use this free PDF combiner on any device</li>
+                    <li><strong>No signup or registration</strong> - Open the page and start merging. No account, no email, no payment.</li>
+                    <li><strong>Private by design</strong> - Files stay on your device. The merge runs in your browser, not on a remote server.</li>
+                    <li><strong>No watermarks, no fees</strong> - Download the finished PDF as it is. No premium plan, no upsells.</li>
+                    <li><strong>Unlimited files per batch</strong> - Add as many PDFs as your device can hold in memory.</li>
+                    <li><strong>Drag-and-drop reordering</strong> - Sort files, and individual pages in advanced mode, before the merge.</li>
+                    <li><strong>Works offline once loaded</strong> - After the page loads, the merge does not need an internet connection.</li>
+                    <li><strong>Cross-platform</strong> - Runs in modern Chrome, Firefox, Safari and Edge on Windows, macOS, Linux, iOS and Android.</li>
                 </ul>
             </div>
         </div>
@@ -469,37 +522,34 @@
 
     <!-- SEO CONTENT -->
     <details class="seo-accordion" id="seoCopyAccordion">
-        <summary>About FreeMergePDF: free PDF combiner in your browser</summary>
+        <summary>About FreeMergePDF</summary>
         <div class="seo-accordion-body">
             <div class="seo-content">
-        <h2>Free PDF Merger No Sign Up - Fast, Private, and Simple</h2>
-        <p>FreeMergePDF is a <strong>free PDF merger no sign up</strong> tool for quick everyday PDF combining. Choose two PDFs for a simple merge, or switch to expanded mode when you need to combine a larger batch.</p>
-        <p>Your files are handled in your browser instead of being uploaded to a server. That keeps the tool fast for routine work and safer for documents you do not want to send through a third-party upload queue.</p>
+        <h2>About FreeMergePDF</h2>
+        <p>FreeMergePDF is a browser-based tool for combining PDF files. Pick two PDFs for a quick merge, or switch to multi-file mode when you need to combine a larger batch.</p>
+        <p>Your files are processed locally in your browser instead of being uploaded to a server. That keeps the tool fast for routine work and safer for documents you would rather not send through a third-party upload queue.</p>
 
-        <h3>When a browser-based PDF merger is the right fit</h3>
-        <p>Use this tool when you need to combine reports, receipts, forms, contracts, school files, or scanned paperwork without installing software. It is especially useful when you want a no-account workflow and do not need full PDF editing features like OCR or redaction.</p>
+        <h3>When a browser-based merger is the right fit</h3>
+        <p>Use this tool when you need to combine reports, receipts, forms, contracts, school files, or scanned paperwork without installing software. It is especially useful when you want a no-account workflow and do not need full editing features like OCR or redaction.</p>
 
         <h3>What you can do here</h3>
         <ul>
             <li>Merge two PDFs immediately from the simple tool.</li>
             <li>Switch to multi-file mode for larger batches.</li>
-            <li>Reorder files or pages before downloading the merged PDF.</li>
+            <li>Reorder files or individual pages before downloading the merged PDF.</li>
             <li>Keep the original files on your own device during processing.</li>
         </ul>
 
-        <h3>How FreeMergePDF works</h3>
-        <p>The page loads PDF processing libraries in your browser. After you choose files, the merge happens locally and the finished document downloads back to your device.</p>
-        <p>For very large PDFs, speed depends on your device memory and processor. For most everyday files, the merge is quick because there is no upload-and-wait step.</p>
+        <h3>How it works</h3>
+        <p>The page loads PDF processing libraries (pdf.js and pdf-lib) in your browser. After you choose files, the merge happens locally and the finished document downloads back to your device.</p>
+        <p>For very large PDFs, speed depends on your device's memory and processor. For most everyday files, the merge is quick because there is no upload-and-wait step.</p>
 
-        <h3>Learn more before choosing a PDF merger</h3>
-        <p>If you are comparing tools, start with the privacy guide and the online-merging walkthrough below. They explain the difference between upload-based PDF tools and local browser processing.</p>
-
-        <h3>More guides on free PDF merging</h3>
+        <h3>More guides</h3>
         <ul>
-            <li><a href="/blog-post-1.html">Free PDF merger no sign up - full guide</a></li>
-            <li><a href="/blog-post-2.html">Merge PDF files online free - step-by-step</a></li>
-            <li><a href="/blog-post-3.html">How to merge PDF without software</a></li>
-            <li><a href="/blog-post-4.html">PDF combiner free no sign up - compare options</a></li>
+            <li><a href="/blog-post-1.html">A 2026 guide to no-signup PDF mergers</a></li>
+            <li><a href="/blog-post-2.html">Merge PDF files online for free - step-by-step</a></li>
+            <li><a href="/blog-post-3.html">How to merge PDFs without installing software</a></li>
+            <li><a href="/blog-post-4.html">Comparing no-signup PDF combiners</a></li>
             <li><a href="/blog.html">Browse all FreeMergePDF tutorials</a></li>
         </ul>
     </div>
@@ -508,43 +558,43 @@
 
     <!-- FAQ SECTION -->
     <details class="seo-accordion" id="faqAccordion">
-        <summary>FAQ: free, private PDF combiner answers</summary>
+        <summary>Frequently asked questions</summary>
         <div class="seo-accordion-body">
     <div class="seo-content">
-        <h2>Frequently Asked Questions About Free PDF Mergers</h2>
+        <h2>Frequently asked questions</h2>
 
-        <h3>Is FreeMergePDF really a free PDF merger with no sign up required?</h3>
-        <p>Yes! FreeMergePDF is completely free to use with absolutely no signup, registration, or account creation required. Our free PDF merger requires zero hidden fees, subscriptions, or premium plans. There are no watermarks on your merged documents, and you can merge unlimited PDFs at no cost.</p>
+        <h3>Is FreeMergePDF really free with no sign up?</h3>
+        <p>Yes. FreeMergePDF is free with no account, no email and no payment required. There are no watermarks on the merged file and no cap on how many PDFs you can combine.</p>
 
-        <h3>What's the difference between FreeMergePDF and other PDF mergers?</h3>
-        <p>FreeMergePDF (also known as the free PDF merger tool or free PDF combiner) is unique because it processes everything locally in your browser. Unlike other online PDF tools that upload your files to servers, our free PDF merger keeps your files completely private. No signup needed, no data collected, and no company access to your documents. Whether you call it a PDF merger, PDF combiner, or PDF joiner, FreeMergePDF delivers all the functionality without the account requirements.</p>
+        <h3>What is different about FreeMergePDF compared to other PDF mergers?</h3>
+        <p>Most online PDF mergers upload your files to their servers. FreeMergePDF runs entirely in your browser, so your documents never leave your device. The merge happens locally using JavaScript and the open-source pdf-lib library.</p>
 
-        <h3>Are there any file size limits on this free PDF merger?</h3>
-        <p>No file size limits! Our free PDF merger can handle PDFs of any size. Since all processing happens locally in your browser on your device, the only limitation is your device's available memory. This free online PDF merger is perfect for combining large documents without restrictions.</p>
+        <h3>Are there any file size limits?</h3>
+        <p>There is no fixed limit. Because the merge runs on your own device, the only ceiling is your browser's available memory - typically a few hundred MB on a phone and several GB on a desktop.</p>
 
-        <h3>Can I use this free PDF combiner to merge more than 2 PDFs at once?</h3>
-        <p>Absolutely! By default, FreeMergePDF shows a simple 2-PDF merger for quick combining. But this free PDF combiner also offers an expanded advanced mode where you can merge unlimited PDFs in one batch with drag-and-drop reordering. Whether you're using the free PDF joiner for 2 files or 20, it handles it all without signup or restrictions.</p>
+        <h3>Can I merge more than two PDFs at once?</h3>
+        <p>Yes. The two-file view is the default for quick jobs. Click "Merge more than 2 files" to switch to multi-file mode, where you can add an unlimited number of PDFs and drag them into the order you want.</p>
 
-        <h3>How does FreeMergePDF ensure my privacy with no signup requirement?</h3>
-        <p>Unlike other online PDF tools that upload your files to their servers, our free PDF merger processes everything directly in your web browser using JavaScript. Your PDF files never leave your device, are never uploaded to any server, and are never stored anywhere. No signup means no account to hack, no email to spam, and no data to collect. Once you close the browser tab, all data is cleared from that page session. This makes FreeMergePDF a private option for PDF merging - no signup, no document upload, and no account data.</p>
+        <h3>How does FreeMergePDF protect my privacy?</h3>
+        <p>Your PDFs are never uploaded. The page loads PDF-processing libraries into your browser, and the merge happens on your device. No file content is sent to our servers and no account or email is collected.</p>
 
-        <h3>Do I need to create an account or sign up for this free PDF merger?</h3>
-        <p>No - FreeMergePDF requires zero signup. No registration, no account creation, no email address needed. Just visit FreeMergePDF, select your PDFs, and start merging instantly. This free PDF merger works without signup because document processing happens on your device, not on our servers.</p>
+        <h3>Do I need to create an account?</h3>
+        <p>No. There is no signup, no email field and no login. Open the page, pick your PDFs and download the merged file.</p>
 
-        <h3>What devices and browsers does the free PDF merger FreeMergePDF support?</h3>
-        <p>This free PDF merger works on any device with a modern web browser, including Windows, Mac, Linux, iOS (iPhone/iPad), and Android. FreeMergePDF supports Chrome, Firefox, Safari, Edge, and other modern browsers. No software installation is required - just open your browser and use the free PDF merger instantly.</p>
+        <h3>Which devices and browsers are supported?</h3>
+        <p>FreeMergePDF works in any modern browser - Chrome, Firefox, Safari and Edge - on Windows, macOS, Linux, iOS and Android. No software install is required.</p>
 
-        <h3>Can I use FreeMergePDF offline?</h3>
-        <p>Once the page is loaded, FreeMergePDF (your free PDF merger) can work without an internet connection since all processing happens locally on your device. However, you'll need internet to initially load the page and the PDF processing library for the first time.</p>
+        <h3>Can I use it offline?</h3>
+        <p>Once the page is loaded, yes. The merge runs locally, so a temporary loss of connection will not interrupt it. You only need internet to load the page the first time; your browser will cache it after that.</p>
 
-        <h3>How fast is this free online PDF merger?</h3>
-        <p>FreeMergePDF merges many PDFs in just a few seconds. Since this free PDF merger does not upload to servers or require signup confirmation, the speed depends mostly on your device's processing power and the size of the files.</p>
+        <h3>How fast is the merge?</h3>
+        <p>Most everyday merges finish in a few seconds. Speed depends on your device's CPU and the total size of the files, not on a server queue.</p>
 
-        <h3>Is FreeMergePDF safe for confidential or sensitive PDFs?</h3>
-        <p>Absolutely. FreeMergePDF is extremely safe because your files are processed entirely within your browser using client-side JavaScript. No data is transmitted over the internet, stored on any server, or accessible to anyone else. Unlike cloud-based PDF mergers that require signup and upload your files, FreeMergePDF keeps everything private. This free PDF merger is ideal for merging confidential documents, contracts, medical records, and sensitive files.</p>
+        <h3>Is it safe for confidential PDFs?</h3>
+        <p>Yes. Because the file content never leaves your browser, FreeMergePDF is suitable for contracts, medical records, tax documents and other sensitive files. There is no server-side copy to leak.</p>
 
-        <h3>Can I reorder PDFs before merging with the free PDF merger?</h3>
-        <p>Yes! In expanded mode, simply click "Advanced Merge + Compress (Sort Pages)" to sort individual pages from all your PDFs. You can drag and drop pages to arrange them in any order. The numbered cards will update automatically to show the merge order. FreeMergePDF's free PDF combiner gives you complete control before you merge.</p>
+        <h3>Can I reorder pages before merging?</h3>
+        <p>Yes. Click "Advanced Merge + Compress (Sort Pages)" to drag individual pages from any of your files into the order you want before the final merge.</p>
     </div>
         </div>
         </details>
@@ -558,42 +608,58 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Is FreeMergePDF really a free PDF merger with no signup required?",
+          "name": "Is FreeMergePDF really free with no sign up?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes! FreeMergePDF is completely free to use with absolutely no signup, registration, or account creation required. Our free PDF merger requires zero hidden fees, subscriptions, or premium plans."
+            "text": "Yes. FreeMergePDF is free with no account, no email and no payment required. There are no watermarks on the merged file and no cap on how many PDFs you can combine."
           }
         },
         {
           "@type": "Question",
-          "name": "Are there any file size limits on this free PDF merger?",
+          "name": "Are there any file size limits?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No file size limits! Our free PDF merger can handle PDFs of any size. Since all processing happens locally in your browser on your device, the only limitation is your device's available memory."
+            "text": "There is no fixed limit. Because the merge runs on your own device, the only ceiling is your browser's available memory - typically a few hundred MB on a phone and several GB on a desktop."
           }
         },
         {
           "@type": "Question",
-          "name": "Can I use this free PDF combiner to merge more than 2 PDFs at once?",
+          "name": "Can I merge more than two PDFs at once?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Absolutely! By default, FreeMergePDF shows a simple 2-PDF merger for quick combining. But this free PDF combiner also offers an expanded advanced mode where you can merge unlimited PDFs in one batch."
+            "text": "Yes. The two-file view is the default for quick jobs. Click \"Merge more than 2 files\" to switch to multi-file mode, where you can add an unlimited number of PDFs and drag them into the order you want."
           }
         },
         {
           "@type": "Question",
-          "name": "How does FreeMergePDF ensure my privacy with no signup requirement?",
+          "name": "How does FreeMergePDF protect my privacy?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Unlike other online PDF tools that upload your files to their servers, our free PDF merger processes everything directly in your web browser using JavaScript. Your PDF files never leave your device."
+            "text": "Your PDFs are never uploaded. The page loads PDF-processing libraries into your browser, and the merge happens on your device. No file content is sent to our servers and no account or email is collected."
           }
         },
         {
           "@type": "Question",
-          "name": "Do I need to create an account or sign up for this free PDF merger?",
+          "name": "Do I need to create an account?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "No—absolutely not! FreeMergePDF requires zero signup. No registration, no account creation, no email address needed. Just visit FreeMergePDF, select your PDFs, and start merging instantly."
+            "text": "No. There is no signup, no email field and no login. Open the page, pick your PDFs and download the merged file."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which devices and browsers are supported?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "FreeMergePDF works in any modern browser - Chrome, Firefox, Safari and Edge - on Windows, macOS, Linux, iOS and Android. No software install is required."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is it safe for confidential PDFs?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Because the file content never leaves your browser, FreeMergePDF is suitable for contracts, medical records, tax documents and other sensitive files. There is no server-side copy to leak."
           }
         }
       ]
