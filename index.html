@@ -803,7 +803,13 @@
     </div>
 
     <!-- Scripts -->
-    <script src="error-reporting.js?v=5"></script>
+    <script>
+      window.__ERROR_TRACKER_CONFIG = {
+        endpoint: 'https://script.google.com/macros/s/AKfycbzgIwblyMQv4O8GypUMT7xfj8Xkv6W2oyCFxZVcUExwpWhHr_7WWXQlvi2tfzjXisu4Ww/exec',
+        app: 'freemergepdf'
+      };
+    </script>
+    <script src="error-tracker.js?v=1" defer></script>
     <script src="advanced-pdf-merger.js?v=15"></script>
 
     <script src="index-page.js?v=14"></script>
@@ -900,5 +906,3 @@
     <script src="feedback.js"></script>
 </body>
 </html>
-
-
