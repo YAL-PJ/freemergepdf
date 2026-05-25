@@ -1,6 +1,6 @@
 // ===== FEEDBACK WIDGET CONFIG =====
 // After deploying google-apps-script/feedback-backend.gs, paste the Web app URL below.
-const FEEDBACK_ENDPOINT = '';
+const FEEDBACK_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzgIwblyMQv4O8GypUMT7xfj8Xkv6W2oyCFxZVcUExwpWhHr_7WWXQlvi2tfzjXisu4Ww/exec';
 const APP_ID = 'freemergepdf';
 const OWNER_NAME = 'Yanis (creator)';
 
