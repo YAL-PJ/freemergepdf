@@ -24,9 +24,11 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                         ? 1000 * 1024 * 1024
                         : 700 * 1024 * 1024;
         const MERGE_PAGE_HARD_LIMIT = DEVICE_MEMORY_GB <= 4 ? 300 : 800;
+        // Heuristic for aggregate page-bytes workload. Keep conservative on low-memory devices
+        // while allowing larger but still reasonable merges on modern desktops/laptops.
         const MERGE_PAGE_BYTE_WORK_LIMIT = DEVICE_MEMORY_GB <= 4
-            ? 28 * 1024 * 1024 * 100
-            : 55 * 1024 * 1024 * 100;
+            ? 48 * 1024 * 1024 * 100
+            : 120 * 1024 * 1024 * 100;
         const MERGE_FILE_HARD_LIMIT = DEVICE_MEMORY_GB <= 4 ? 25 : 40;
         let expandedFiles = []; // Store file objects for expanded mode
         let advancedMerger = null; // Advanced merger instance
@@ -1539,9 +1541,14 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     statusElement.innerHTML = '<span>Select at least 2 mergeable PDFs.</span>';
                     return;
                 }
-                if (isMergeTooLarge(stats)) {
+                if (isMergeHardBlocked(stats)) {
                     statusElement.className = 'status-area status-error';
                     statusElement.innerHTML = '<span>' + buildMergeTooLargeMessage(stats) + '</span>';
+                    return;
+                }
+                if (!shouldAllowHeavyMergeAttempt(stats)) {
+                    statusElement.className = 'status-area status-error';
+                    statusElement.innerHTML = '<span>Merge canceled. You can try fewer files/pages.</span>';
                     return;
                 }
                 const pdfDoc = await PDFLib.PDFDocument.create();
@@ -1952,8 +1959,17 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     filename = getFinalFilename(input ? input.value : '', files);
                 }
                 
-                if (isMergeTooLarge(stats)) {
+                if (isMergeHardBlocked(stats)) {
                     const msg = buildMergeTooLargeMessage(stats);
+                    showError(msg, isExpanded ? 'expandedError' : 'simpleError');
+                    if (statusElement) {
+                        statusElement.className = 'status-area status-error';
+                        statusElement.innerHTML = '<span>' + msg + '</span>';
+                    }
+                    return;
+                }
+                if (!shouldAllowHeavyMergeAttempt(stats)) {
+                    const msg = 'Merge canceled. You can try fewer files/pages.';
                     showError(msg, isExpanded ? 'expandedError' : 'simpleError');
                     if (statusElement) {
                         statusElement.className = 'status-area status-error';
@@ -2404,15 +2420,25 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             }
         }
 
-        function isMergeTooLarge(stats) {
+        function isMergeHardBlocked(stats) {
             if (Number.isFinite(stats?.totalBytes) && stats.totalBytes > MERGE_HARD_LIMIT_BYTES) return true;
             if (Number.isFinite(stats?.fileCount) && stats.fileCount > MERGE_FILE_HARD_LIMIT) return true;
             if (Number.isFinite(stats?.pageCount) && stats.pageCount > MERGE_PAGE_HARD_LIMIT) return true;
+            return false;
+        }
+
+        function isMergeLikelyHeavy(stats) {
             if (Number.isFinite(stats?.pageCount) && Number.isFinite(stats?.totalBytes) && stats.pageCount > 0) {
                 const workEstimate = stats.totalBytes * Math.max(1, stats.pageCount);
                 return workEstimate > MERGE_PAGE_BYTE_WORK_LIMIT;
             }
             return false;
+        }
+
+        function shouldAllowHeavyMergeAttempt(stats) {
+            if (!isMergeLikelyHeavy(stats)) return true;
+            const msg = buildHeavyMergeWarningMessage(stats);
+            return window.confirm(msg);
         }
 
         function buildMergeTooLargeMessage(stats) {
@@ -2424,6 +2450,17 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 ? `${stats.fileCount} files, `
                 : '';
             return `This merge (${fileCount}${total}${pageCount}) is too large to run reliably in the browser. Try fewer files/pages or split it into smaller batches.`;
+        }
+
+        function buildHeavyMergeWarningMessage(stats) {
+            const total = formatFileSize(stats?.totalBytes || 0);
+            const pageCount = Number.isFinite(stats?.pageCount) && stats.pageCount > 0
+                ? ` across ${stats.pageCount} pages`
+                : '';
+            const fileCount = Number.isFinite(stats?.fileCount) && stats.fileCount > 0
+                ? `${stats.fileCount} files, `
+                : '';
+            return `This merge (${fileCount}${total}${pageCount}) may be slow or fail on some devices. Click OK to try anyway, or Cancel to split it into smaller batches.`;
         }
 
         async function hasPdfHeader(file) {
