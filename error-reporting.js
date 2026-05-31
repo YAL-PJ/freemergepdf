@@ -43,6 +43,14 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (joined.includes('faves.grow.me')) return true;
     if (joined.includes('scripts.scriptwrapper.com')) return true;
     if (joined.includes('scripts.journeymv.com')) return true;
+    if (joined.includes('securepubads.g.doubleclick.net')) return true;
+    if (joined.includes('api.rlcdn.com')) return true;
+    if (joined.includes('id5-sync.com')) return true;
+    if (joined.includes('rubiconproject.com')) return true;
+    if (joined.includes('spotxchange.com')) return true;
+    if (joined.includes('journeymv.com')) return true;
+    if (joined.includes('smilewanted.com')) return true;
+    if (joined.includes('amazon-adsystem.com')) return true;
     if (joined.includes('/tags/optable/')) return true;
 
     // Third-party prebid connector can fail on some Safari/iPad environments; not actionable for core PDF flows.
