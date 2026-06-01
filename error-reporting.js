@@ -1,4 +1,6 @@
-// Lightweight background error reporter posting to a private Google Form
+// Lightweight background error reporter posting to the private Apps Script backend with Google Form fallback
+const ERROR_APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzgIwblyMQv4O8GypUMT7xfj8Xkv6W2oyCFxZVcUExwpWhHr_7WWXQlvi2tfzjXisu4Ww/exec';
+
 const ERROR_FORM = {
     formId: '1FAIpQLScU-BSqZxoccP0MO5jXfV7xieP-_1Iw6Bu2_GBZr1il6Jt8Dw',
     fields: {
@@ -114,41 +116,83 @@ function normalizeError(err) {
     return { message: String(err || 'Unknown error'), stack: '' };
 }
 
+function buildErrorReportPayload(err, context = {}) {
+    const { message, stack } = normalizeError(err);
+    const safeMessage = scrub(message).slice(0, 500);
+    const safeStack = scrub(stack).slice(0, ERROR_REPORT_LIMITS.stackLength);
+    const feature = scrub(context.feature || '');
+    const safeUserNote = scrub(context.userNote || '').slice(0, 500);
+    const appVersion = scrub(context.appVersion || window.APP_VERSION || '');
+
+    return {
+        action: 'error_report',
+        app: 'freemergepdf',
+        message: safeMessage || 'Unknown error',
+        stack: safeStack,
+        url: context.url || window.location.pathname || '',
+        feature,
+        userAgent: navigator?.userAgent || '',
+        appVersion,
+        userNote: safeUserNote
+    };
+}
+
+function submitErrorReportToAppsScript(payload) {
+    if (!ERROR_APPS_SCRIPT_ENDPOINT) return Promise.reject(new Error('Missing error endpoint'));
+
+    return fetch(ERROR_APPS_SCRIPT_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    }).then(async (res) => {
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok || json.ok === false) {
+            throw new Error(json.error || `Error endpoint returned ${res.status}`);
+        }
+        return { ok: true, target: 'apps-script' };
+    });
+}
+
+function submitErrorReportToGoogleForm(payload) {
+    const endpoint = `https://docs.google.com/forms/d/e/${ERROR_FORM.formId}/formResponse`;
+    const formData = new FormData();
+    formData.append(ERROR_FORM.fields.message, payload.message);
+    if (payload.stack) formData.append(ERROR_FORM.fields.stack, payload.stack);
+    formData.append(ERROR_FORM.fields.url, payload.url);
+    if (payload.feature) formData.append(ERROR_FORM.fields.feature, payload.feature);
+    if (payload.userAgent) formData.append(ERROR_FORM.fields.userAgent, payload.userAgent);
+    if (payload.appVersion) formData.append(ERROR_FORM.fields.appVersion, payload.appVersion);
+    if (payload.userNote) formData.append(ERROR_FORM.fields.userNote, payload.userNote);
+
+    return fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+        mode: 'no-cors'
+    }).then(() => ({ ok: true, target: 'google-form-fallback' }));
+}
+
 function sendErrorReport(err, context = {}) {
     try {
-        if (shouldIgnoreKnownNoise(err, context)) return;
-        const { message, stack } = normalizeError(err);
-        const safeMessage = scrub(message).slice(0, 500);
-        const safeStack = scrub(stack).slice(0, ERROR_REPORT_LIMITS.stackLength);
-        const feature = scrub(context.feature || '');
-        const endpoint = `https://docs.google.com/forms/d/e/${ERROR_FORM.formId}/formResponse`;
-        const safeUserNote = scrub(context.userNote || '').slice(0, 500);
+        if (shouldIgnoreKnownNoise(err, context)) return Promise.resolve({ ok: true, ignored: true });
 
+        const payload = buildErrorReportPayload(err, context);
         const now = Date.now();
-        const fp = fingerprint(safeMessage, feature, safeUserNote.slice(0, 120));
+        const fp = fingerprint(payload.message, payload.feature, payload.userNote.slice(0, 120));
         if (fp === lastErrorFingerprint && now - lastErrorAt < ERROR_REPORT_LIMITS.throttleMs) {
-            return;
+            return Promise.resolve({ ok: true, throttled: true });
         }
         lastErrorFingerprint = fp;
         lastErrorAt = now;
 
-        const formData = new FormData();
-        formData.append(ERROR_FORM.fields.message, safeMessage || 'Unknown error');
-        if (safeStack) formData.append(ERROR_FORM.fields.stack, safeStack);
-        formData.append(ERROR_FORM.fields.url, context.url || window.location.pathname || '');
-        if (feature) formData.append(ERROR_FORM.fields.feature, feature);
-        if (navigator?.userAgent) formData.append(ERROR_FORM.fields.userAgent, navigator.userAgent);
-        const appVersion = scrub(context.appVersion || window.APP_VERSION || '');
-        if (appVersion) formData.append(ERROR_FORM.fields.appVersion, appVersion);
-        if (safeUserNote) formData.append(ERROR_FORM.fields.userNote, safeUserNote);
-
-        fetch(endpoint, {
-            method: 'POST',
-            body: formData,
-            mode: 'no-cors'
-        }).catch(() => { /* ignore */ });
+        return submitErrorReportToAppsScript(payload)
+            .catch(() => submitErrorReportToGoogleForm(payload))
+            .catch((reportErr) => {
+                console.warn('Error reporter failed', reportErr);
+                return { ok: false, error: String(reportErr) };
+            });
     } catch (reportErr) {
         console.warn('Error reporter failed', reportErr);
+        return Promise.resolve({ ok: false, error: String(reportErr) });
     }
 }
 

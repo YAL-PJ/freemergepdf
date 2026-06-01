@@ -10,6 +10,8 @@
  * ONE-TIME SETUP
  * ============================================================================
  *  1. Create a new Google Sheet. Rename the first tab to "Feedback".
+ *     Error reports are stored automatically in an "Errors" tab when the
+ *     first error arrives.
  *  2. In row 1 of that tab, paste exactly these 9 column headers (one per cell,
  *     in this order):
  *
@@ -27,6 +29,11 @@
  *        - pdf-compress-new/components/BetaFeedbackBanner.tsx
  *
  *  When you edit this file, redeploy via Manage deployments -> Edit -> New version.
+ *  Error reporting in error-reporting.js depends on the redeployed Web app URL.
+ *
+ *  Optional check: after redeploying, open the Web app URL with ?action=health.
+ *  It should return JSON with ok=true and confirm the Feedback/Errors sheets.
+ *  You can also run setupSheets() once inside Apps Script to pre-create both tabs.
  *
  * ============================================================================
  * REPLYING AS THE OWNER
@@ -49,15 +56,22 @@
 
 const SHEET_NAME = 'Feedback';
 const HEADERS = ['id', 'timestamp', 'app', 'name', 'email', 'message', 'isPrivate', 'ownerReply', 'ownerReplyDate'];
+const ERROR_SHEET_NAME = 'Errors';
+const ERROR_HEADERS = ['id', 'timestamp', 'app', 'message', 'stack', 'url', 'feature', 'userAgent', 'appVersion', 'userNote'];
 const KNOWN_APPS = ['freemergepdf', 'splitpdf', 'converttopdf', 'compresspdf'];
 
 const MAX_MESSAGE = 2000;
 const MAX_NAME = 80;
 const MAX_EMAIL = 120;
+const MAX_ERROR_MESSAGE = 500;
+const MAX_ERROR_STACK = 1800;
+const MAX_ERROR_FIELD = 500;
 
 function doGet(e) {
   try {
     const params = (e && e.parameter) || {};
+    if (String(params.action || '').toLowerCase() === 'health') return healthCheck_();
+
     const wantedApp = params.app ? String(params.app).toLowerCase() : null;
 
     const sheet = getSheet_();
@@ -94,9 +108,31 @@ function doGet(e) {
   }
 }
 
+
+function setupSheets() {
+  getSheet_();
+  getErrorSheet_();
+  return healthCheck_();
+}
+
+function healthCheck_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const feedbackSheet = ss.getSheetByName(SHEET_NAME);
+  const errorSheet = ss.getSheetByName(ERROR_SHEET_NAME);
+  return json_({
+    ok: true,
+    feedbackSheet: !!feedbackSheet,
+    errorSheet: !!errorSheet,
+    errorHeaders: ERROR_HEADERS,
+    timestamp: new Date().toISOString()
+  });
+}
+
 function doPost(e) {
   try {
     const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+
+    if (body.action === 'error_report') return saveErrorReport_(body);
 
     // Honeypot — silently accept and drop obvious bots
     if (body.website) return json_({ ok: true });
@@ -123,6 +159,43 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   }
+}
+
+
+function saveErrorReport_(body) {
+  const app = String(body.app || '').toLowerCase().trim();
+  if (KNOWN_APPS.indexOf(app) === -1) {
+    return json_({ ok: false, error: 'invalid app' });
+  }
+
+  const message = String(body.message || '').slice(0, MAX_ERROR_MESSAGE).trim();
+  if (!message) return json_({ ok: false, error: 'message required' });
+
+  const sheet = getErrorSheet_();
+  const id = Utilities.getUuid().slice(0, 8);
+  sheet.appendRow([
+    id,
+    new Date(),
+    app,
+    message,
+    String(body.stack || '').slice(0, MAX_ERROR_STACK),
+    String(body.url || '').slice(0, MAX_ERROR_FIELD),
+    String(body.feature || '').slice(0, MAX_ERROR_FIELD),
+    String(body.userAgent || '').slice(0, MAX_ERROR_FIELD),
+    String(body.appVersion || '').slice(0, MAX_ERROR_FIELD),
+    String(body.userNote || '').slice(0, MAX_ERROR_FIELD)
+  ]);
+  return json_({ ok: true, id: id });
+}
+
+function getErrorSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(ERROR_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(ERROR_SHEET_NAME);
+    sheet.appendRow(ERROR_HEADERS);
+  }
+  return sheet;
 }
 
 function getSheet_() {
