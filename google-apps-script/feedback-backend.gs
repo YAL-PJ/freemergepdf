@@ -31,6 +31,10 @@
  *  When you edit this file, redeploy via Manage deployments -> Edit -> New version.
  *  Error reporting in error-reporting.js depends on the redeployed Web app URL.
  *
+ *  Optional check: after redeploying, open the Web app URL with ?action=health.
+ *  It should return JSON with ok=true and confirm the Feedback/Errors sheets.
+ *  You can also run setupSheets() once inside Apps Script to pre-create both tabs.
+ *
  * ============================================================================
  * REPLYING AS THE OWNER
  * ============================================================================
@@ -66,6 +70,8 @@ const MAX_ERROR_FIELD = 500;
 function doGet(e) {
   try {
     const params = (e && e.parameter) || {};
+    if (String(params.action || '').toLowerCase() === 'health') return healthCheck_();
+
     const wantedApp = params.app ? String(params.app).toLowerCase() : null;
 
     const sheet = getSheet_();
@@ -100,6 +106,26 @@ function doGet(e) {
   } catch (err) {
     return json_({ error: String(err) });
   }
+}
+
+
+function setupSheets() {
+  getSheet_();
+  getErrorSheet_();
+  return healthCheck_();
+}
+
+function healthCheck_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const feedbackSheet = ss.getSheetByName(SHEET_NAME);
+  const errorSheet = ss.getSheetByName(ERROR_SHEET_NAME);
+  return json_({
+    ok: true,
+    feedbackSheet: !!feedbackSheet,
+    errorSheet: !!errorSheet,
+    errorHeaders: ERROR_HEADERS,
+    timestamp: new Date().toISOString()
+  });
 }
 
 function doPost(e) {

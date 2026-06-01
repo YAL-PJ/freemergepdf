@@ -1,4 +1,4 @@
-// Lightweight background error reporter posting to a private Google Form
+// Lightweight background error reporter posting to the private Apps Script backend with Google Form fallback
 const ERROR_APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzgIwblyMQv4O8GypUMT7xfj8Xkv6W2oyCFxZVcUExwpWhHr_7WWXQlvi2tfzjXisu4Ww/exec';
 
 const ERROR_FORM = {
