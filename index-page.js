@@ -19,10 +19,17 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             : DEVICE_MEMORY_GB <= 4
                 ? 400 * 1024 * 1024
                 : DEVICE_MEMORY_GB <= 8
-                    ? 700 * 1024 * 1024
+                    ? 550 * 1024 * 1024
                     : DEVICE_MEMORY_GB > 8
-                        ? 1000 * 1024 * 1024
-                        : 700 * 1024 * 1024;
+                        ? 800 * 1024 * 1024
+                        : 550 * 1024 * 1024;
+        const MERGE_SINGLE_FILE_HARD_LIMIT_BYTES = DEVICE_MEMORY_GB <= 4
+            ? 300 * 1024 * 1024
+            : DEVICE_MEMORY_GB <= 8
+                ? 450 * 1024 * 1024
+                : DEVICE_MEMORY_GB > 8
+                    ? 650 * 1024 * 1024
+                    : 450 * 1024 * 1024;
         const MERGE_PAGE_HARD_LIMIT = DEVICE_MEMORY_GB <= 4 ? 300 : 800;
         // Heuristic for aggregate page-bytes workload. Keep conservative on low-memory devices
         // while allowing larger but still reasonable merges on modern desktops/laptops.
@@ -2422,6 +2429,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function isMergeHardBlocked(stats) {
             if (Number.isFinite(stats?.totalBytes) && stats.totalBytes > MERGE_HARD_LIMIT_BYTES) return true;
+            if (Number.isFinite(stats?.maxBytes) && stats.maxBytes > MERGE_SINGLE_FILE_HARD_LIMIT_BYTES) return true;
             if (Number.isFinite(stats?.fileCount) && stats.fileCount > MERGE_FILE_HARD_LIMIT) return true;
             if (Number.isFinite(stats?.pageCount) && stats.pageCount > MERGE_PAGE_HARD_LIMIT) return true;
             return false;
@@ -2449,7 +2457,10 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             const fileCount = Number.isFinite(stats?.fileCount) && stats.fileCount > 0
                 ? `${stats.fileCount} files, `
                 : '';
-            return `This merge (${fileCount}${total}${pageCount}) is too large to run reliably in the browser. Try fewer files/pages or split it into smaller batches.`;
+            const maxFile = Number.isFinite(stats?.maxBytes) && stats.maxBytes > MERGE_SINGLE_FILE_HARD_LIMIT_BYTES
+                ? ` Largest file: ${formatFileSize(stats.maxBytes)}.`
+                : '';
+            return `This merge (${fileCount}${total}${pageCount}) is too large to run reliably in the browser.${maxFile} Try fewer files/pages or split it into smaller batches.`;
         }
 
         function buildHeavyMergeWarningMessage(stats) {

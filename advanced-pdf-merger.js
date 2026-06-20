@@ -169,15 +169,13 @@ class AdvancedPDFMerger {
     this.filesViewEl = null;
     this.activeView = 'pages';
     this.workerDisabled = this.isWorkerCircuitBroken();
-    // Prefer the CDN worker that matches the CDN-hosted pdf.js runtime. If browser
-    // worker setup later falls back to pdf.js' fake-worker path, using this URL
-    // avoids a sticky failed fake-worker load from a missing/stale site-root asset.
-    this.workerBaseSrc = this.resolveWorkerFallbackSrc();
-    this.workerFallbackSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
+    // Prefer the self-hosted worker so corporate filters, ad blockers, or CDN
+    // outages do not break Advanced preview. Keep the matching CDN worker as a
+    // fallback for offline file:// snapshots where site-root URLs are unavailable.
+    this.workerBaseSrc = resolveAbsoluteUrl('/pdf.worker.min.js');
+    this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
     if (isFileProtocolRuntime()) {
-      // Local HTML snapshots cannot reliably resolve site-root worker assets.
-      // Keep the HTTPS worker URL when running from file://.
-      this.workerFallbackSrc = this.workerBaseSrc;
+      this.workerBaseSrc = this.workerFallbackSrc;
     }
     this.workerSrc = this.workerBaseSrc;
     this.workerFallbackUsed = false;
@@ -451,6 +449,9 @@ class AdvancedPDFMerger {
     if (this.workerPreflighted) return;
     this.workerPreflighted = true;
     this.workerFallbackSrc = this.resolveWorkerFallbackSrc();
+    if (isFileProtocolRuntime()) {
+      this.workerBaseSrc = this.workerFallbackSrc;
+    }
     if (this.workerDisabled) {
       this.workerFallbackUsed = this.resolveDisabledWorkerSrc() !== this.workerBaseSrc;
       this.setWorkerSrc(this.resolveDisabledWorkerSrc());
