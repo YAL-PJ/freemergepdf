@@ -195,9 +195,15 @@ class AdvancedPDFMerger {
   resolveDisabledWorkerSrc() {
     const base = resolveAbsoluteUrl(this.workerBaseSrc);
     const fallback = resolveAbsoluteUrl(this.workerFallbackSrc);
-    if (this.workerBaseAvailable && base) return base;
+    // When workers are disabled, PDF.js falls back to loading workerSrc as a
+    // main-thread "fake worker" script. If the same-origin worker is the URL
+    // that just failed, reusing it keeps triggering "Cannot load script".
+    // Prefer the independently-hosted fallback in fake-worker mode so users can
+    // still preview PDFs when /pdf.worker.min.js is blocked, stale, or served
+    // incorrectly by an edge cache.
     if (this.workerFallbackAvailable && fallback) return fallback;
-    return base || fallback;
+    if (this.workerBaseAvailable && base) return base;
+    return fallback || base;
   }
 
   resolveWorkerFallbackSrc() {
