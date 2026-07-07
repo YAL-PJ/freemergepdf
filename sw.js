@@ -106,7 +106,9 @@ async function networkFirstNavigation(request) {
 
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request, { ignoreSearch: true });
+  // Exact match only: the site cache-busts with ?v=N query strings, so an
+  // ignoreSearch hit here would pin users to stale code after a deploy.
+  const cached = await cache.match(request);
   const networkPromise = fetch(request)
     .then((response) => {
       if (response && (response.ok || response.type === 'opaque')) {
@@ -114,7 +116,11 @@ async function staleWhileRevalidate(request, cacheName) {
       }
       return response;
     })
-    .catch(() => cached || Response.error());
+    .catch(async () => (
+      // Offline fallback: precached entries are stored without query
+      // strings, so ignore the ?v= suffix only when the network is down.
+      cached || (await cache.match(request, { ignoreSearch: true })) || Response.error()
+    ));
 
   return cached || networkPromise;
 }
