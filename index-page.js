@@ -1346,6 +1346,39 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             }
         }
 
+        function setupOfflineAppShell() {
+            const badge = document.getElementById('offlineReadyBadge');
+            const setBadge = (text, offline = false) => {
+                if (!badge) return;
+                badge.textContent = text;
+                badge.classList.toggle('is-offline', Boolean(offline));
+            };
+
+            if (!('serviceWorker' in navigator) || window.location.protocol === 'file:') {
+                setBadge('Local merge works after page load');
+                return;
+            }
+
+            const updateConnectionState = () => {
+                if (!navigator.onLine) {
+                    setBadge('Offline now - merging still works', true);
+                }
+            };
+
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    setBadge('Offline-ready app cached');
+                    updateConnectionState();
+                    return registration.update().catch(() => null);
+                })
+                .catch(() => {
+                    setBadge('Local merge works after page load');
+                });
+
+            window.addEventListener('online', () => setBadge('Offline-ready app cached'));
+            window.addEventListener('offline', () => setBadge('Offline now - merging still works', true));
+        }
+
         function setupMergeIntentHandlers() {
             const bindIntent = (id) => {
                 const button = document.getElementById(id);
@@ -2568,6 +2601,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             setupFilenameInputs();
             setupAdvancedCompressionControls();
             setupMergeIntentHandlers();
+            setupOfflineAppShell();
 
             const modal = document.getElementById('advancedMergeModal');
             
