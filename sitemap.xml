@@ -1,13 +1,186 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://freemergepdf.com/</loc>
-    <lastmod>2026-05-24</lastmod>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
     <image:image>
       <image:loc>https://freemergepdf.com/og-image.png</image:loc>
       <image:title>FreeMergePDF - free PDF merger with no sign up and no uploads</image:title>
     </image:image>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/es/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/pt/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/fr/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/de/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/it/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/id/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/hi/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/ar/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/tr/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
+  </url>
+  <url>
+    <loc>https://freemergepdf.com/vi/</loc>
+    <lastmod>2026-07-08</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freemergepdf.com/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://freemergepdf.com/es/"/>
+    <xhtml:link rel="alternate" hreflang="pt" href="https://freemergepdf.com/pt/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://freemergepdf.com/fr/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://freemergepdf.com/de/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://freemergepdf.com/it/"/>
+    <xhtml:link rel="alternate" hreflang="id" href="https://freemergepdf.com/id/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://freemergepdf.com/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://freemergepdf.com/ar/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://freemergepdf.com/tr/"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://freemergepdf.com/vi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freemergepdf.com/"/>
   </url>
   <url>
     <loc>https://freemergepdf.com/about.html</loc>
