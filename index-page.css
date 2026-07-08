@@ -1099,3 +1099,23 @@
             font-size: 14px;
             letter-spacing: 0.02em;
         }
+
+        .language-switcher {
+            margin-top: 14px;
+            font-size: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px 0;
+        }
+
+        .language-switcher a {
+            margin: 0 10px;
+            opacity: 0.85;
+        }
+
+        .language-switcher a[aria-current="page"] {
+            font-weight: 700;
+            opacity: 1;
+            text-decoration: underline;
+        }
