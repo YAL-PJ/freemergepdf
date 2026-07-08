@@ -219,16 +219,41 @@
     "Could not be processed": "Impossibile da elaborare",
     "Skipped due to read error": "Saltato per errore di lettura",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "L'anteprima avanzata delle pagine non è disponibile in questa sessione del browser. Puoi comunque unire senza anteprima.",
-    "Advanced merge failed to load. Please refresh the page.": "L'unione avanzata non si è caricata. Aggiorna la pagina."
+    "Advanced merge failed to load. Please refresh the page.": "L'unione avanzata non si è caricata. Aggiorna la pagina.",
+    "Offline-ready app cached": "App pronta per l'uso offline"
   },
   "runtimePatterns": [
-    { "match": "^⚡ Merge & Download (.+)$", "replace": "⚡ Unisci e scarica $1" },
-    { "match": "^Merge & Download (.+)$", "replace": "Unisci e scarica $1" },
-    { "match": "^(\\d+) files$", "replace": "$1 file" },
-    { "match": "^(\\d+) pages$", "replace": "$1 pagine" },
-    { "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$", "replace": "Compressione delle pagine... $1/$2" },
-    { "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$", "replace": "Unione completata con $1 file saltato/i. Download avviato." },
-    { "match": "^Not mergeable: (.+)$", "replace": "Non unibile: $1" },
-    { "match": "^Skipped non-PDF file: (.+)$", "replace": "File non PDF saltato: $1" }
+    {
+      "match": "^⚡ Merge & Download (.+)$",
+      "replace": "⚡ Unisci e scarica $1"
+    },
+    {
+      "match": "^Merge & Download (.+)$",
+      "replace": "Unisci e scarica $1"
+    },
+    {
+      "match": "^(\\d+) files$",
+      "replace": "$1 file"
+    },
+    {
+      "match": "^(\\d+) pages$",
+      "replace": "$1 pagine"
+    },
+    {
+      "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$",
+      "replace": "Compressione delle pagine... $1/$2"
+    },
+    {
+      "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$",
+      "replace": "Unione completata con $1 file saltato/i. Download avviato."
+    },
+    {
+      "match": "^Not mergeable: (.+)$",
+      "replace": "Non unibile: $1"
+    },
+    {
+      "match": "^Skipped non-PDF file: (.+)$",
+      "replace": "File non PDF saltato: $1"
+    }
   ]
 }

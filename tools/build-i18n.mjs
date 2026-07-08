@@ -81,8 +81,10 @@ for (const dict of dictionaries) {
     html = html.split(key).join(dict.html[key]);
   }
 
-  // 2. Language + URL localization.
-  html = html.replace('<html lang="en">', `<html lang="${lang}">`);
+  // 2. Language + URL localization. Right-to-left languages (e.g. Arabic)
+  //    declare "dir": "rtl" in their dictionary so the browser mirrors layout.
+  const dirAttr = dict.dir ? ` dir="${dict.dir}"` : '';
+  html = html.replace('<html lang="en">', `<html lang="${lang}"${dirAttr}>`);
   html = html.replace(
     '<meta name="language" content="English">',
     `<meta name="language" content="${dict.languageNameNative}">`

@@ -219,16 +219,41 @@
     "Could not be processed": "Impossible à traiter",
     "Skipped due to read error": "Ignoré suite à une erreur de lecture",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "L'aperçu avancé des pages est indisponible dans cette session du navigateur. Vous pouvez quand même fusionner sans aperçu.",
-    "Advanced merge failed to load. Please refresh the page.": "La fusion avancée n'a pas pu se charger. Veuillez actualiser la page."
+    "Advanced merge failed to load. Please refresh the page.": "La fusion avancée n'a pas pu se charger. Veuillez actualiser la page.",
+    "Offline-ready app cached": "Application prête hors ligne"
   },
   "runtimePatterns": [
-    { "match": "^⚡ Merge & Download (.+)$", "replace": "⚡ Fusionner et télécharger $1" },
-    { "match": "^Merge & Download (.+)$", "replace": "Fusionner et télécharger $1" },
-    { "match": "^(\\d+) files$", "replace": "$1 fichiers" },
-    { "match": "^(\\d+) pages$", "replace": "$1 pages" },
-    { "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$", "replace": "Compression des pages... $1/$2" },
-    { "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$", "replace": "Fusion terminée avec $1 fichier(s) ignoré(s). Téléchargement lancé." },
-    { "match": "^Not mergeable: (.+)$", "replace": "Non fusionnable : $1" },
-    { "match": "^Skipped non-PDF file: (.+)$", "replace": "Fichier non PDF ignoré : $1" }
+    {
+      "match": "^⚡ Merge & Download (.+)$",
+      "replace": "⚡ Fusionner et télécharger $1"
+    },
+    {
+      "match": "^Merge & Download (.+)$",
+      "replace": "Fusionner et télécharger $1"
+    },
+    {
+      "match": "^(\\d+) files$",
+      "replace": "$1 fichiers"
+    },
+    {
+      "match": "^(\\d+) pages$",
+      "replace": "$1 pages"
+    },
+    {
+      "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$",
+      "replace": "Compression des pages... $1/$2"
+    },
+    {
+      "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$",
+      "replace": "Fusion terminée avec $1 fichier(s) ignoré(s). Téléchargement lancé."
+    },
+    {
+      "match": "^Not mergeable: (.+)$",
+      "replace": "Non fusionnable : $1"
+    },
+    {
+      "match": "^Skipped non-PDF file: (.+)$",
+      "replace": "Fichier non PDF ignoré : $1"
+    }
   ]
 }

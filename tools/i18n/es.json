@@ -219,16 +219,41 @@
     "Could not be processed": "No se pudo procesar",
     "Skipped due to read error": "Omitido por error de lectura",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "La vista previa avanzada no está disponible en esta sesión del navegador. Aún puedes unir sin vista previa.",
-    "Advanced merge failed to load. Please refresh the page.": "La unión avanzada no se pudo cargar. Actualiza la página."
+    "Advanced merge failed to load. Please refresh the page.": "La unión avanzada no se pudo cargar. Actualiza la página.",
+    "Offline-ready app cached": "Aplicación lista sin conexión"
   },
   "runtimePatterns": [
-    { "match": "^⚡ Merge & Download (.+)$", "replace": "⚡ Unir y descargar $1" },
-    { "match": "^Merge & Download (.+)$", "replace": "Unir y descargar $1" },
-    { "match": "^(\\d+) files$", "replace": "$1 archivos" },
-    { "match": "^(\\d+) pages$", "replace": "$1 páginas" },
-    { "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$", "replace": "Comprimiendo páginas... $1/$2" },
-    { "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$", "replace": "Unión completada con $1 archivo(s) omitido(s). Descarga iniciada." },
-    { "match": "^Not mergeable: (.+)$", "replace": "No se puede unir: $1" },
-    { "match": "^Skipped non-PDF file: (.+)$", "replace": "Archivo no PDF omitido: $1" }
+    {
+      "match": "^⚡ Merge & Download (.+)$",
+      "replace": "⚡ Unir y descargar $1"
+    },
+    {
+      "match": "^Merge & Download (.+)$",
+      "replace": "Unir y descargar $1"
+    },
+    {
+      "match": "^(\\d+) files$",
+      "replace": "$1 archivos"
+    },
+    {
+      "match": "^(\\d+) pages$",
+      "replace": "$1 páginas"
+    },
+    {
+      "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$",
+      "replace": "Comprimiendo páginas... $1/$2"
+    },
+    {
+      "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$",
+      "replace": "Unión completada con $1 archivo(s) omitido(s). Descarga iniciada."
+    },
+    {
+      "match": "^Not mergeable: (.+)$",
+      "replace": "No se puede unir: $1"
+    },
+    {
+      "match": "^Skipped non-PDF file: (.+)$",
+      "replace": "Archivo no PDF omitido: $1"
+    }
   ]
 }

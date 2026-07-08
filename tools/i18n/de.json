@@ -219,16 +219,41 @@
     "Could not be processed": "Konnte nicht verarbeitet werden",
     "Skipped due to read error": "Wegen Lesefehler übersprungen",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "Die erweiterte Seitenvorschau ist in dieser Browsersitzung nicht verfügbar. Du kannst trotzdem ohne Vorschau zusammenfügen.",
-    "Advanced merge failed to load. Please refresh the page.": "Der erweiterte Modus konnte nicht geladen werden. Bitte lade die Seite neu."
+    "Advanced merge failed to load. Please refresh the page.": "Der erweiterte Modus konnte nicht geladen werden. Bitte lade die Seite neu.",
+    "Offline-ready app cached": "App offline verfügbar"
   },
   "runtimePatterns": [
-    { "match": "^⚡ Merge & Download (.+)$", "replace": "⚡ Zusammenfügen und $1 herunterladen" },
-    { "match": "^Merge & Download (.+)$", "replace": "Zusammenfügen und $1 herunterladen" },
-    { "match": "^(\\d+) files$", "replace": "$1 Dateien" },
-    { "match": "^(\\d+) pages$", "replace": "$1 Seiten" },
-    { "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$", "replace": "Seiten werden komprimiert... $1/$2" },
-    { "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$", "replace": "Zusammengefügt, $1 Datei(en) übersprungen. Download gestartet." },
-    { "match": "^Not mergeable: (.+)$", "replace": "Nicht zusammenfügbar: $1" },
-    { "match": "^Skipped non-PDF file: (.+)$", "replace": "Nicht-PDF-Datei übersprungen: $1" }
+    {
+      "match": "^⚡ Merge & Download (.+)$",
+      "replace": "⚡ Zusammenfügen und $1 herunterladen"
+    },
+    {
+      "match": "^Merge & Download (.+)$",
+      "replace": "Zusammenfügen und $1 herunterladen"
+    },
+    {
+      "match": "^(\\d+) files$",
+      "replace": "$1 Dateien"
+    },
+    {
+      "match": "^(\\d+) pages$",
+      "replace": "$1 Seiten"
+    },
+    {
+      "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$",
+      "replace": "Seiten werden komprimiert... $1/$2"
+    },
+    {
+      "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$",
+      "replace": "Zusammengefügt, $1 Datei(en) übersprungen. Download gestartet."
+    },
+    {
+      "match": "^Not mergeable: (.+)$",
+      "replace": "Nicht zusammenfügbar: $1"
+    },
+    {
+      "match": "^Skipped non-PDF file: (.+)$",
+      "replace": "Nicht-PDF-Datei übersprungen: $1"
+    }
   ]
 }

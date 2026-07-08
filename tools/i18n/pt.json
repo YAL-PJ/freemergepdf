@@ -219,16 +219,41 @@
     "Could not be processed": "Não foi possível processar",
     "Skipped due to read error": "Pulado por erro de leitura",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "A pré-visualização avançada não está disponível nesta sessão do navegador. Você ainda pode juntar sem pré-visualização.",
-    "Advanced merge failed to load. Please refresh the page.": "A mesclagem avançada não carregou. Atualize a página."
+    "Advanced merge failed to load. Please refresh the page.": "A mesclagem avançada não carregou. Atualize a página.",
+    "Offline-ready app cached": "Aplicativo salvo para uso offline"
   },
   "runtimePatterns": [
-    { "match": "^⚡ Merge & Download (.+)$", "replace": "⚡ Juntar e baixar $1" },
-    { "match": "^Merge & Download (.+)$", "replace": "Juntar e baixar $1" },
-    { "match": "^(\\d+) files$", "replace": "$1 arquivos" },
-    { "match": "^(\\d+) pages$", "replace": "$1 páginas" },
-    { "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$", "replace": "Comprimindo páginas... $1/$2" },
-    { "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$", "replace": "Mesclagem concluída com $1 arquivo(s) pulado(s). Download iniciado." },
-    { "match": "^Not mergeable: (.+)$", "replace": "Não é possível juntar: $1" },
-    { "match": "^Skipped non-PDF file: (.+)$", "replace": "Arquivo não PDF pulado: $1" }
+    {
+      "match": "^⚡ Merge & Download (.+)$",
+      "replace": "⚡ Juntar e baixar $1"
+    },
+    {
+      "match": "^Merge & Download (.+)$",
+      "replace": "Juntar e baixar $1"
+    },
+    {
+      "match": "^(\\d+) files$",
+      "replace": "$1 arquivos"
+    },
+    {
+      "match": "^(\\d+) pages$",
+      "replace": "$1 páginas"
+    },
+    {
+      "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$",
+      "replace": "Comprimindo páginas... $1/$2"
+    },
+    {
+      "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$",
+      "replace": "Mesclagem concluída com $1 arquivo(s) pulado(s). Download iniciado."
+    },
+    {
+      "match": "^Not mergeable: (.+)$",
+      "replace": "Não é possível juntar: $1"
+    },
+    {
+      "match": "^Skipped non-PDF file: (.+)$",
+      "replace": "Arquivo não PDF pulado: $1"
+    }
   ]
 }

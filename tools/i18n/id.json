@@ -219,16 +219,41 @@
     "Could not be processed": "Tidak dapat diproses",
     "Skipped due to read error": "Dilewati karena kesalahan baca",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "Pratinjau halaman lanjutan tidak tersedia di sesi browser ini. Anda tetap dapat menggabungkan tanpa pratinjau.",
-    "Advanced merge failed to load. Please refresh the page.": "Gabung lanjutan gagal dimuat. Silakan muat ulang halaman."
+    "Advanced merge failed to load. Please refresh the page.": "Gabung lanjutan gagal dimuat. Silakan muat ulang halaman.",
+    "Offline-ready app cached": "Aplikasi siap offline"
   },
   "runtimePatterns": [
-    { "match": "^⚡ Merge & Download (.+)$", "replace": "⚡ Gabungkan & Unduh $1" },
-    { "match": "^Merge & Download (.+)$", "replace": "Gabungkan & Unduh $1" },
-    { "match": "^(\\d+) files$", "replace": "$1 file" },
-    { "match": "^(\\d+) pages$", "replace": "$1 halaman" },
-    { "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$", "replace": "Mengompres halaman... $1/$2" },
-    { "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$", "replace": "Tergabung dengan $1 file dilewati. Unduhan dimulai." },
-    { "match": "^Not mergeable: (.+)$", "replace": "Tidak dapat digabungkan: $1" },
-    { "match": "^Skipped non-PDF file: (.+)$", "replace": "File non-PDF dilewati: $1" }
+    {
+      "match": "^⚡ Merge & Download (.+)$",
+      "replace": "⚡ Gabungkan & Unduh $1"
+    },
+    {
+      "match": "^Merge & Download (.+)$",
+      "replace": "Gabungkan & Unduh $1"
+    },
+    {
+      "match": "^(\\d+) files$",
+      "replace": "$1 file"
+    },
+    {
+      "match": "^(\\d+) pages$",
+      "replace": "$1 halaman"
+    },
+    {
+      "match": "^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$",
+      "replace": "Mengompres halaman... $1/$2"
+    },
+    {
+      "match": "^Merged with (\\d+) skipped files?\\. Download started\\.$",
+      "replace": "Tergabung dengan $1 file dilewati. Unduhan dimulai."
+    },
+    {
+      "match": "^Not mergeable: (.+)$",
+      "replace": "Tidak dapat digabungkan: $1"
+    },
+    {
+      "match": "^Skipped non-PDF file: (.+)$",
+      "replace": "File non-PDF dilewati: $1"
+    }
   ]
 }
