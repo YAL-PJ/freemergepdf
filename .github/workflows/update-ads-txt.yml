@@ -1,0 +1,57 @@
+name: Update Grow ads.txt
+
+on:
+  schedule:
+    # Check weekly. GitHub Actions cron uses UTC.
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-grow-ads-txt
+  cancel-in-progress: false
+
+jobs:
+  update-ads-txt:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download latest ads.txt from Grow
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://adstxt.journeymv.com/sites/5f10f209-9498-4941-b6b2-aa09d10b49d1/ads.txt"
+          curl --fail --silent --show-error --location \
+            --retry 3 --retry-delay 5 \
+            "$URL" -o ads.txt.new
+
+          # Safety checks: don't replace a valid ads.txt with an error/empty response.
+          test -s ads.txt.new
+          grep -q 'journeymv.com' ads.txt.new
+          grep -q 'freemergepdf.com' ads.txt.new
+
+      - name: Commit update if Grow changed the file
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if cmp -s ads.txt ads.txt.new; then
+            echo "ads.txt is already up to date."
+            rm ads.txt.new
+            exit 0
+          fi
+
+          mv ads.txt.new ads.txt
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ads.txt
+          git commit -m "chore: update Grow ads.txt"
+          git push origin HEAD:main
