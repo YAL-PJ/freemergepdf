@@ -1,4 +1,4 @@
-# Ads.txt v20260817
+# Ads.txt v20260904
 managerdomain=journeymv.com
 contact=sales@journeymv.com
 ownerdomain=freemergepdf.com
@@ -39,6 +39,7 @@ pubmatic.com, 168029, DIRECT, 5d62403b186f2ace
 appnexus.com, 15770, DIRECT, f5ab79cb980f11d1
 openx.com, 560606532, DIRECT, 6a698e2ec38604c6
 openx.com, 566104314, RESELLER, 6a698e2ec38604c6
+openx.com, 581010437, DIRECT, 6a698e2ec38604c6
 triplelift.com, 14132, DIRECT, 6c33edb13117fd86
 themediagrid.com, GODNC4, RESELLER, 35d5010d7789b49d
 minutemedia.com, 01kqs9mfw3jw, DIRECT
@@ -179,7 +180,7 @@ sharethrough.com, 4926, RESELLER, d53b998a7bd4ecd2
 vidazoo.com, 69f3bc8a923017e443e2329d, DIRECT, b6ada874b4d7d0b2
 rubiconproject.com, 17130, RESELLER, 0bfd66d529a55807
 openx.com, 541017750, RESELLER, 6a698e2ec38604c6
-pubmatic.com, 159988, RESELLER, 5d62403b186f2ace
+yieldmo.com, 3624960084913628105, RESELLER
 onetag.com, 972b139240c481d, DIRECT
 appnexus.com, 13099, RESELLER
 pubmatic.com, 161593, RESELLER, 5d62403b186f2ace
