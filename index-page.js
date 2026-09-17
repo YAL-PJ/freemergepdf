@@ -2263,6 +2263,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                     mode: isExpanded ? 'expanded' : 'simple',
                     step: 'mergePDFs',
                     fileCount: files?.length || 0,
+                    files,
                     totalBytes: stats.totalBytes,
                     maxBytes: stats.maxBytes,
                     durationMs: performance.now() - mergeStart,
@@ -2432,7 +2433,10 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
                 window.reportError(err, {
                     feature: 'pdf_merge',
-                    userNote: note
+                    userNote: note,
+                    // Input File handles, so the reporter can attach SAFE PDF structure
+                    // metadata (never bytes or /Title|/Author) - see pdf-metadata.js.
+                    files: meta.files || null
                 });
             } catch (reportErr) {
                 console.warn('reportMergeError failed', reportErr);

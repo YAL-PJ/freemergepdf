@@ -1,6 +1,6 @@
 // Bump CACHE_VERSION whenever any app-shell asset changes, or returning
 // visitors will keep getting the previously cached copy.
-const CACHE_VERSION = 'freemergepdf-v2';
+const CACHE_VERSION = 'freemergepdf-v3';
 const APP_SHELL_CACHE = `${CACHE_VERSION}-app-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -10,6 +10,7 @@ const APP_SHELL_URLS = [
   '/index-page.css',
   '/advanced-pdf-merger.css',
   '/feedback.css',
+  '/pdf-metadata.js',
   '/error-reporting.js',
   '/advanced-pdf-merger.js',
   '/index-page.js',

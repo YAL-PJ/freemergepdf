@@ -278,7 +278,10 @@ class AdvancedPDFMerger {
       if (error?.name !== 'WorkerScriptLoadError') {
         safeReportError(error, {
           feature: 'AdvancedPDFMerger.initialize',
-          userNote: `files=${uploadedFiles?.length || 0};totalBytes=${getFilesTotalBytes(uploadedFiles)}`
+          userNote: `files=${uploadedFiles?.length || 0};totalBytes=${getFilesTotalBytes(uploadedFiles)}`,
+          // File handles only for SAFE structure metadata extraction (pdf-metadata.js);
+          // file bytes and document Title/Author are never put in the report.
+          files: uploadedFiles || null
         });
       }
       return false;
@@ -790,7 +793,8 @@ class AdvancedPDFMerger {
           if (shouldReport) {
             safeReportError(error, {
               feature: 'AdvancedPDFMerger.extractAllPages',
-              userNote: `fileIndex=${fileIndex};kind=${errorKind}${workerNote}`
+              userNote: `fileIndex=${fileIndex};kind=${errorKind}${workerNote}`,
+              files: file ? [file] : null
             });
           }
         }
