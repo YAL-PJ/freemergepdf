@@ -16,7 +16,10 @@ const ERROR_FORM = {
 
 const ERROR_REPORT_LIMITS = {
     stackLength: 1800,
-    throttleMs: 8000
+    throttleMs: 8000,
+    // Safe PDF metadata is appended after the caller's breadcrumb, so the note can
+    // grow past the 500-char base cap by at most this much.
+    pdfMetaNoteLength: 320
 };
 
 let lastErrorFingerprint = '';
@@ -137,6 +140,44 @@ function buildErrorReportPayload(err, context = {}) {
     };
 }
 
+/**
+ * Append best-effort, non-identifying PDF structure metadata to the report's userNote.
+ *
+ * Callers opt in by passing `files` (a File/FileList/array) in the error context. The
+ * files themselves NEVER leave the browser — only the structural facts listed in
+ * pdf-metadata.js (version, size, page count, encrypted/linearized, object count,
+ * AcroForm presence, producer/creator software names). File bytes, page text, images
+ * and the /Title, /Author, /Subject and /Keywords info fields are deliberately never
+ * read into the payload, because those carry real user data.
+ *
+ * This resolves rather than rejects under every failure mode: no extractor loaded, a
+ * malformed PDF, a revoked file handle or a slow read all fall through to the original
+ * payload. Reporting an error must never itself throw.
+ */
+function appendSafePdfMetadata(payload, context = {}) {
+    try {
+        const files = context.files;
+        if (!files) return Promise.resolve(payload);
+        const extractor = typeof window !== 'undefined' ? window.PdfSafeMetadata : null;
+        if (!extractor || typeof extractor.collectSafePdfMetadata !== 'function') {
+            return Promise.resolve(payload);
+        }
+        const list = (typeof files.length === 'number' && typeof files !== 'string') ? files : [files];
+
+        return Promise.resolve(extractor.collectSafePdfMetadata(list))
+            .then((metaList) => {
+                const note = scrub(extractor.formatPdfMetadataNote(metaList) || '')
+                    .slice(0, ERROR_REPORT_LIMITS.pdfMetaNoteLength);
+                if (!note) return payload;
+                payload.userNote = payload.userNote ? `${payload.userNote};${note}` : note;
+                return payload;
+            })
+            .catch(() => payload);
+    } catch (_) {
+        return Promise.resolve(payload);
+    }
+}
+
 function submitErrorReportToAppsScript(payload) {
     if (!ERROR_APPS_SCRIPT_ENDPOINT) return Promise.reject(new Error('Missing error endpoint'));
 
@@ -184,8 +225,9 @@ function sendErrorReport(err, context = {}) {
         lastErrorFingerprint = fp;
         lastErrorAt = now;
 
-        return submitErrorReportToAppsScript(payload)
-            .catch(() => submitErrorReportToGoogleForm(payload))
+        return appendSafePdfMetadata(payload, context)
+            .then((finalPayload) => submitErrorReportToAppsScript(finalPayload)
+                .catch(() => submitErrorReportToGoogleForm(finalPayload)))
             .catch((reportErr) => {
                 console.warn('Error reporter failed', reportErr);
                 return { ok: false, error: String(reportErr) };
@@ -197,6 +239,13 @@ function sendErrorReport(err, context = {}) {
 }
 
 window.reportError = sendErrorReport;
+
+// Exposed for the Playwright harness in tests/ so the payload can be asserted
+// without posting anything to the reporting backend.
+window.__errorReportingInternals = {
+    buildErrorReportPayload,
+    appendSafePdfMetadata
+};
 
 window.addEventListener('error', (event) => {
     // Cross-origin script failures are reported by browsers as "Script error."
