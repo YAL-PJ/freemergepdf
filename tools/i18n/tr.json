@@ -167,7 +167,8 @@
     "Resolution": "Çözünürlük",
     "Reset Order": "Sırayı sıfırla",
     "Cancel": "İptal",
-    "Apply & Merge": "Uygula ve birleştir"
+    "Apply & Merge": "Uygula ve birleştir",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>Tüm PDF araçları · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ PDF'leri şimdi birleştir",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "Okuma hatası nedeniyle atlandı",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "Gelişmiş sayfa önizlemesi bu tarayıcı oturumunda kullanılamıyor. Yine de önizlemesiz birleştirebilirsiniz.",
     "Advanced merge failed to load. Please refresh the page.": "Gelişmiş birleştirme yüklenemedi. Lütfen sayfayı yenileyin.",
-    "Offline-ready app cached": "Uygulama çevrimdışı kullanıma hazır"
+    "Offline-ready app cached": "Uygulama çevrimdışı kullanıma hazır",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "Bu PDF eksik görünüyor (indirme sırasında kesilmiş). Yeniden indirip tekrar deneyin."
   },
   "runtimePatterns": [
     {

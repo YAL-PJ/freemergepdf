@@ -88,8 +88,8 @@ async function installAppHarness(page) {
 }
 
 /** Load the merger homepage and wait until the inline app script has wired up. */
-async function openApp(page) {
-  await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
+async function openApp(page, path = '/index.html') {
+  await page.goto(path, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => typeof window.mergePDFs === 'function', null, { timeout: 15000 });
   await page.waitForFunction(() => !!window.PdfSafeMetadata, null, { timeout: 15000 });
   return page;

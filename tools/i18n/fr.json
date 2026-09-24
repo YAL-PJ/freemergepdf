@@ -167,7 +167,8 @@
     "Resolution": "Résolution",
     "Reset Order": "Réinitialiser l'ordre",
     "Cancel": "Annuler",
-    "Apply & Merge": "Appliquer et fusionner"
+    "Apply & Merge": "Appliquer et fusionner",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>Tous les outils PDF · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ Fusionner les PDF maintenant",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "Ignoré suite à une erreur de lecture",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "L'aperçu avancé des pages est indisponible dans cette session du navigateur. Vous pouvez quand même fusionner sans aperçu.",
     "Advanced merge failed to load. Please refresh the page.": "La fusion avancée n'a pas pu se charger. Veuillez actualiser la page.",
-    "Offline-ready app cached": "Application prête hors ligne"
+    "Offline-ready app cached": "Application prête hors ligne",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "Ce PDF semble incomplet (coupé pendant le téléchargement). Téléchargez-le à nouveau et réessayez."
   },
   "runtimePatterns": [
     {

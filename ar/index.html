@@ -24,6 +24,11 @@
     <meta name="google-site-verification" content="rxsUTugt_BB2D2dTbHu7H0G0pvs1EYy8EgVLDM7LuVQ" />
     <meta name="theme-color" content="#667eea">
 
+    <!-- Critical page styles: keep these early so the above-the-fold heading can paint quickly. -->
+    <link rel="stylesheet" href="/index-page.css">
+    <link rel="stylesheet" href="/advanced-pdf-merger.css">
+    <link rel="stylesheet" href="/feedback.css">
+
     <!-- Primary SEO Tags -->
     <title>دمج ملفات PDF مجانًا - بدون تسجيل، بدون رفع | FreeMergePDF</title>
     <meta name="description" content="ادمج ملفات PDF في متصفحك. بدون تسجيل، بدون رفع، بدون علامات مائية. مجاني وخاص — تبقى مستنداتك على جهازك.">
@@ -242,11 +247,6 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-    <!-- Advanced PDF Merger CSS -->
-    <link rel="stylesheet" href="/advanced-pdf-merger.css">
-    <link rel="stylesheet" href="/feedback.css">
-
-    <link rel="stylesheet" href="/index-page.css">
     <!-- Grow by Mediavine -->
     <script data-grow-initializer="">!(function(){window.growMe||((window.growMe=function(e){window.growMe._.push(e);}),(window.growMe._=[]));var e=document.createElement("script");(e.type="text/javascript"),(e.src="https://faves.grow.me/main.js"),(e.defer=!0),e.setAttribute("data-grow-faves-site-id","U2l0ZTo1ZjEwZjIwOS05NDk4LTQ5NDEtYjZiMi1hYTA5ZDEwYjQ5ZDE=");var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t);})();</script>
     <!-- Mediavine script wrapper (Journey / Grow) -->
@@ -343,6 +343,9 @@
                     <a href="https://splitpdffree.com/" target="_blank" rel="noopener noreferrer">
                         <span>تقسيم PDF · SplitPDFFree</span>
                     </a>
+                    <a href="https://toppdfedittools.com/" target="_blank" rel="noopener noreferrer">
+                        <span>جميع أدوات PDF · TopPDFEditTools</span>
+                    </a>
                 </aside>
             </div>
 
@@ -412,6 +415,9 @@
             </a>
             <a href="https://splitpdffree.com/" target="_blank" rel="noopener noreferrer">
                 <span>تقسيم PDF · SplitPDFFree</span>
+            </a>
+            <a href="https://toppdfedittools.com/" target="_blank" rel="noopener noreferrer">
+                <span>جميع أدوات PDF · TopPDFEditTools</span>
             </a>
         </aside>
 
@@ -833,10 +839,10 @@
 
     <!-- Scripts -->
     <script src="/pdf-metadata.js?v=1"></script>
-    <script src="/error-reporting.js?v=7"></script>
+    <script src="/error-reporting.js?v=8"></script>
     <script src="/advanced-pdf-merger.js?v=16"></script>
 
-    <script src="/index-page.js?v=15"></script>
+    <script src="/index-page.js?v=16"></script>
 
     <!-- Sidebar feedback (for wide screens) - stays at bottom -->
     <!-- Button -->
@@ -928,7 +934,7 @@
     </div>
 
     <script src="/feedback.js"></script>
-    <script>window.I18N_RUNTIME = {"map":{"⚡ Merge PDFs Now":"⚡ ادمج ملفات PDF الآن","Merge All PDFs":"دمج كل ملفات PDF","Merge & Download":"دمج وتحميل","Ready to merge":"جاهز للدمج","Success! Download started.":"تم بنجاح! بدأ التحميل.","Processing...":"جارٍ المعالجة...","⏳ Merging with custom order...":"⏳ جارٍ الدمج بترتيب مخصص...","Compressing pages...":"جارٍ ضغط الصفحات...","Select at least 2 mergeable PDFs.":"اختر ملفين PDF صالحين على الأقل.","Merge canceled. You can try fewer files/pages.":"أُلغي الدمج. جرّب عددًا أقل من الملفات أو الصفحات.","🔒 Locked PDF. Unlock to merge.":"🔒 ملف PDF مقفل. أزل القفل لدمجه.","No mergeable pages were left after skipping files.":"لم تتبقَّ صفحات قابلة للدمج بعد تخطي الملفات.","Please select a PDF file.":"يرجى اختيار ملف PDF.","Please select a non-empty PDF file.":"يرجى اختيار ملف PDF غير فارغ.","Please select a valid PDF file (missing header).":"يرجى اختيار ملف PDF صالح (الترويسة مفقودة).","Please select a valid PDF file.":"يرجى اختيار ملف PDF صالح.","Please select 2 PDF files first.":"يرجى اختيار ملفين PDF أولًا.","Please select 2 PDF files first":"يرجى اختيار ملفين PDF أولًا","Select at least 2 mergeable PDFs before using Advanced Merge.":"اختر ملفين PDF صالحين على الأقل قبل استخدام الدمج المتقدم.","Please switch to expanded mode first (merge multiple files).":"انتقل أولًا إلى الوضع الموسّع (دمج عدة ملفات).","Please add at least 2 files to use advanced sorting.":"أضف ملفين على الأقل لاستخدام الترتيب المتقدم.","Please select at least 2 mergeable PDF files.":"يرجى اختيار ملفين PDF صالحين على الأقل.","⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.":"⚠️ اكتُشف حجم ملفات كبير. قد يفشل الدمج بسبب الذاكرة. جرّب ملفات أقل أو أصغر.","Large file size detected. Merge may take a moment and require significant memory.":"اكتُشف حجم ملفات كبير. قد يستغرق الدمج بعض الوقت ويتطلب ذاكرة كبيرة.","The merge ran out of memory. Try fewer or smaller PDFs.":"نفدت ذاكرة الدمج. جرّب ملفات أقل أو أصغر.","Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.":"تعذّرت قراءة أحد الملفات. ربما نُقل أو غُيّر اسمه أو يوجد في مجلد مزامنة أو شبكة. انسخه محليًا وأعد اختياره.","All selected files became unavailable. Please reselect them (copy local first if needed).":"أصبحت كل الملفات المختارة غير متاحة. يرجى إعادة اختيارها (انسخها محليًا أولًا إذا لزم).","Some files were skipped.":"تم تخطي بعض الملفات.","Not a valid PDF. Try another file.":"ليس ملف PDF صالحًا. جرّب ملفًا آخر.","Too large to preview. Use fewer files/pages.":"كبير جدًا للمعاينة. استخدم ملفات أو صفحات أقل.","Click or drag PDF here":"انقر أو اسحب ملف PDF إلى هنا","Any file size":"أي حجم ملف","Clear":"إزالة","0 files":"0 ملفات","1 file":"ملف واحد","1 page":"صفحة واحدة","Local merge works after page load":"يعمل الدمج المحلي بعد تحميل الصفحة","Offline now - merging still works":"أنت الآن دون اتصال - الدمج يعمل رغم ذلك","Pages":"الصفحات","Files":"الملفات","Source Files:":"الملفات المصدر:","Drag files to move all their pages together.":"اسحب الملفات لنقل كل صفحاتها معًا.","Not a PDF file":"ليس ملف PDF","Corrupted or invalid PDF":"ملف PDF تالف أو غير صالح","Too large to preview here":"كبير جدًا للمعاينة هنا","File unavailable (moved or permission)":"الملف غير متاح (نُقل أو مشكلة صلاحيات)","Could not be processed":"تعذّرت معالجته","Skipped due to read error":"تم تخطيه بسبب خطأ قراءة","Advanced page preview is unavailable in this browser session. You can still merge without preview.":"معاينة الصفحات المتقدمة غير متاحة في جلسة المتصفح هذه. لا يزال بإمكانك الدمج دون معاينة.","Advanced merge failed to load. Please refresh the page.":"تعذّر تحميل الدمج المتقدم. يرجى تحديث الصفحة.","Offline-ready app cached":"التطبيق جاهز للعمل دون اتصال"},"patterns":[{"match":"^⚡ Merge & Download (.+)$","replace":"⚡ دمج وتحميل $1"},{"match":"^Merge & Download (.+)$","replace":"دمج وتحميل $1"},{"match":"^(\\d+) files$","replace":"$1 ملفات"},{"match":"^(\\d+) pages$","replace":"$1 صفحات"},{"match":"^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$","replace":"جارٍ ضغط الصفحات... $1/$2"},{"match":"^Merged with (\\d+) skipped files?\\. Download started\\.$","replace":"اكتمل الدمج مع تخطي $1 من الملفات. بدأ التحميل."},{"match":"^Not mergeable: (.+)$","replace":"غير قابل للدمج: $1"},{"match":"^Skipped non-PDF file: (.+)$","replace":"تم تخطي ملف ليس PDF: $1"}]};</script>
+    <script>window.I18N_RUNTIME = {"map":{"⚡ Merge PDFs Now":"⚡ ادمج ملفات PDF الآن","Merge All PDFs":"دمج كل ملفات PDF","Merge & Download":"دمج وتحميل","Ready to merge":"جاهز للدمج","Success! Download started.":"تم بنجاح! بدأ التحميل.","Processing...":"جارٍ المعالجة...","⏳ Merging with custom order...":"⏳ جارٍ الدمج بترتيب مخصص...","Compressing pages...":"جارٍ ضغط الصفحات...","Select at least 2 mergeable PDFs.":"اختر ملفين PDF صالحين على الأقل.","Merge canceled. You can try fewer files/pages.":"أُلغي الدمج. جرّب عددًا أقل من الملفات أو الصفحات.","🔒 Locked PDF. Unlock to merge.":"🔒 ملف PDF مقفل. أزل القفل لدمجه.","No mergeable pages were left after skipping files.":"لم تتبقَّ صفحات قابلة للدمج بعد تخطي الملفات.","Please select a PDF file.":"يرجى اختيار ملف PDF.","Please select a non-empty PDF file.":"يرجى اختيار ملف PDF غير فارغ.","Please select a valid PDF file (missing header).":"يرجى اختيار ملف PDF صالح (الترويسة مفقودة).","Please select a valid PDF file.":"يرجى اختيار ملف PDF صالح.","Please select 2 PDF files first.":"يرجى اختيار ملفين PDF أولًا.","Please select 2 PDF files first":"يرجى اختيار ملفين PDF أولًا","Select at least 2 mergeable PDFs before using Advanced Merge.":"اختر ملفين PDF صالحين على الأقل قبل استخدام الدمج المتقدم.","Please switch to expanded mode first (merge multiple files).":"انتقل أولًا إلى الوضع الموسّع (دمج عدة ملفات).","Please add at least 2 files to use advanced sorting.":"أضف ملفين على الأقل لاستخدام الترتيب المتقدم.","Please select at least 2 mergeable PDF files.":"يرجى اختيار ملفين PDF صالحين على الأقل.","⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.":"⚠️ اكتُشف حجم ملفات كبير. قد يفشل الدمج بسبب الذاكرة. جرّب ملفات أقل أو أصغر.","Large file size detected. Merge may take a moment and require significant memory.":"اكتُشف حجم ملفات كبير. قد يستغرق الدمج بعض الوقت ويتطلب ذاكرة كبيرة.","The merge ran out of memory. Try fewer or smaller PDFs.":"نفدت ذاكرة الدمج. جرّب ملفات أقل أو أصغر.","Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.":"تعذّرت قراءة أحد الملفات. ربما نُقل أو غُيّر اسمه أو يوجد في مجلد مزامنة أو شبكة. انسخه محليًا وأعد اختياره.","All selected files became unavailable. Please reselect them (copy local first if needed).":"أصبحت كل الملفات المختارة غير متاحة. يرجى إعادة اختيارها (انسخها محليًا أولًا إذا لزم).","Some files were skipped.":"تم تخطي بعض الملفات.","Not a valid PDF. Try another file.":"ليس ملف PDF صالحًا. جرّب ملفًا آخر.","Too large to preview. Use fewer files/pages.":"كبير جدًا للمعاينة. استخدم ملفات أو صفحات أقل.","Click or drag PDF here":"انقر أو اسحب ملف PDF إلى هنا","Any file size":"أي حجم ملف","Clear":"إزالة","0 files":"0 ملفات","1 file":"ملف واحد","1 page":"صفحة واحدة","Local merge works after page load":"يعمل الدمج المحلي بعد تحميل الصفحة","Offline now - merging still works":"أنت الآن دون اتصال - الدمج يعمل رغم ذلك","Pages":"الصفحات","Files":"الملفات","Source Files:":"الملفات المصدر:","Drag files to move all their pages together.":"اسحب الملفات لنقل كل صفحاتها معًا.","Not a PDF file":"ليس ملف PDF","Corrupted or invalid PDF":"ملف PDF تالف أو غير صالح","Too large to preview here":"كبير جدًا للمعاينة هنا","File unavailable (moved or permission)":"الملف غير متاح (نُقل أو مشكلة صلاحيات)","Could not be processed":"تعذّرت معالجته","Skipped due to read error":"تم تخطيه بسبب خطأ قراءة","Advanced page preview is unavailable in this browser session. You can still merge without preview.":"معاينة الصفحات المتقدمة غير متاحة في جلسة المتصفح هذه. لا يزال بإمكانك الدمج دون معاينة.","Advanced merge failed to load. Please refresh the page.":"تعذّر تحميل الدمج المتقدم. يرجى تحديث الصفحة.","Offline-ready app cached":"التطبيق جاهز للعمل دون اتصال","This PDF looks incomplete (cut off during download). Re-download it and try again.":"يبدو أن ملف PDF هذا غير مكتمل (انقطع أثناء التنزيل). أعد تنزيله وحاول مرة أخرى."},"patterns":[{"match":"^⚡ Merge & Download (.+)$","replace":"⚡ دمج وتحميل $1"},{"match":"^Merge & Download (.+)$","replace":"دمج وتحميل $1"},{"match":"^(\\d+) files$","replace":"$1 ملفات"},{"match":"^(\\d+) pages$","replace":"$1 صفحات"},{"match":"^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$","replace":"جارٍ ضغط الصفحات... $1/$2"},{"match":"^Merged with (\\d+) skipped files?\\. Download started\\.$","replace":"اكتمل الدمج مع تخطي $1 من الملفات. بدأ التحميل."},{"match":"^Not mergeable: (.+)$","replace":"غير قابل للدمج: $1"},{"match":"^Skipped non-PDF file: (.+)$","replace":"تم تخطي ملف ليس PDF: $1"}]};</script>
     <script src="/i18n-runtime.js?v=1"></script>
 </body>
 </html>

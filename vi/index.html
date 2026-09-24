@@ -24,6 +24,11 @@
     <meta name="google-site-verification" content="rxsUTugt_BB2D2dTbHu7H0G0pvs1EYy8EgVLDM7LuVQ" />
     <meta name="theme-color" content="#667eea">
 
+    <!-- Critical page styles: keep these early so the above-the-fold heading can paint quickly. -->
+    <link rel="stylesheet" href="/index-page.css">
+    <link rel="stylesheet" href="/advanced-pdf-merger.css">
+    <link rel="stylesheet" href="/feedback.css">
+
     <!-- Primary SEO Tags -->
     <title>Ghép File PDF Miễn Phí - Không Đăng Ký, Không Tải Lên | FreeMergePDF</title>
     <meta name="description" content="Ghép file PDF ngay trong trình duyệt. Không đăng ký, không tải lên, không watermark. Miễn phí và riêng tư — tài liệu luôn nằm trên thiết bị của bạn.">
@@ -242,11 +247,6 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-    <!-- Advanced PDF Merger CSS -->
-    <link rel="stylesheet" href="/advanced-pdf-merger.css">
-    <link rel="stylesheet" href="/feedback.css">
-
-    <link rel="stylesheet" href="/index-page.css">
     <!-- Grow by Mediavine -->
     <script data-grow-initializer="">!(function(){window.growMe||((window.growMe=function(e){window.growMe._.push(e);}),(window.growMe._=[]));var e=document.createElement("script");(e.type="text/javascript"),(e.src="https://faves.grow.me/main.js"),(e.defer=!0),e.setAttribute("data-grow-faves-site-id","U2l0ZTo1ZjEwZjIwOS05NDk4LTQ5NDEtYjZiMi1hYTA5ZDEwYjQ5ZDE=");var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t);})();</script>
     <!-- Mediavine script wrapper (Journey / Grow) -->
@@ -343,6 +343,9 @@
                     <a href="https://splitpdffree.com/" target="_blank" rel="noopener noreferrer">
                         <span>Tách PDF · SplitPDFFree</span>
                     </a>
+                    <a href="https://toppdfedittools.com/" target="_blank" rel="noopener noreferrer">
+                        <span>Tất cả công cụ PDF · TopPDFEditTools</span>
+                    </a>
                 </aside>
             </div>
 
@@ -412,6 +415,9 @@
             </a>
             <a href="https://splitpdffree.com/" target="_blank" rel="noopener noreferrer">
                 <span>Tách PDF · SplitPDFFree</span>
+            </a>
+            <a href="https://toppdfedittools.com/" target="_blank" rel="noopener noreferrer">
+                <span>Tất cả công cụ PDF · TopPDFEditTools</span>
             </a>
         </aside>
 
@@ -833,10 +839,10 @@
 
     <!-- Scripts -->
     <script src="/pdf-metadata.js?v=1"></script>
-    <script src="/error-reporting.js?v=7"></script>
+    <script src="/error-reporting.js?v=8"></script>
     <script src="/advanced-pdf-merger.js?v=16"></script>
 
-    <script src="/index-page.js?v=15"></script>
+    <script src="/index-page.js?v=16"></script>
 
     <!-- Sidebar feedback (for wide screens) - stays at bottom -->
     <!-- Button -->
@@ -928,7 +934,7 @@
     </div>
 
     <script src="/feedback.js"></script>
-    <script>window.I18N_RUNTIME = {"map":{"⚡ Merge PDFs Now":"⚡ Ghép PDF ngay","Merge All PDFs":"Ghép tất cả PDF","Merge & Download":"Ghép & Tải về","Ready to merge":"Sẵn sàng ghép","Success! Download started.":"Thành công! Đã bắt đầu tải về.","Processing...":"Đang xử lý...","⏳ Merging with custom order...":"⏳ Đang ghép theo thứ tự tùy chỉnh...","Compressing pages...":"Đang nén các trang...","Select at least 2 mergeable PDFs.":"Chọn ít nhất 2 file PDF hợp lệ.","Merge canceled. You can try fewer files/pages.":"Đã hủy ghép. Bạn có thể thử với ít file/trang hơn.","🔒 Locked PDF. Unlock to merge.":"🔒 PDF bị khóa. Hãy mở khóa để ghép.","No mergeable pages were left after skipping files.":"Không còn trang nào để ghép sau khi bỏ qua các file.","Please select a PDF file.":"Vui lòng chọn một file PDF.","Please select a non-empty PDF file.":"Vui lòng chọn một file PDF không rỗng.","Please select a valid PDF file (missing header).":"Vui lòng chọn file PDF hợp lệ (thiếu header).","Please select a valid PDF file.":"Vui lòng chọn file PDF hợp lệ.","Please select 2 PDF files first.":"Vui lòng chọn 2 file PDF trước.","Please select 2 PDF files first":"Vui lòng chọn 2 file PDF trước","Select at least 2 mergeable PDFs before using Advanced Merge.":"Chọn ít nhất 2 PDF hợp lệ trước khi dùng Ghép nâng cao.","Please switch to expanded mode first (merge multiple files).":"Vui lòng chuyển sang chế độ mở rộng trước (ghép nhiều file).","Please add at least 2 files to use advanced sorting.":"Thêm ít nhất 2 file để dùng sắp xếp nâng cao.","Please select at least 2 mergeable PDF files.":"Vui lòng chọn ít nhất 2 file PDF hợp lệ.","⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.":"⚠️ Phát hiện file kích thước lớn. Việc ghép có thể thất bại do thiếu bộ nhớ. Hãy thử ít PDF hơn hoặc file nhỏ hơn.","Large file size detected. Merge may take a moment and require significant memory.":"Phát hiện file kích thước lớn. Việc ghép có thể mất một lúc và cần nhiều bộ nhớ.","The merge ran out of memory. Try fewer or smaller PDFs.":"Quá trình ghép bị hết bộ nhớ. Hãy thử ít PDF hơn hoặc file nhỏ hơn.","Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.":"Không thể đọc một trong các file. File có thể đã bị di chuyển, đổi tên hoặc nằm trong thư mục đồng bộ/mạng. Hãy sao chép về máy và chọn lại.","All selected files became unavailable. Please reselect them (copy local first if needed).":"Tất cả file đã chọn không còn khả dụng. Vui lòng chọn lại (sao chép về máy trước nếu cần).","Some files were skipped.":"Một số file đã bị bỏ qua.","Not a valid PDF. Try another file.":"Không phải PDF hợp lệ. Hãy thử file khác.","Too large to preview. Use fewer files/pages.":"Quá lớn để xem trước. Hãy dùng ít file/trang hơn.","Click or drag PDF here":"Nhấn hoặc kéo PDF vào đây","Any file size":"Mọi kích thước file","Clear":"Xóa","0 files":"0 file","1 file":"1 file","1 page":"1 trang","Local merge works after page load":"Ghép cục bộ hoạt động sau khi trang tải xong","Offline now - merging still works":"Đang ngoại tuyến - việc ghép vẫn hoạt động","Pages":"Trang","Files":"File","Source Files:":"File nguồn:","Drag files to move all their pages together.":"Kéo file để di chuyển tất cả các trang của nó cùng lúc.","Not a PDF file":"Không phải file PDF","Corrupted or invalid PDF":"PDF hỏng hoặc không hợp lệ","Too large to preview here":"Quá lớn để xem trước ở đây","File unavailable (moved or permission)":"File không khả dụng (đã di chuyển hoặc do quyền truy cập)","Could not be processed":"Không thể xử lý","Skipped due to read error":"Bị bỏ qua do lỗi đọc","Advanced page preview is unavailable in this browser session. You can still merge without preview.":"Xem trước trang nâng cao không khả dụng trong phiên trình duyệt này. Bạn vẫn có thể ghép mà không cần xem trước.","Advanced merge failed to load. Please refresh the page.":"Không tải được ghép nâng cao. Vui lòng tải lại trang.","Offline-ready app cached":"Ứng dụng đã sẵn sàng ngoại tuyến"},"patterns":[{"match":"^⚡ Merge & Download (.+)$","replace":"⚡ Ghép & Tải về $1"},{"match":"^Merge & Download (.+)$","replace":"Ghép & Tải về $1"},{"match":"^(\\d+) files$","replace":"$1 file"},{"match":"^(\\d+) pages$","replace":"$1 trang"},{"match":"^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$","replace":"Đang nén các trang... $1/$2"},{"match":"^Merged with (\\d+) skipped files?\\. Download started\\.$","replace":"Đã ghép, bỏ qua $1 file. Đã bắt đầu tải về."},{"match":"^Not mergeable: (.+)$","replace":"Không ghép được: $1"},{"match":"^Skipped non-PDF file: (.+)$","replace":"Đã bỏ qua file không phải PDF: $1"}]};</script>
+    <script>window.I18N_RUNTIME = {"map":{"⚡ Merge PDFs Now":"⚡ Ghép PDF ngay","Merge All PDFs":"Ghép tất cả PDF","Merge & Download":"Ghép & Tải về","Ready to merge":"Sẵn sàng ghép","Success! Download started.":"Thành công! Đã bắt đầu tải về.","Processing...":"Đang xử lý...","⏳ Merging with custom order...":"⏳ Đang ghép theo thứ tự tùy chỉnh...","Compressing pages...":"Đang nén các trang...","Select at least 2 mergeable PDFs.":"Chọn ít nhất 2 file PDF hợp lệ.","Merge canceled. You can try fewer files/pages.":"Đã hủy ghép. Bạn có thể thử với ít file/trang hơn.","🔒 Locked PDF. Unlock to merge.":"🔒 PDF bị khóa. Hãy mở khóa để ghép.","No mergeable pages were left after skipping files.":"Không còn trang nào để ghép sau khi bỏ qua các file.","Please select a PDF file.":"Vui lòng chọn một file PDF.","Please select a non-empty PDF file.":"Vui lòng chọn một file PDF không rỗng.","Please select a valid PDF file (missing header).":"Vui lòng chọn file PDF hợp lệ (thiếu header).","Please select a valid PDF file.":"Vui lòng chọn file PDF hợp lệ.","Please select 2 PDF files first.":"Vui lòng chọn 2 file PDF trước.","Please select 2 PDF files first":"Vui lòng chọn 2 file PDF trước","Select at least 2 mergeable PDFs before using Advanced Merge.":"Chọn ít nhất 2 PDF hợp lệ trước khi dùng Ghép nâng cao.","Please switch to expanded mode first (merge multiple files).":"Vui lòng chuyển sang chế độ mở rộng trước (ghép nhiều file).","Please add at least 2 files to use advanced sorting.":"Thêm ít nhất 2 file để dùng sắp xếp nâng cao.","Please select at least 2 mergeable PDF files.":"Vui lòng chọn ít nhất 2 file PDF hợp lệ.","⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.":"⚠️ Phát hiện file kích thước lớn. Việc ghép có thể thất bại do thiếu bộ nhớ. Hãy thử ít PDF hơn hoặc file nhỏ hơn.","Large file size detected. Merge may take a moment and require significant memory.":"Phát hiện file kích thước lớn. Việc ghép có thể mất một lúc và cần nhiều bộ nhớ.","The merge ran out of memory. Try fewer or smaller PDFs.":"Quá trình ghép bị hết bộ nhớ. Hãy thử ít PDF hơn hoặc file nhỏ hơn.","Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.":"Không thể đọc một trong các file. File có thể đã bị di chuyển, đổi tên hoặc nằm trong thư mục đồng bộ/mạng. Hãy sao chép về máy và chọn lại.","All selected files became unavailable. Please reselect them (copy local first if needed).":"Tất cả file đã chọn không còn khả dụng. Vui lòng chọn lại (sao chép về máy trước nếu cần).","Some files were skipped.":"Một số file đã bị bỏ qua.","Not a valid PDF. Try another file.":"Không phải PDF hợp lệ. Hãy thử file khác.","Too large to preview. Use fewer files/pages.":"Quá lớn để xem trước. Hãy dùng ít file/trang hơn.","Click or drag PDF here":"Nhấn hoặc kéo PDF vào đây","Any file size":"Mọi kích thước file","Clear":"Xóa","0 files":"0 file","1 file":"1 file","1 page":"1 trang","Local merge works after page load":"Ghép cục bộ hoạt động sau khi trang tải xong","Offline now - merging still works":"Đang ngoại tuyến - việc ghép vẫn hoạt động","Pages":"Trang","Files":"File","Source Files:":"File nguồn:","Drag files to move all their pages together.":"Kéo file để di chuyển tất cả các trang của nó cùng lúc.","Not a PDF file":"Không phải file PDF","Corrupted or invalid PDF":"PDF hỏng hoặc không hợp lệ","Too large to preview here":"Quá lớn để xem trước ở đây","File unavailable (moved or permission)":"File không khả dụng (đã di chuyển hoặc do quyền truy cập)","Could not be processed":"Không thể xử lý","Skipped due to read error":"Bị bỏ qua do lỗi đọc","Advanced page preview is unavailable in this browser session. You can still merge without preview.":"Xem trước trang nâng cao không khả dụng trong phiên trình duyệt này. Bạn vẫn có thể ghép mà không cần xem trước.","Advanced merge failed to load. Please refresh the page.":"Không tải được ghép nâng cao. Vui lòng tải lại trang.","Offline-ready app cached":"Ứng dụng đã sẵn sàng ngoại tuyến","This PDF looks incomplete (cut off during download). Re-download it and try again.":"PDF này có vẻ không đầy đủ (bị cắt khi tải xuống). Hãy tải lại và thử lại."},"patterns":[{"match":"^⚡ Merge & Download (.+)$","replace":"⚡ Ghép & Tải về $1"},{"match":"^Merge & Download (.+)$","replace":"Ghép & Tải về $1"},{"match":"^(\\d+) files$","replace":"$1 file"},{"match":"^(\\d+) pages$","replace":"$1 trang"},{"match":"^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$","replace":"Đang nén các trang... $1/$2"},{"match":"^Merged with (\\d+) skipped files?\\. Download started\\.$","replace":"Đã ghép, bỏ qua $1 file. Đã bắt đầu tải về."},{"match":"^Not mergeable: (.+)$","replace":"Không ghép được: $1"},{"match":"^Skipped non-PDF file: (.+)$","replace":"Đã bỏ qua file không phải PDF: $1"}]};</script>
     <script src="/i18n-runtime.js?v=1"></script>
 </body>
 </html>

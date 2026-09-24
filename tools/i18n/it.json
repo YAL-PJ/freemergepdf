@@ -167,7 +167,8 @@
     "Resolution": "Risoluzione",
     "Reset Order": "Ripristina ordine",
     "Cancel": "Annulla",
-    "Apply & Merge": "Applica e unisci"
+    "Apply & Merge": "Applica e unisci",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>Tutti gli strumenti PDF · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ Unisci PDF ora",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "Saltato per errore di lettura",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "L'anteprima avanzata delle pagine non è disponibile in questa sessione del browser. Puoi comunque unire senza anteprima.",
     "Advanced merge failed to load. Please refresh the page.": "L'unione avanzata non si è caricata. Aggiorna la pagina.",
-    "Offline-ready app cached": "App pronta per l'uso offline"
+    "Offline-ready app cached": "App pronta per l'uso offline",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "Questo PDF sembra incompleto (interrotto durante il download). Scaricalo di nuovo e riprova."
   },
   "runtimePatterns": [
     {

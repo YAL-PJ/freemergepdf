@@ -24,6 +24,11 @@
     <meta name="google-site-verification" content="rxsUTugt_BB2D2dTbHu7H0G0pvs1EYy8EgVLDM7LuVQ" />
     <meta name="theme-color" content="#667eea">
 
+    <!-- Critical page styles: keep these early so the above-the-fold heading can paint quickly. -->
+    <link rel="stylesheet" href="/index-page.css">
+    <link rel="stylesheet" href="/advanced-pdf-merger.css">
+    <link rel="stylesheet" href="/feedback.css">
+
     <!-- Primary SEO Tags -->
     <title>Ücretsiz PDF Birleştirme - Kayıt Yok, Yükleme Yok | FreeMergePDF</title>
     <meta name="description" content="PDF dosyalarını tarayıcınızda birleştirin. Kayıt yok, yükleme yok, filigran yok. Ücretsiz ve gizli — belgeleriniz cihazınızda kalır.">
@@ -242,11 +247,6 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-    <!-- Advanced PDF Merger CSS -->
-    <link rel="stylesheet" href="/advanced-pdf-merger.css">
-    <link rel="stylesheet" href="/feedback.css">
-
-    <link rel="stylesheet" href="/index-page.css">
     <!-- Grow by Mediavine -->
     <script data-grow-initializer="">!(function(){window.growMe||((window.growMe=function(e){window.growMe._.push(e);}),(window.growMe._=[]));var e=document.createElement("script");(e.type="text/javascript"),(e.src="https://faves.grow.me/main.js"),(e.defer=!0),e.setAttribute("data-grow-faves-site-id","U2l0ZTo1ZjEwZjIwOS05NDk4LTQ5NDEtYjZiMi1hYTA5ZDEwYjQ5ZDE=");var t=document.getElementsByTagName("script")[0];t.parentNode.insertBefore(e,t);})();</script>
     <!-- Mediavine script wrapper (Journey / Grow) -->
@@ -343,6 +343,9 @@
                     <a href="https://splitpdffree.com/" target="_blank" rel="noopener noreferrer">
                         <span>PDF Böl · SplitPDFFree</span>
                     </a>
+                    <a href="https://toppdfedittools.com/" target="_blank" rel="noopener noreferrer">
+                        <span>Tüm PDF araçları · TopPDFEditTools</span>
+                    </a>
                 </aside>
             </div>
 
@@ -412,6 +415,9 @@
             </a>
             <a href="https://splitpdffree.com/" target="_blank" rel="noopener noreferrer">
                 <span>PDF Böl · SplitPDFFree</span>
+            </a>
+            <a href="https://toppdfedittools.com/" target="_blank" rel="noopener noreferrer">
+                <span>Tüm PDF araçları · TopPDFEditTools</span>
             </a>
         </aside>
 
@@ -833,10 +839,10 @@
 
     <!-- Scripts -->
     <script src="/pdf-metadata.js?v=1"></script>
-    <script src="/error-reporting.js?v=7"></script>
+    <script src="/error-reporting.js?v=8"></script>
     <script src="/advanced-pdf-merger.js?v=16"></script>
 
-    <script src="/index-page.js?v=15"></script>
+    <script src="/index-page.js?v=16"></script>
 
     <!-- Sidebar feedback (for wide screens) - stays at bottom -->
     <!-- Button -->
@@ -928,7 +934,7 @@
     </div>
 
     <script src="/feedback.js"></script>
-    <script>window.I18N_RUNTIME = {"map":{"⚡ Merge PDFs Now":"⚡ PDF'leri şimdi birleştir","Merge All PDFs":"Tüm PDF'leri birleştir","Merge & Download":"Birleştir ve indir","Ready to merge":"Birleştirmeye hazır","Success! Download started.":"Başarılı! İndirme başladı.","Processing...":"İşleniyor...","⏳ Merging with custom order...":"⏳ Özel sırayla birleştiriliyor...","Compressing pages...":"Sayfalar sıkıştırılıyor...","Select at least 2 mergeable PDFs.":"En az 2 geçerli PDF seçin.","Merge canceled. You can try fewer files/pages.":"Birleştirme iptal edildi. Daha az dosya/sayfa ile deneyebilirsiniz.","🔒 Locked PDF. Unlock to merge.":"🔒 Kilitli PDF. Birleştirmek için kilidini açın.","No mergeable pages were left after skipping files.":"Dosyalar atlandıktan sonra birleştirilecek sayfa kalmadı.","Please select a PDF file.":"Lütfen bir PDF dosyası seçin.","Please select a non-empty PDF file.":"Lütfen boş olmayan bir PDF dosyası seçin.","Please select a valid PDF file (missing header).":"Lütfen geçerli bir PDF dosyası seçin (başlık eksik).","Please select a valid PDF file.":"Lütfen geçerli bir PDF dosyası seçin.","Please select 2 PDF files first.":"Lütfen önce 2 PDF dosyası seçin.","Please select 2 PDF files first":"Lütfen önce 2 PDF dosyası seçin","Select at least 2 mergeable PDFs before using Advanced Merge.":"Gelişmiş birleştirmeyi kullanmadan önce en az 2 geçerli PDF seçin.","Please switch to expanded mode first (merge multiple files).":"Lütfen önce genişletilmiş moda geçin (birden fazla dosya birleştirme).","Please add at least 2 files to use advanced sorting.":"Gelişmiş sıralamayı kullanmak için en az 2 dosya ekleyin.","Please select at least 2 mergeable PDF files.":"Lütfen en az 2 geçerli PDF dosyası seçin.","⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.":"⚠️ Büyük dosya boyutu algılandı. Birleştirme bellek nedeniyle başarısız olabilir. Daha az veya daha küçük PDF deneyin.","Large file size detected. Merge may take a moment and require significant memory.":"Büyük dosya boyutu algılandı. Birleştirme biraz sürebilir ve önemli miktarda bellek gerektirebilir.","The merge ran out of memory. Try fewer or smaller PDFs.":"Birleştirme sırasında bellek yetmedi. Daha az veya daha küçük PDF deneyin.","Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.":"Dosyalardan biri okunamadı. Taşınmış, adı değişmiş veya bir eşitleme/ağ klasöründe olabilir. Yerel olarak kopyalayıp yeniden seçin.","All selected files became unavailable. Please reselect them (copy local first if needed).":"Seçilen tüm dosyalar kullanılamaz hale geldi. Lütfen yeniden seçin (gerekirse önce yerel kopyalayın).","Some files were skipped.":"Bazı dosyalar atlandı.","Not a valid PDF. Try another file.":"Geçerli bir PDF değil. Başka bir dosya deneyin.","Too large to preview. Use fewer files/pages.":"Önizleme için çok büyük. Daha az dosya/sayfa kullanın.","Click or drag PDF here":"Tıklayın veya PDF'i buraya sürükleyin","Any file size":"Her dosya boyutu","Clear":"Kaldır","0 files":"0 dosya","1 file":"1 dosya","1 page":"1 sayfa","Local merge works after page load":"Yerel birleştirme sayfa yüklendikten sonra çalışır","Offline now - merging still works":"Şu an çevrimdışı - birleştirme yine de çalışıyor","Pages":"Sayfalar","Files":"Dosyalar","Source Files:":"Kaynak dosyalar:","Drag files to move all their pages together.":"Tüm sayfalarını birlikte taşımak için dosyaları sürükleyin.","Not a PDF file":"PDF dosyası değil","Corrupted or invalid PDF":"Bozuk veya geçersiz PDF","Too large to preview here":"Burada önizleme için çok büyük","File unavailable (moved or permission)":"Dosya kullanılamıyor (taşındı veya izin sorunu)","Could not be processed":"İşlenemedi","Skipped due to read error":"Okuma hatası nedeniyle atlandı","Advanced page preview is unavailable in this browser session. You can still merge without preview.":"Gelişmiş sayfa önizlemesi bu tarayıcı oturumunda kullanılamıyor. Yine de önizlemesiz birleştirebilirsiniz.","Advanced merge failed to load. Please refresh the page.":"Gelişmiş birleştirme yüklenemedi. Lütfen sayfayı yenileyin.","Offline-ready app cached":"Uygulama çevrimdışı kullanıma hazır"},"patterns":[{"match":"^⚡ Merge & Download (.+)$","replace":"⚡ Birleştir ve indir: $1"},{"match":"^Merge & Download (.+)$","replace":"Birleştir ve indir: $1"},{"match":"^(\\d+) files$","replace":"$1 dosya"},{"match":"^(\\d+) pages$","replace":"$1 sayfa"},{"match":"^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$","replace":"Sayfalar sıkıştırılıyor... $1/$2"},{"match":"^Merged with (\\d+) skipped files?\\. Download started\\.$","replace":"$1 dosya atlanarak birleştirildi. İndirme başladı."},{"match":"^Not mergeable: (.+)$","replace":"Birleştirilemez: $1"},{"match":"^Skipped non-PDF file: (.+)$","replace":"PDF olmayan dosya atlandı: $1"}]};</script>
+    <script>window.I18N_RUNTIME = {"map":{"⚡ Merge PDFs Now":"⚡ PDF'leri şimdi birleştir","Merge All PDFs":"Tüm PDF'leri birleştir","Merge & Download":"Birleştir ve indir","Ready to merge":"Birleştirmeye hazır","Success! Download started.":"Başarılı! İndirme başladı.","Processing...":"İşleniyor...","⏳ Merging with custom order...":"⏳ Özel sırayla birleştiriliyor...","Compressing pages...":"Sayfalar sıkıştırılıyor...","Select at least 2 mergeable PDFs.":"En az 2 geçerli PDF seçin.","Merge canceled. You can try fewer files/pages.":"Birleştirme iptal edildi. Daha az dosya/sayfa ile deneyebilirsiniz.","🔒 Locked PDF. Unlock to merge.":"🔒 Kilitli PDF. Birleştirmek için kilidini açın.","No mergeable pages were left after skipping files.":"Dosyalar atlandıktan sonra birleştirilecek sayfa kalmadı.","Please select a PDF file.":"Lütfen bir PDF dosyası seçin.","Please select a non-empty PDF file.":"Lütfen boş olmayan bir PDF dosyası seçin.","Please select a valid PDF file (missing header).":"Lütfen geçerli bir PDF dosyası seçin (başlık eksik).","Please select a valid PDF file.":"Lütfen geçerli bir PDF dosyası seçin.","Please select 2 PDF files first.":"Lütfen önce 2 PDF dosyası seçin.","Please select 2 PDF files first":"Lütfen önce 2 PDF dosyası seçin","Select at least 2 mergeable PDFs before using Advanced Merge.":"Gelişmiş birleştirmeyi kullanmadan önce en az 2 geçerli PDF seçin.","Please switch to expanded mode first (merge multiple files).":"Lütfen önce genişletilmiş moda geçin (birden fazla dosya birleştirme).","Please add at least 2 files to use advanced sorting.":"Gelişmiş sıralamayı kullanmak için en az 2 dosya ekleyin.","Please select at least 2 mergeable PDF files.":"Lütfen en az 2 geçerli PDF dosyası seçin.","⚠️ Large file size detected. Merge may fail due to memory. Try fewer or smaller PDFs.":"⚠️ Büyük dosya boyutu algılandı. Birleştirme bellek nedeniyle başarısız olabilir. Daha az veya daha küçük PDF deneyin.","Large file size detected. Merge may take a moment and require significant memory.":"Büyük dosya boyutu algılandı. Birleştirme biraz sürebilir ve önemli miktarda bellek gerektirebilir.","The merge ran out of memory. Try fewer or smaller PDFs.":"Birleştirme sırasında bellek yetmedi. Daha az veya daha küçük PDF deneyin.","Could not read one of the files. It may have been moved, renamed, or is in a sync/network folder. Copy it locally and reselect.":"Dosyalardan biri okunamadı. Taşınmış, adı değişmiş veya bir eşitleme/ağ klasöründe olabilir. Yerel olarak kopyalayıp yeniden seçin.","All selected files became unavailable. Please reselect them (copy local first if needed).":"Seçilen tüm dosyalar kullanılamaz hale geldi. Lütfen yeniden seçin (gerekirse önce yerel kopyalayın).","Some files were skipped.":"Bazı dosyalar atlandı.","Not a valid PDF. Try another file.":"Geçerli bir PDF değil. Başka bir dosya deneyin.","Too large to preview. Use fewer files/pages.":"Önizleme için çok büyük. Daha az dosya/sayfa kullanın.","Click or drag PDF here":"Tıklayın veya PDF'i buraya sürükleyin","Any file size":"Her dosya boyutu","Clear":"Kaldır","0 files":"0 dosya","1 file":"1 dosya","1 page":"1 sayfa","Local merge works after page load":"Yerel birleştirme sayfa yüklendikten sonra çalışır","Offline now - merging still works":"Şu an çevrimdışı - birleştirme yine de çalışıyor","Pages":"Sayfalar","Files":"Dosyalar","Source Files:":"Kaynak dosyalar:","Drag files to move all their pages together.":"Tüm sayfalarını birlikte taşımak için dosyaları sürükleyin.","Not a PDF file":"PDF dosyası değil","Corrupted or invalid PDF":"Bozuk veya geçersiz PDF","Too large to preview here":"Burada önizleme için çok büyük","File unavailable (moved or permission)":"Dosya kullanılamıyor (taşındı veya izin sorunu)","Could not be processed":"İşlenemedi","Skipped due to read error":"Okuma hatası nedeniyle atlandı","Advanced page preview is unavailable in this browser session. You can still merge without preview.":"Gelişmiş sayfa önizlemesi bu tarayıcı oturumunda kullanılamıyor. Yine de önizlemesiz birleştirebilirsiniz.","Advanced merge failed to load. Please refresh the page.":"Gelişmiş birleştirme yüklenemedi. Lütfen sayfayı yenileyin.","Offline-ready app cached":"Uygulama çevrimdışı kullanıma hazır","This PDF looks incomplete (cut off during download). Re-download it and try again.":"Bu PDF eksik görünüyor (indirme sırasında kesilmiş). Yeniden indirip tekrar deneyin."},"patterns":[{"match":"^⚡ Merge & Download (.+)$","replace":"⚡ Birleştir ve indir: $1"},{"match":"^Merge & Download (.+)$","replace":"Birleştir ve indir: $1"},{"match":"^(\\d+) files$","replace":"$1 dosya"},{"match":"^(\\d+) pages$","replace":"$1 sayfa"},{"match":"^Compressing pages\\.\\.\\. (\\d+)/(\\d+)$","replace":"Sayfalar sıkıştırılıyor... $1/$2"},{"match":"^Merged with (\\d+) skipped files?\\. Download started\\.$","replace":"$1 dosya atlanarak birleştirildi. İndirme başladı."},{"match":"^Not mergeable: (.+)$","replace":"Birleştirilemez: $1"},{"match":"^Skipped non-PDF file: (.+)$","replace":"PDF olmayan dosya atlandı: $1"}]};</script>
     <script src="/i18n-runtime.js?v=1"></script>
 </body>
 </html>

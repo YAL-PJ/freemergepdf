@@ -167,7 +167,8 @@
     "Resolution": "Độ phân giải",
     "Reset Order": "Đặt lại thứ tự",
     "Cancel": "Hủy",
-    "Apply & Merge": "Áp dụng & Ghép"
+    "Apply & Merge": "Áp dụng & Ghép",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>Tất cả công cụ PDF · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ Ghép PDF ngay",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "Bị bỏ qua do lỗi đọc",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "Xem trước trang nâng cao không khả dụng trong phiên trình duyệt này. Bạn vẫn có thể ghép mà không cần xem trước.",
     "Advanced merge failed to load. Please refresh the page.": "Không tải được ghép nâng cao. Vui lòng tải lại trang.",
-    "Offline-ready app cached": "Ứng dụng đã sẵn sàng ngoại tuyến"
+    "Offline-ready app cached": "Ứng dụng đã sẵn sàng ngoại tuyến",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "PDF này có vẻ không đầy đủ (bị cắt khi tải xuống). Hãy tải lại và thử lại."
   },
   "runtimePatterns": [
     {
