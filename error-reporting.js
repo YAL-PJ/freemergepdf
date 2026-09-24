@@ -91,6 +91,19 @@ function shouldIgnoreKnownNoise(err, context = {}) {
     if (message.includes('failed to fetch') && stack.includes('postuserdata')) return true;
     if (feature === 'unhandledrejection' && message.includes('failed to fetch') && stack.includes('<anonymous>')) return true;
 
+    // Rejections that cannot come from this app, checked against its code
+    // (Errors tab, Jul-Sep 2026). Every fetch the app makes is inside a
+    // try/catch, and it never uses XMLHttpRequest, WebAssembly or <audio>/<video>
+    // playback, so unhandled rejections of these kinds come from ad-tech or
+    // browser extensions sharing the page.
+    if (joined.includes('api.receptivity.io') || joined.includes('rxconnector.js')) return true;
+    if (feature === 'unhandledrejection' && message === '[object xmlhttprequest]') return true;
+    if (message.includes('webassembly compilation aborted')) return true;
+    if (message.includes('the play() request was interrupted')) return true;
+    if (message.includes('invalid call to runtime.sendmessage')) return true;
+    if (feature === 'unhandledrejection' && !stack &&
+        (message.includes('networkerror when attempting to fetch resource') || message === 'failed to fetch')) return true;
+
     return false;
 }
 
@@ -243,6 +256,7 @@ window.reportError = sendErrorReport;
 // Exposed for the Playwright harness in tests/ so the payload can be asserted
 // without posting anything to the reporting backend.
 window.__errorReportingInternals = {
+    shouldIgnoreKnownNoise,
     buildErrorReportPayload,
     appendSafePdfMetadata
 };
