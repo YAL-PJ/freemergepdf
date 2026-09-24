@@ -1,7 +1,7 @@
 'use strict';
 
 const { test, expect } = require('@playwright/test');
-const { buildPdf, buildCorruptPdf } = require('./helpers/pdf-fixtures');
+const { buildPdf, buildCorruptPdf, buildTruncatedPdf } = require('./helpers/pdf-fixtures');
 const { installAppHarness, openApp, pdfLibAvailable, lastMergeResult } = require('./helpers/app');
 
 test.describe('simple merge flow', () => {
@@ -88,5 +88,65 @@ test.describe('simple merge flow', () => {
     const reported = await page.evaluate(() => window.__reportedErrors);
     expect(reported.length).toBeGreaterThan(0);
     expect(reported.some((r) => (r.feature || '').includes('merge'))).toBe(true);
+  });
+});
+
+test.describe('damaged PDFs', () => {
+  // Real report (Errors tab, Jun 2026): a merge failed with pdf-lib's
+  // "Failed to parse invalid PDF object" on a file of exactly 1,048,576 bytes,
+  // i.e. a download or upload cut off at 1 MiB. Neither pdf-lib nor pdf.js can
+  // open a file that lost its cross-reference table, but the user was told
+  // "Not a valid PDF", which sends them looking for the wrong problem.
+  test('a truncated PDF is named and explained as cut off, not "not a valid PDF"', async ({ page }) => {
+    const harness = await installAppHarness(page);
+    await openApp(page);
+
+    const dialogs = [];
+    page.on('dialog', async (dialog) => {
+      dialogs.push(dialog.message());
+      await dialog.dismiss();
+    });
+
+    await page.setInputFiles('#file1', {
+      name: 'good.pdf',
+      mimeType: 'application/pdf',
+      buffer: buildPdf({ pages: 2, label: 'good' })
+    });
+    await page.setInputFiles('#file2', {
+      name: 'cut-off.pdf',
+      mimeType: 'application/pdf',
+      buffer: buildTruncatedPdf({ pages: 3, label: 'cut' })
+    });
+
+    await page.locator('#simpleMergeBtn').click();
+
+    const status = page.locator('#simpleStatus');
+    await expect(status).toHaveClass(/status-error/, { timeout: 30_000 });
+    await expect(status).toContainText(/incomplete/i);
+    await expect(status).toContainText(/re-download/i);
+
+    // The skip prompt names the file and gives the same reason.
+    expect(dialogs).toHaveLength(1);
+    expect(dialogs[0]).toContain('cut-off.pdf');
+    expect(dialogs[0]).toMatch(/incomplete/i);
+
+    // The report says what happened, for triage.
+    const reported = await page.evaluate(() => window.__reportedErrors);
+    expect(reported.some((r) => /kind=truncated/.test(r.userNote || ''))).toBe(true);
+    expect(harness.pageErrors).toEqual([]);
+  });
+
+  test('a PDF that is damaged but complete still gets the generic message', async ({ page }) => {
+    await installAppHarness(page);
+    await openApp(page);
+    page.on('dialog', (dialog) => dialog.dismiss());
+
+    await page.setInputFiles('#file1', { name: 'good.pdf', mimeType: 'application/pdf', buffer: buildPdf({ pages: 1 }) });
+    await page.setInputFiles('#file2', { name: 'broken.pdf', mimeType: 'application/pdf', buffer: buildCorruptPdf() });
+    await page.locator('#simpleMergeBtn').click();
+
+    const status = page.locator('#simpleStatus');
+    await expect(status).toHaveClass(/status-error/, { timeout: 30_000 });
+    await expect(status).not.toContainText(/incomplete/i);
   });
 });
