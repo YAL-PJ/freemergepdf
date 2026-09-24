@@ -167,7 +167,8 @@
     "Resolution": "Resolusi",
     "Reset Order": "Atur Ulang Urutan",
     "Cancel": "Batal",
-    "Apply & Merge": "Terapkan & Gabungkan"
+    "Apply & Merge": "Terapkan & Gabungkan",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>Semua alat PDF · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ Gabungkan PDF Sekarang",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "Dilewati karena kesalahan baca",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "Pratinjau halaman lanjutan tidak tersedia di sesi browser ini. Anda tetap dapat menggabungkan tanpa pratinjau.",
     "Advanced merge failed to load. Please refresh the page.": "Gabung lanjutan gagal dimuat. Silakan muat ulang halaman.",
-    "Offline-ready app cached": "Aplikasi siap offline"
+    "Offline-ready app cached": "Aplikasi siap offline",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "PDF ini tampaknya tidak lengkap (terpotong saat diunduh). Unduh ulang lalu coba lagi."
   },
   "runtimePatterns": [
     {

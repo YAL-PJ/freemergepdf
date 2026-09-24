@@ -590,6 +590,34 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             return isPdfLibParseFailure(error) || isPdfLibPageTreeFailure(error);
         }
 
+        // Every PDF ends with %%EOF. When pdf-lib gives up on a file whose last
+        // bytes lack it, the file was cut off (an interrupted download, or an
+        // upload capped at a round size - the Errors-tab report was exactly
+        // 1 MiB), and "Not a valid PDF" sends the user looking for the wrong
+        // problem. Only consulted after a load has already failed.
+        function looksTruncatedPdf(arrayBuffer) {
+            try {
+                const bytes = new Uint8Array(arrayBuffer);
+                const tail = bytes.subarray(Math.max(0, bytes.length - 2048));
+                let text = '';
+                for (let i = 0; i < tail.length; i++) text += String.fromCharCode(tail[i]);
+                return !text.includes('%%EOF');
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function tagTruncatedPdfError(error, arrayBuffer) {
+            if (error && typeof error === 'object' && looksTruncatedPdf(arrayBuffer)) {
+                try {
+                    error.pdfLooksTruncated = true;
+                } catch (_) {
+                    // Frozen error objects keep the generic message.
+                }
+            }
+            return error;
+        }
+
         async function loadPdfLibDocument(arrayBuffer) {
             const parseSpeed = (typeof PDFLib !== 'undefined' && PDFLib.ParseSpeeds)
                 ? PDFLib.ParseSpeeds.Fastest
@@ -607,7 +635,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 } catch (error) {
                     lastError = error;
                     if (!isPdfLibRecoverableFailure(error)) {
-                        throw error;
+                        throw tagTruncatedPdfError(error, arrayBuffer);
                     }
                 }
             }
@@ -615,9 +643,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
                 return await PDFLib.PDFDocument.load(arrayBuffer);
             } catch (error) {
                 if (!isPdfLibRecoverableFailure(error)) {
-                    throw error;
+                    throw tagTruncatedPdfError(error, arrayBuffer);
                 }
-                throw lastError || error || new Error('Failed to load PDF document');
+                throw tagTruncatedPdfError(lastError || error || new Error('Failed to load PDF document'), arrayBuffer);
             }
         }
 
@@ -2382,6 +2410,9 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
             if (isEncrypted) {
                 return 'Locked PDF. Unlock and try again.';
             }
+            if (error && error.pdfLooksTruncated) {
+                return 'This PDF looks incomplete (cut off during download). Re-download it and try again.';
+            }
             if (isCorrupt) {
                 return 'Not a valid PDF. Try another file.';
             }
@@ -2397,6 +2428,7 @@ const MEMORY_WARNING_THRESHOLD = 300 * 1024 * 1024; // 300MB total
 
         function classifyMergeErrorKind(err) {
             if (isEncryptedPdfErrorSafe(err)) return 'encrypted';
+            if (err && err.pdfLooksTruncated) return 'truncated';
             if (isCorruptPdfErrorSafe(err)) return 'corrupt';
             if (isFileReadErrorSafe(err)) return 'file_read';
             if (isMemoryErrorSafe(err)) return 'memory';

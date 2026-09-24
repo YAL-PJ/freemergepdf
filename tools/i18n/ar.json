@@ -168,7 +168,8 @@
     "Resolution": "الدقة",
     "Reset Order": "إعادة تعيين الترتيب",
     "Cancel": "إلغاء",
-    "Apply & Merge": "تطبيق ودمج"
+    "Apply & Merge": "تطبيق ودمج",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>جميع أدوات PDF · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ ادمج ملفات PDF الآن",
@@ -221,7 +222,8 @@
     "Skipped due to read error": "تم تخطيه بسبب خطأ قراءة",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "معاينة الصفحات المتقدمة غير متاحة في جلسة المتصفح هذه. لا يزال بإمكانك الدمج دون معاينة.",
     "Advanced merge failed to load. Please refresh the page.": "تعذّر تحميل الدمج المتقدم. يرجى تحديث الصفحة.",
-    "Offline-ready app cached": "التطبيق جاهز للعمل دون اتصال"
+    "Offline-ready app cached": "التطبيق جاهز للعمل دون اتصال",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "يبدو أن ملف PDF هذا غير مكتمل (انقطع أثناء التنزيل). أعد تنزيله وحاول مرة أخرى."
   },
   "runtimePatterns": [
     {

@@ -167,7 +167,8 @@
     "Resolution": "रिज़ॉल्यूशन",
     "Reset Order": "क्रम रीसेट करें",
     "Cancel": "रद्द करें",
-    "Apply & Merge": "लागू करें और मर्ज करें"
+    "Apply & Merge": "लागू करें और मर्ज करें",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>सभी PDF टूल · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ अभी PDF मर्ज करें",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "पढ़ने की त्रुटि के कारण छोड़ी गई",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "इस ब्राउज़र सत्र में एडवांस्ड पेज पूर्वावलोकन अनुपलब्ध है। आप फिर भी बिना पूर्वावलोकन के मर्ज कर सकते हैं।",
     "Advanced merge failed to load. Please refresh the page.": "एडवांस्ड मर्ज लोड नहीं हो सका। कृपया पेज रीफ़्रेश करें।",
-    "Offline-ready app cached": "ऐप ऑफ़लाइन के लिए तैयार"
+    "Offline-ready app cached": "ऐप ऑफ़लाइन के लिए तैयार",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "यह PDF अधूरा लगता है (डाउनलोड के दौरान कट गया)। इसे दोबारा डाउनलोड करें और फिर से कोशिश करें।"
   },
   "runtimePatterns": [
     {

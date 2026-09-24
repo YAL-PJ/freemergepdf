@@ -167,7 +167,8 @@
     "Resolution": "Auflösung",
     "Reset Order": "Reihenfolge zurücksetzen",
     "Cancel": "Abbrechen",
-    "Apply & Merge": "Anwenden und zusammenfügen"
+    "Apply & Merge": "Anwenden und zusammenfügen",
+    "<span>All PDF tools · TopPDFEditTools</span>": "<span>Alle PDF-Tools · TopPDFEditTools</span>"
   },
   "runtime": {
     "⚡ Merge PDFs Now": "⚡ PDFs jetzt zusammenfügen",
@@ -220,7 +221,8 @@
     "Skipped due to read error": "Wegen Lesefehler übersprungen",
     "Advanced page preview is unavailable in this browser session. You can still merge without preview.": "Die erweiterte Seitenvorschau ist in dieser Browsersitzung nicht verfügbar. Du kannst trotzdem ohne Vorschau zusammenfügen.",
     "Advanced merge failed to load. Please refresh the page.": "Der erweiterte Modus konnte nicht geladen werden. Bitte lade die Seite neu.",
-    "Offline-ready app cached": "App offline verfügbar"
+    "Offline-ready app cached": "App offline verfügbar",
+    "This PDF looks incomplete (cut off during download). Re-download it and try again.": "Diese PDF scheint unvollständig zu sein (beim Herunterladen abgeschnitten). Lade sie erneut herunter und versuche es noch einmal."
   },
   "runtimePatterns": [
     {
